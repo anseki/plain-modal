@@ -1,0 +1,61 @@
+{
+  "name": "plain-modal",
+  "version": "0.0.1",
+  "title": "PlainModal",
+  "description": "The simple library for customizable modal window.",
+  "keywords": [
+    "modal",
+    "popup",
+    "dialog",
+    "draggable",
+    "drag",
+    "ui",
+    "simple",
+    "customizable",
+    "window"
+  ],
+  "main": "plain-modal.min.js",
+  "jsnext:main": "./src/plain-modal.js",
+  "devDependencies": {
+    "anim-event": "^1.0.9",
+    "babel-core": "^6.26.0",
+    "babel-loader": "^7.1.2",
+    "babel-plugin-add-module-exports": "^0.2.1",
+    "babel-preset-es2015": "^6.24.1",
+    "compass-mixins": "^0.12.10",
+    "cross-env": "^5.0.5",
+    "cssprefix": "^2.0.7",
+    "jasmine-core": "^2.8.0",
+    "log4js": "^2.3.3",
+    "m-class-list": "^1.0.1",
+    "node-sass": "^4.5.3",
+    "node-static-alias": "^1.0.0",
+    "plain-draggable": "^2.0.13",
+    "plain-overlay": "^1.2.0",
+    "pre-proc": "^0.2.7",
+    "pre-proc-loader": "^1.0.8",
+    "sass-loader": "^6.0.6",
+    "skeleton-loader": "^1.1.4",
+    "stats-filelist": "^1.0.0",
+    "test-page-loader": "^1.0.4",
+    "webpack": "^3.6.0"
+  },
+  "scripts": {
+    "build": "cross-env NODE_ENV=production webpack",
+    "dev": "webpack --display-modules",
+    "build-limit": "cross-env EDITION=limit NODE_ENV=production webpack",
+    "dev-limit": "cross-env EDITION=limit SRC=yes webpack --display-modules",
+    "test": "node ./test/httpd"
+  },
+  "homepage": "https://anseki.github.io/plain-modal/",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/anseki/plain-modal.git"
+  },
+  "bugs": "https://github.com/anseki/plain-modal/issues",
+  "license": "MIT",
+  "author": {
+    "name": "anseki",
+    "url": "https://github.com/anseki"
+  }
+}

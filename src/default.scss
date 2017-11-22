@@ -1,0 +1,50 @@
+@import "compass";
+@import "animation/core";
+@import "common";
+
+$media: "";
+%anim-init#{$media} { @include anim-init; }
+
+$app_id: plainmodal;
+$app-content: #{$app_id}-content;
+$app-overlay: #{$app_id}-overlay;
+$app-overlay-hide: #{$app-overlay}-hide;
+$app-overlay-force: #{$app-overlay}-force;
+
+$plainoverlay-app_id: plainoverlay; // COPY from PlainOverlay
+
+$duration: 200ms; // COPY from PlainOverlay
+$overlay-bg: rgba(136, 136, 136, 0.6);
+
+.#{$app_id}.#{$plainoverlay-app_id} {
+  // Disable PlainOverlay style
+  background-color: transparent;
+  cursor: auto;
+}
+
+.#{$app_id} .#{$app-content} {
+  z-index: 9000;
+}
+
+.#{$app_id} .#{$app-overlay} {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  left: 0;
+  top: 0;
+  background-color: $overlay-bg;
+
+  @extend %anim-init#{$media};
+  @include transition-property(opacity);
+  @include transition-duration($duration);
+  @include transition-timing-function(linear);
+  opacity: 1;
+
+  &.#{$app-overlay-hide} {
+    opacity: 0;
+  }
+
+  &.#{$app-overlay-force} {
+    @include transition-property(none); // Disable animation
+  }
+}

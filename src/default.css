@@ -1,0 +1,39 @@
+/* line 5, default.scss */
+.plainmodal-overlay {
+  -webkit-tap-highlight-color: transparent;
+  transform: translateZ(0);
+  box-shadow: 0 0 1px transparent;
+}
+
+/* line 17, default.scss */
+.plainmodal.plainoverlay {
+  background-color: transparent;
+  cursor: auto;
+}
+
+/* line 23, default.scss */
+.plainmodal-overlay {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  left: 0;
+  top: 0;
+  -moz-transition-property: opacity;
+  -o-transition-property: opacity;
+  -webkit-transition-property: opacity;
+  transition-property: opacity;
+  -moz-transition-duration: 200ms;
+  -o-transition-duration: 200ms;
+  -webkit-transition-duration: 200ms;
+  transition-duration: 200ms;
+  -moz-transition-timing-function: linear;
+  -o-transition-timing-function: linear;
+  -webkit-transition-timing-function: linear;
+  transition-timing-function: linear;
+  opacity: 1;
+  background-color: rgba(136, 136, 136, 0.6);
+}
+/* line 38, default.scss */
+.plainmodal-overlay.plainmodal-overlay-hide {
+  opacity: 0;
+}

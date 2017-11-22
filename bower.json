@@ -1,0 +1,34 @@
+{
+  "name": "plain-modal",
+  "version": "0.0.1",
+  "description": "The simple library for customizable modal window.",
+  "keywords": [
+    "modal",
+    "popup",
+    "dialog",
+    "draggable",
+    "drag",
+    "ui",
+    "simple",
+    "customizable",
+    "window"
+  ],
+  "main": "plain-modal.min.js",
+  "homepage": "https://anseki.github.io/plain-modal/",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/anseki/plain-modal.git"
+  },
+  "moduleType": [],
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "license": "MIT",
+  "authors": [
+    "anseki <AnSeki.aff@gmail.com>"
+  ]
+}
