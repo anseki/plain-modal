@@ -32,9 +32,6 @@ const
   IS_TRIDENT = !!document.uniqueID,
   IS_EDGE = '-ms-scroll-limit' in document.documentElement.style &&
     '-ms-ime-align' in document.documentElement.style && !window.navigator.msPointerEnabled,
-  IS_WEBKIT = !window.chrome && 'WebkitAppearance' in document.documentElement.style, // [DEBUG/]
-  IS_BLINK = !!(window.chrome && window.chrome.webstore), // [DEBUG/]
-  IS_GECKO = 'MozAppearance' in document.documentElement.style, // [DEBUG/]
 
   isObject = (() => {
     const toString = {}.toString, fnToString = {}.hasOwnProperty.toString,
@@ -47,7 +44,6 @@ const
           typeof constr === 'function' && fnToString.call(constr) === objFnString);
     };
   })(),
-  isFinite = Number.isFinite || (value => typeof value === 'number' && window.isFinite(value)),
 
   /**
    * An object that has properties of instance.
@@ -73,15 +69,11 @@ const
   insShown = [];
 
 let insId = 0,
-  insOpenCloseEffect; // A `props` that is running the "open/close" effect now.
+  insOpenCloseEffect, // A `props` that is running the "open/close" effect now.
+  escKey = true;
 
 // [DEBUG]
 window.insProps = insProps;
-window.IS_TRIDENT = IS_TRIDENT;
-window.IS_EDGE = IS_EDGE;
-window.IS_WEBKIT = IS_WEBKIT;
-window.IS_BLINK = IS_BLINK;
-window.IS_GECKO = IS_GECKO;
 // [/DEBUG]
 
 // [DEBUG]
@@ -510,7 +502,34 @@ class PlainModal {
     return insProps[this._id].state;
   }
 
+  get closeButton() { return insProps[this._id].options.closeButton; }
+  set closeButton(value) { setOptions(insProps[this._id], {closeButton: value}); }
 
+  get duration() { return insProps[this._id].options.duration; }
+  set duration(value) { setOptions(insProps[this._id], {duration: value}); }
+
+  get overlayBlur() { return insProps[this._id].options.overlayBlur; }
+  set overlayBlur(value) { setOptions(insProps[this._id], {overlayBlur: value}); }
+
+  /* [DRAG/]
+  get dragHandle() { return insProps[this._id].options.dragHandle; }
+  set dragHandle(value) { setOptions(insProps[this._id], {dragHandle: value}); }
+  [DRAG/] */
+
+  get onOpen() { return insProps[this._id].options.onOpen; }
+  set onOpen(value) { setOptions(insProps[this._id], {onOpen: value}); }
+
+  get onClose() { return insProps[this._id].options.onClose; }
+  set onClose(value) { setOptions(insProps[this._id], {onClose: value}); }
+
+  get onBeforeOpen() { return insProps[this._id].options.onBeforeOpen; }
+  set onBeforeOpen(value) { setOptions(insProps[this._id], {onBeforeOpen: value}); }
+
+  get onBeforeClose() { return insProps[this._id].options.onBeforeClose; }
+  set onBeforeClose(value) { setOptions(insProps[this._id], {onBeforeClose: value}); }
+
+  static get escKey() { return escKey; }
+  static set escKey(value) { if (typeof value === 'boolean') { escKey = value; } }
 
   static get STATE_CLOSED() { return STATE_CLOSED; }
   static get STATE_OPENING() { return STATE_OPENING; }
