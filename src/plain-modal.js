@@ -26,7 +26,6 @@ const
 
   STATE_CLOSED = 0, STATE_OPENING = 1, STATE_OPENED = 2, STATE_CLOSING = 3,
   STATE_INACTIVATING = 4, STATE_INACTIVATED = 5, STATE_ACTIVATING = 6,
-  CLOSE_BUTTON = 'plainmodal-close',
   DURATION = 200, // COPY from PlainOverlay
 
   IS_TRIDENT = !!document.uniqueID,
@@ -340,22 +339,16 @@ function setOptions(props, newOptions) {
   const options = props.options, plainOverlay = props.plainOverlay;
 
   // closeButton
-  if (typeof newOptions.closeButton === 'string' ||
-      isElement(newOptions.closeButton) || newOptions.closeButton === false) {
-    options.closeButton = newOptions.closeButton; // Update always even if the value was denied.
-    if (newOptions.closeButton !== false) {
-      const elmCloseButton = typeof newOptions.closeButton === 'string' ?
-        props.elmContent.querySelector(newOptions.closeButton) : newOptions.closeButton;
-      if (elmCloseButton && elmCloseButton !== props.elmCloseButton) { // Replace
-        if (props.elmCloseButton) {
-          props.elmCloseButton.removeEventListener('click', props.handleClose, false);
-        }
-        props.elmCloseButton = elmCloseButton;
-        props.elmCloseButton.addEventListener('click', props.handleClose, false);
-      }
-    } else if (props.elmCloseButton) { // Remove
-      props.elmCloseButton.removeEventListener('click', props.handleClose, false);
-      props.elmCloseButton = void 0;
+  if (newOptions.hasOwnProperty('closeButton') &&
+      (newOptions.closeButton = isElement(newOptions.closeButton) ? newOptions.closeButton :
+        newOptions.closeButton == null ? void 0 : false) !== false &&
+      newOptions.closeButton !== options.closeButton) {
+    if (options.closeButton) { // Remove
+      options.closeButton.removeEventListener('click', props.handleClose, false);
+    }
+    options.closeButton = newOptions.closeButton;
+    if (options.closeButton) { // Add
+      options.closeButton.addEventListener('click', props.handleClose, false);
     }
   }
 
@@ -408,7 +401,7 @@ class PlainModal {
     const props = {
       ins: this,
       options: { // Initial options (not default)
-        closeButton: false,
+        closeButton: void 0,
         duration: DURATION,
         overlayBlur: false
       },
@@ -456,9 +449,6 @@ class PlainModal {
 
     // Prepare removable event listeners for each instance.
     props.handleClose = () => { close(props); };
-
-    // Default options
-    if (options.closeButton == null) { options.closeButton = CLOSE_BUTTON; }
 
     setOptions(props, options);
   }
