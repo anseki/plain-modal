@@ -63,13 +63,13 @@ const
 
   /**
    * A `props` list, it have a `state` other than `STATE_CLOSED`.
-   * A `props` is pushed to the end of this array, `insShown[insShown.length - 1]` can be active.
+   * A `props` is pushed to the end of this array, `shownProps[shownProps.length - 1]` can be active.
    * @type {Array.<props>}
    */
-  insShown = [];
+  shownProps = [];
 
 let insId = 0,
-  insOpenCloseEffect, // A `props` that is running the "open/close" effect now.
+  openCloseEffectProps, // A `props` that is running the "open/close" effect now.
   escKey = true;
 
 // [DEBUG]
@@ -91,9 +91,9 @@ STATE_TEXT[STATE_ACTIVATING] = 'STATE_ACTIVATING';
 function forceReflow(target) {
   // Trident and Blink bug (reflow like `offsetWidth` can't update)
   setTimeout(() => {
-    const parentNode = target.parentNode, next = target.nextSibling;
+    const parent = target.parentNode, next = target.nextSibling;
     // It has to be removed first for Blink.
-    parentNode.insertBefore(parentNode.removeChild(target), next);
+    parent.insertBefore(parent.removeChild(target), next);
   }, 0);
 }
 
@@ -111,7 +111,7 @@ function isElement(element) {
 
 function finishOpening(props) {
   traceLog.push('<finishOpening>', `_id:${props._id}`, `state:${STATE_TEXT[props.state]}`); // [DEBUG/]
-  insOpenCloseEffect = null;
+  openCloseEffectProps = null;
   props.state = STATE_OPENED;
   if (props.parentProps) {
     // [DEBUG]
@@ -126,9 +126,9 @@ function finishOpening(props) {
 
 function finishClosing(props) {
   traceLog.push('<finishClosing>', `_id:${props._id}`, `state:${STATE_TEXT[props.state]}`); // [DEBUG/]
-  if (insShown[insShown.length - 1] !== props) { throw new Error('`insShown` is broken.'); } // [DEBUG/]
-  insShown.pop();
-  insOpenCloseEffect = null;
+  if (shownProps[shownProps.length - 1] !== props) { throw new Error('`shownProps` is broken.'); } // [DEBUG/]
+  shownProps.pop();
+  openCloseEffectProps = null;
   props.state = STATE_CLOSED;
   if (props.parentProps) {
     // [DEBUG]
@@ -253,16 +253,16 @@ function open(props, force) {
   */
 
   if (props.state === STATE_CLOSED) {
-    traceLog.push(`insOpenCloseEffect:${insOpenCloseEffect ? insOpenCloseEffect._id : 'NONE'}`); // [DEBUG/]
-    if (insOpenCloseEffect) { fixOpenClose(insOpenCloseEffect); }
-    insOpenCloseEffect = props;
+    traceLog.push(`openCloseEffectProps:${openCloseEffectProps ? openCloseEffectProps._id : 'NONE'}`); // [DEBUG/]
+    if (openCloseEffectProps) { fixOpenClose(openCloseEffectProps); }
+    openCloseEffectProps = props;
 
-    if (insShown.length) {
-      if (insShown.indexOf(props) !== -1) { throw new Error('`insShown` is broken.'); } // [DEBUG/]
-      props.parentProps = insShown[insShown.length - 1];
+    if (shownProps.length) {
+      if (shownProps.indexOf(props) !== -1) { throw new Error('`shownProps` is broken.'); } // [DEBUG/]
+      props.parentProps = shownProps[shownProps.length - 1];
       traceLog.push(`parentProps:${props.parentProps._id}`); // [DEBUG/]
     }
-    insShown.push(props);
+    shownProps.push(props);
 
     mClassList(props.elmOverlay).add(STYLE_CLASS_OVERLAY_FORCE).remove(STYLE_CLASS_OVERLAY_HIDE);
   }
@@ -291,10 +291,10 @@ function close(props, force) {
       - STATE_CLOSING and `force`
   */
 
-  traceLog.push(`insOpenCloseEffect:${insOpenCloseEffect ? insOpenCloseEffect._id : 'NONE'}`); // [DEBUG/]
-  if (insOpenCloseEffect && insOpenCloseEffect !== props) {
-    fixOpenClose(insOpenCloseEffect);
-    insOpenCloseEffect = null;
+  traceLog.push(`openCloseEffectProps:${openCloseEffectProps ? openCloseEffectProps._id : 'NONE'}`); // [DEBUG/]
+  if (openCloseEffectProps && openCloseEffectProps !== props) {
+    fixOpenClose(openCloseEffectProps);
+    openCloseEffectProps = null;
   }
   /*
     Cases:
@@ -303,12 +303,12 @@ function close(props, force) {
   */
   if (props.state === STATE_INACTIVATED) { // -> STATE_OPENED
     // [DEBUG]
-    const i = insShown.indexOf(props);
-    if (i === -1 || i === insShown.length - 1) { throw new Error('`insShown` is broken.'); }
+    const i = shownProps.indexOf(props);
+    if (i === -1 || i === shownProps.length - 1) { throw new Error('`shownProps` is broken.'); }
     // [/DEBUG]
     let topProps;
-    while ((topProps = insShown[insShown.length - 1]) !== props) {
-      if (topProps.state !== STATE_OPENED) { throw new Error('`insShown` is broken.'); } // [DEBUG/]
+    while ((topProps = shownProps[shownProps.length - 1]) !== props) {
+      if (topProps.state !== STATE_OPENED) { throw new Error('`shownProps` is broken.'); } // [DEBUG/]
       // [DEBUG]
       traceLog.push(`topProps._id:${topProps._id}`,
         `topProps.state:${STATE_TEXT[topProps.state]}`);
@@ -323,8 +323,8 @@ function close(props, force) {
   */
 
   if (props.state === STATE_OPENED) {
-    if (insOpenCloseEffect) { throw new Error('`insOpenCloseEffect` is broken.'); } // [DEBUG/]
-    insOpenCloseEffect = props;
+    if (openCloseEffectProps) { throw new Error('`openCloseEffectProps` is broken.'); } // [DEBUG/]
+    openCloseEffectProps = props;
   }
 
   execClosing(props, force);
@@ -384,9 +384,6 @@ function setOptions(props, newOptions) {
     }
   }
   if (!newOptions.dragHandle) {
-    if (props.plainDraggable) {
-      props.plainDraggable.disabled = true;
-    }
     options.dragHandle = void 0;
   }
   // [/DRAG]
@@ -517,10 +514,10 @@ class PlainModal {
   get overlayBlur() { return insProps[this._id].options.overlayBlur; }
   set overlayBlur(value) { setOptions(insProps[this._id], {overlayBlur: value}); }
 
-  /* [DRAG/]
+  // [DRAG]
   get dragHandle() { return insProps[this._id].options.dragHandle; }
   set dragHandle(value) { setOptions(insProps[this._id], {dragHandle: value}); }
-  [DRAG/] */
+  // [/DRAG]
 
   get onOpen() { return insProps[this._id].options.onOpen; }
   set onOpen(value) { setOptions(insProps[this._id], {onOpen: value}); }
