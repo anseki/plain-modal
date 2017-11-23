@@ -49,7 +49,6 @@ const
    * @typedef {Object} props
    * @property {Element} elmContent - Content element.
    * @property {Element} elmOverlay - Overlay element. (Not PlainOverlay)
-   * @property {Element} elmCloseButton - Element as closeButton.
    * @property {PlainOverlay} plainOverlay - PlainOverlay instance.
    * @property {PlainDraggable} plainDraggable - PlainDraggable instance.
    * @property {number} state - Current state.
@@ -108,10 +107,26 @@ function isElement(element) {
     !(element.compareDocumentPosition(document) & Node.DOCUMENT_POSITION_DISCONNECTED));
 }
 
+// [DRAG]
+function switchDraggable(props) {
+  traceLog.push('<switchDraggable>', `_id:${props._id}`, `state:${STATE_TEXT[props.state]}`); // [DEBUG/]
+  if (props.plainDraggable) {
+    traceLog.push(`plainDraggable.disabled: ${!(props.options.dragHandle && props.state === STATE_OPENED)}`); // [DEBUG/]
+    props.plainDraggable.disabled = !(props.options.dragHandle && props.state === STATE_OPENED);
+    // [DEBUG]
+  } else {
+    traceLog.push('plainDraggable: NONE');
+    // [/DEBUG]
+  }
+  traceLog.push(`_id:${props._id}`, `state:${STATE_TEXT[props.state]}`, '</switchDraggable>'); // [DEBUG/]
+}
+// [/DRAG]
+
 function finishOpening(props) {
   traceLog.push('<finishOpening>', `_id:${props._id}`, `state:${STATE_TEXT[props.state]}`); // [DEBUG/]
   openCloseEffectProps = null;
   props.state = STATE_OPENED;
+  switchDraggable(props);
   if (props.parentProps) {
     // [DEBUG]
     traceLog.push(`parentProps._id:${props.parentProps._id}`,
@@ -135,6 +150,7 @@ function finishClosing(props) {
       `parentProps.state:${STATE_TEXT[props.parentProps.state]}`);
     // [/DEBUG]
     props.parentProps.state = STATE_OPENED;
+    switchDraggable(props.parentProps);
     props.parentProps = null;
   }
   if (props.options.onClose) { props.options.onClose.call(props.ins); }
@@ -166,8 +182,9 @@ function execOpening(props, force) {
         props.options.duration === DURATION ? '' : `${props.options.duration}ms`;
     }
     mClassList(elmOverlay).add(STYLE_CLASS_OVERLAY_HIDE).toggle(STYLE_CLASS_OVERLAY_FORCE, !!force);
-    // same condition as props
-    if (!force) { parentProps.state = STATE_INACTIVATING; }
+    // Update `state` regardless of force, for switchDraggable.
+    parentProps.state = STATE_INACTIVATING;
+    switchDraggable(parentProps);
   }
 
   // When `force`, `props.state` is updated immediately in
@@ -211,6 +228,7 @@ function execClosing(props, force, sync) {
   // something might run before `props.state` is updated in
   //    (setTimeout ->) plainOverlay.onHide -> finishClosing -> STATE_CLOSED
   props.state = STATE_CLOSING;
+  switchDraggable(props);
   props.plainOverlay.hide(force, sync);
   traceLog.push(`_id:${props._id}`, `state:${STATE_TEXT[props.state]}`, '</execClosing>'); // [DEBUG/]
 }
@@ -364,20 +382,16 @@ function setOptions(props, newOptions) {
 
   // [DRAG]
   // dragHandle
-  // Check by PlainDraggable
-  if (newOptions.dragHandle) {
-    if (!props.plainDraggable) { props.plainDraggable = new PlainDraggable(props.elmContent); }
-    const plainDraggable = props.plainDraggable;
-    plainDraggable.handle = newOptions.dragHandle;
-    if (plainDraggable.handle === newOptions.dragHandle) { // It was accepted.
-      plainDraggable.disabled = false;
-      options.dragHandle = newOptions.dragHandle;
-    } else { // Updating `handle` failed, i.e. it was not accepted.
-      newOptions.dragHandle = null;
+  if (newOptions.hasOwnProperty('dragHandle') &&
+      (newOptions.dragHandle = isElement(newOptions.dragHandle) ? newOptions.dragHandle :
+        newOptions.dragHandle == null ? void 0 : false) !== false &&
+      newOptions.dragHandle !== options.dragHandle) {
+    options.dragHandle = newOptions.dragHandle;
+    if (options.dragHandle) {
+      if (!props.plainDraggable) { props.plainDraggable = new PlainDraggable(props.elmContent); }
+      props.plainDraggable.handle = options.dragHandle;
     }
-  }
-  if (!newOptions.dragHandle) {
-    options.dragHandle = void 0;
+    switchDraggable(props);
   }
   // [/DRAG]
 
@@ -403,7 +417,8 @@ class PlainModal {
       options: { // Initial options (not default)
         closeButton: void 0,
         duration: DURATION,
-        overlayBlur: false
+        overlayBlur: false,
+        dragHandle: void 0,
       },
       state: STATE_CLOSED
     };
