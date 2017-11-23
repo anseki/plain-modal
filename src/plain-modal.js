@@ -479,12 +479,18 @@ class PlainModal {
 
   /**
    * Open the modal window.
+   * @param {boolean} [force] - Show it immediately without effect.
    * @param {Object} [options] - New options.
    * @returns {PlainModal} Current instance itself.
    */
-  open(options) {
+  open(force, options) {
+    if (arguments.length < 2 && typeof force !== 'boolean') {
+      options = force;
+      force = false;
+    }
+
     this.setOptions(options);
-    open(insProps[this._id]);
+    open(insProps[this._id], force);
     return this;
   }
 
