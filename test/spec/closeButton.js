@@ -42,6 +42,23 @@ describe('closeButton', function() {
   });
 
   it('By default, nothing is called', function(done) {
+    expect(typeof modal.closeButton).toBe('undefined');
+
+    traceLog.length = 0;
+    clickElement(button1);
+    expect(traceLog).toEqual([]);
+
+    traceLog.length = 0;
+    clickElement(button2);
+    expect(traceLog).toEqual([]);
+
+    done();
+  });
+
+  it('Remove the option, nothing is changed', function(done) {
+    modal.closeButton = null;
+    expect(typeof modal.closeButton).toBe('undefined');
+
     traceLog.length = 0;
     clickElement(button1);
     expect(traceLog).toEqual([]);
@@ -55,6 +72,7 @@ describe('closeButton', function() {
 
   it('`close` is attached to element', function(done) {
     modal.closeButton = button1;
+    expect(modal.closeButton).toBe(button1);
 
     traceLog.length = 0;
     clickElement(button1);
@@ -71,6 +89,7 @@ describe('closeButton', function() {
 
   it('`close` is attached to another element', function(done) {
     modal.closeButton = button2;
+    expect(modal.closeButton).toBe(button2);
 
     traceLog.length = 0;
     clickElement(button1);
@@ -87,6 +106,7 @@ describe('closeButton', function() {
 
   it('Remove the option', function(done) {
     modal.closeButton = null;
+    expect(typeof modal.closeButton).toBe('undefined');
 
     traceLog.length = 0;
     clickElement(button1);
