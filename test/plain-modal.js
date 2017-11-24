@@ -570,20 +570,12 @@ var APP_ID = 'plainmodal',
     STATE_INACTIVATING = 4,
     STATE_INACTIVATED = 5,
     STATE_ACTIVATING = 6,
-    CLOSE_BUTTON = 'plainmodal-close',
     DURATION = 200,
     // COPY from PlainOverlay
 
 IS_TRIDENT = !!document.uniqueID,
     IS_EDGE = '-ms-scroll-limit' in document.documentElement.style && '-ms-ime-align' in document.documentElement.style && !window.navigator.msPointerEnabled,
-    IS_WEBKIT = !window.chrome && 'WebkitAppearance' in document.documentElement.style,
-    // [DEBUG/]
-IS_BLINK = !!(window.chrome && window.chrome.webstore),
-    // [DEBUG/]
-IS_GECKO = 'MozAppearance' in document.documentElement.style,
-    // [DEBUG/]
-
-isObject = function () {
+    isObject = function () {
   var toString = {}.toString,
       fnToString = {}.hasOwnProperty.toString,
       objFnString = fnToString.call(Object);
@@ -593,9 +585,6 @@ isObject = function () {
     return obj && toString.call(obj) === '[object Object]' && (!(proto = Object.getPrototypeOf(obj)) || (constr = proto.hasOwnProperty('constructor') && proto.constructor) && typeof constr === 'function' && fnToString.call(constr) === objFnString);
   };
 }(),
-    isFinite = Number.isFinite || function (value) {
-  return typeof value === 'number' && window.isFinite(value);
-},
 
 
 /**
@@ -603,7 +592,6 @@ isObject = function () {
  * @typedef {Object} props
  * @property {Element} elmContent - Content element.
  * @property {Element} elmOverlay - Overlay element. (Not PlainOverlay)
- * @property {Element} elmCloseButton - Element as closeButton.
  * @property {PlainOverlay} plainOverlay - PlainOverlay instance.
  * @property {PlainDraggable} plainDraggable - PlainDraggable instance.
  * @property {number} state - Current state.
@@ -617,21 +605,18 @@ insProps = {},
 
 /**
  * A `props` list, it have a `state` other than `STATE_CLOSED`.
- * A `props` is pushed to the end of this array, `insShown[insShown.length - 1]` can be active.
+ * A `props` is pushed to the end of this array, `shownProps[shownProps.length - 1]` can be active.
  * @type {Array.<props>}
  */
-insShown = [];
+shownProps = [];
 
 var insId = 0,
-    insOpenCloseEffect = void 0; // A `props` that is running the "open/close" effect now.
+    openCloseEffectProps = void 0,
+    // A `props` that is running the "open/close" effect now.
+escKey = true;
 
 // [DEBUG]
 window.insProps = insProps;
-window.IS_TRIDENT = IS_TRIDENT;
-window.IS_EDGE = IS_EDGE;
-window.IS_WEBKIT = IS_WEBKIT;
-window.IS_BLINK = IS_BLINK;
-window.IS_GECKO = IS_GECKO;
 // [/DEBUG]
 
 // [DEBUG]
@@ -649,10 +634,10 @@ STATE_TEXT[STATE_ACTIVATING] = 'STATE_ACTIVATING';
 function forceReflow(target) {
   // Trident and Blink bug (reflow like `offsetWidth` can't update)
   setTimeout(function () {
-    var parentNode = target.parentNode,
+    var parent = target.parentNode,
         next = target.nextSibling;
     // It has to be removed first for Blink.
-    parentNode.insertBefore(parentNode.removeChild(target), next);
+    parent.insertBefore(parent.removeChild(target), next);
   }, 0);
 }
 
@@ -666,10 +651,26 @@ function isElement(element) {
   typeof element.getBoundingClientRect === 'function' && !(element.compareDocumentPosition(document) & Node.DOCUMENT_POSITION_DISCONNECTED));
 }
 
+// [DRAG]
+function switchDraggable(props) {
+  traceLog.push('<switchDraggable>', '_id:' + props._id, 'state:' + STATE_TEXT[props.state]); // [DEBUG/]
+  if (props.plainDraggable) {
+    traceLog.push('plainDraggable.disabled: ' + !(props.options.dragHandle && props.state === STATE_OPENED)); // [DEBUG/]
+    props.plainDraggable.disabled = !(props.options.dragHandle && props.state === STATE_OPENED);
+    // [DEBUG]
+  } else {
+    traceLog.push('plainDraggable: NONE');
+    // [/DEBUG]
+  }
+  traceLog.push('_id:' + props._id, 'state:' + STATE_TEXT[props.state], '</switchDraggable>'); // [DEBUG/]
+}
+// [/DRAG]
+
 function finishOpening(props) {
   traceLog.push('<finishOpening>', '_id:' + props._id, 'state:' + STATE_TEXT[props.state]); // [DEBUG/]
-  insOpenCloseEffect = null;
+  openCloseEffectProps = null;
   props.state = STATE_OPENED;
+  switchDraggable(props);
   if (props.parentProps) {
     // [DEBUG]
     traceLog.push('parentProps._id:' + props.parentProps._id, 'parentProps.state:' + STATE_TEXT[props.parentProps.state]);
@@ -684,17 +685,18 @@ function finishOpening(props) {
 
 function finishClosing(props) {
   traceLog.push('<finishClosing>', '_id:' + props._id, 'state:' + STATE_TEXT[props.state]); // [DEBUG/]
-  if (insShown[insShown.length - 1] !== props) {
-    throw new Error('`insShown` is broken.');
+  if (shownProps[shownProps.length - 1] !== props) {
+    throw new Error('`shownProps` is broken.');
   } // [DEBUG/]
-  insShown.pop();
-  insOpenCloseEffect = null;
+  shownProps.pop();
+  openCloseEffectProps = null;
   props.state = STATE_CLOSED;
   if (props.parentProps) {
     // [DEBUG]
     traceLog.push('parentProps._id:' + props.parentProps._id, 'parentProps.state:' + STATE_TEXT[props.parentProps.state]);
     // [/DEBUG]
     props.parentProps.state = STATE_OPENED;
+    switchDraggable(props.parentProps);
     props.parentProps = null;
   }
   if (props.options.onClose) {
@@ -728,10 +730,9 @@ function execOpening(props, force) {
       elmOverlay.style[_cssprefix2.default.getName('transitionDuration')] = props.options.duration === DURATION ? '' : props.options.duration + 'ms';
     }
     (0, _mClassList2.default)(elmOverlay).add(STYLE_CLASS_OVERLAY_HIDE).toggle(STYLE_CLASS_OVERLAY_FORCE, !!force);
-    // same condition as props
-    if (!force) {
-      parentProps.state = STATE_INACTIVATING;
-    }
+    // Update `state` regardless of force, for switchDraggable.
+    parentProps.state = STATE_INACTIVATING;
+    switchDraggable(parentProps);
   }
 
   // When `force`, `props.state` is updated immediately in
@@ -777,6 +778,7 @@ function execClosing(props, force, sync) {
   // something might run before `props.state` is updated in
   //    (setTimeout ->) plainOverlay.onHide -> finishClosing -> STATE_CLOSED
   props.state = STATE_CLOSING;
+  switchDraggable(props);
   props.plainOverlay.hide(force, sync);
   traceLog.push('_id:' + props._id, 'state:' + STATE_TEXT[props.state], '</execClosing>'); // [DEBUG/]
 }
@@ -814,20 +816,20 @@ function _open(props, force) {
   */
 
   if (props.state === STATE_CLOSED) {
-    traceLog.push('insOpenCloseEffect:' + (insOpenCloseEffect ? insOpenCloseEffect._id : 'NONE')); // [DEBUG/]
-    if (insOpenCloseEffect) {
-      fixOpenClose(insOpenCloseEffect);
+    traceLog.push('openCloseEffectProps:' + (openCloseEffectProps ? openCloseEffectProps._id : 'NONE')); // [DEBUG/]
+    if (openCloseEffectProps) {
+      fixOpenClose(openCloseEffectProps);
     }
-    insOpenCloseEffect = props;
+    openCloseEffectProps = props;
 
-    if (insShown.length) {
-      if (insShown.indexOf(props) !== -1) {
-        throw new Error('`insShown` is broken.');
+    if (shownProps.length) {
+      if (shownProps.indexOf(props) !== -1) {
+        throw new Error('`shownProps` is broken.');
       } // [DEBUG/]
-      props.parentProps = insShown[insShown.length - 1];
+      props.parentProps = shownProps[shownProps.length - 1];
       traceLog.push('parentProps:' + props.parentProps._id); // [DEBUG/]
     }
-    insShown.push(props);
+    shownProps.push(props);
 
     (0, _mClassList2.default)(props.elmOverlay).add(STYLE_CLASS_OVERLAY_FORCE).remove(STYLE_CLASS_OVERLAY_HIDE);
   }
@@ -853,10 +855,10 @@ function _close(props, force) {
       - STATE_CLOSING and `force`
   */
 
-  traceLog.push('insOpenCloseEffect:' + (insOpenCloseEffect ? insOpenCloseEffect._id : 'NONE')); // [DEBUG/]
-  if (insOpenCloseEffect && insOpenCloseEffect !== props) {
-    fixOpenClose(insOpenCloseEffect);
-    insOpenCloseEffect = null;
+  traceLog.push('openCloseEffectProps:' + (openCloseEffectProps ? openCloseEffectProps._id : 'NONE')); // [DEBUG/]
+  if (openCloseEffectProps && openCloseEffectProps !== props) {
+    fixOpenClose(openCloseEffectProps);
+    openCloseEffectProps = null;
   }
   /*
     Cases:
@@ -866,15 +868,15 @@ function _close(props, force) {
   if (props.state === STATE_INACTIVATED) {
     // -> STATE_OPENED
     // [DEBUG]
-    var i = insShown.indexOf(props);
-    if (i === -1 || i === insShown.length - 1) {
-      throw new Error('`insShown` is broken.');
+    var i = shownProps.indexOf(props);
+    if (i === -1 || i === shownProps.length - 1) {
+      throw new Error('`shownProps` is broken.');
     }
     // [/DEBUG]
     var topProps = void 0;
-    while ((topProps = insShown[insShown.length - 1]) !== props) {
+    while ((topProps = shownProps[shownProps.length - 1]) !== props) {
       if (topProps.state !== STATE_OPENED) {
-        throw new Error('`insShown` is broken.');
+        throw new Error('`shownProps` is broken.');
       } // [DEBUG/]
       // [DEBUG]
       traceLog.push('topProps._id:' + topProps._id, 'topProps.state:' + STATE_TEXT[topProps.state]);
@@ -889,10 +891,10 @@ function _close(props, force) {
   */
 
   if (props.state === STATE_OPENED) {
-    if (insOpenCloseEffect) {
-      throw new Error('`insOpenCloseEffect` is broken.');
+    if (openCloseEffectProps) {
+      throw new Error('`openCloseEffectProps` is broken.');
     } // [DEBUG/]
-    insOpenCloseEffect = props;
+    openCloseEffectProps = props;
   }
 
   execClosing(props, force);
@@ -909,22 +911,15 @@ function _setOptions(props, newOptions) {
       plainOverlay = props.plainOverlay;
 
   // closeButton
-  if (typeof newOptions.closeButton === 'string' || isElement(newOptions.closeButton) || newOptions.closeButton === false) {
-    options.closeButton = newOptions.closeButton; // Update always even if the value was denied.
-    if (newOptions.closeButton !== false) {
-      var elmCloseButton = typeof newOptions.closeButton === 'string' ? props.elmContent.querySelector(newOptions.closeButton) : newOptions.closeButton;
-      if (elmCloseButton && elmCloseButton !== props.elmCloseButton) {
-        // Replace
-        if (props.elmCloseButton) {
-          props.elmCloseButton.removeEventListener('click', props.handleClose, false);
-        }
-        props.elmCloseButton = elmCloseButton;
-        props.elmCloseButton.addEventListener('click', props.handleClose, false);
-      }
-    } else if (props.elmCloseButton) {
+  if (newOptions.hasOwnProperty('closeButton') && (newOptions.closeButton = isElement(newOptions.closeButton) ? newOptions.closeButton : newOptions.closeButton == null ? void 0 : false) !== false && newOptions.closeButton !== options.closeButton) {
+    if (options.closeButton) {
       // Remove
-      props.elmCloseButton.removeEventListener('click', props.handleClose, false);
-      props.elmCloseButton = void 0;
+      options.closeButton.removeEventListener('click', props.handleClose, false);
+    }
+    options.closeButton = newOptions.closeButton;
+    if (options.closeButton) {
+      // Add
+      options.closeButton.addEventListener('click', props.handleClose, false);
     }
   }
 
@@ -940,27 +935,15 @@ function _setOptions(props, newOptions) {
 
   // [DRAG]
   // dragHandle
-  // Check by PlainDraggable
-  if (newOptions.dragHandle) {
-    if (!props.plainDraggable) {
-      props.plainDraggable = new _plainDraggable2.default(props.elmContent);
+  if (newOptions.hasOwnProperty('dragHandle') && (newOptions.dragHandle = isElement(newOptions.dragHandle) ? newOptions.dragHandle : newOptions.dragHandle == null ? void 0 : false) !== false && newOptions.dragHandle !== options.dragHandle) {
+    options.dragHandle = newOptions.dragHandle;
+    if (options.dragHandle) {
+      if (!props.plainDraggable) {
+        props.plainDraggable = new _plainDraggable2.default(props.elmContent);
+      }
+      props.plainDraggable.handle = options.dragHandle;
     }
-    var plainDraggable = props.plainDraggable;
-    plainDraggable.handle = newOptions.dragHandle;
-    if (plainDraggable.handle === newOptions.dragHandle) {
-      // It was accepted.
-      plainDraggable.disabled = false;
-      options.dragHandle = newOptions.dragHandle;
-    } else {
-      // Updating `handle` failed, i.e. it was not accepted.
-      newOptions.dragHandle = null;
-    }
-  }
-  if (!newOptions.dragHandle) {
-    if (props.plainDraggable) {
-      props.plainDraggable.disabled = true;
-    }
-    options.dragHandle = void 0;
+    switchDraggable(props);
   }
   // [/DRAG]
 
@@ -986,9 +969,10 @@ var PlainModal = function () {
     var props = {
       ins: this,
       options: { // Initial options (not default)
-        closeButton: false,
+        closeButton: void 0,
         duration: DURATION,
-        overlayBlur: false
+        overlayBlur: false,
+        dragHandle: void 0
       },
       state: STATE_CLOSED
     };
@@ -1041,11 +1025,6 @@ var PlainModal = function () {
       _close(props);
     };
 
-    // Default options
-    if (options.closeButton == null) {
-      options.closeButton = CLOSE_BUTTON;
-    }
-
     _setOptions(props, options);
   }
 
@@ -1066,15 +1045,21 @@ var PlainModal = function () {
 
     /**
      * Open the modal window.
+     * @param {boolean} [force] - Show it immediately without effect.
      * @param {Object} [options] - New options.
      * @returns {PlainModal} Current instance itself.
      */
 
   }, {
     key: 'open',
-    value: function open(options) {
+    value: function open(force, options) {
+      if (arguments.length < 2 && typeof force !== 'boolean') {
+        options = force;
+        force = false;
+      }
+
       this.setOptions(options);
-      _open(insProps[this._id]);
+      _open(insProps[this._id], force);
       return this;
     }
 
@@ -1095,7 +1080,86 @@ var PlainModal = function () {
     get: function get() {
       return insProps[this._id].state;
     }
+  }, {
+    key: 'closeButton',
+    get: function get() {
+      return insProps[this._id].options.closeButton;
+    },
+    set: function set(value) {
+      _setOptions(insProps[this._id], { closeButton: value });
+    }
+  }, {
+    key: 'duration',
+    get: function get() {
+      return insProps[this._id].options.duration;
+    },
+    set: function set(value) {
+      _setOptions(insProps[this._id], { duration: value });
+    }
+  }, {
+    key: 'overlayBlur',
+    get: function get() {
+      return insProps[this._id].options.overlayBlur;
+    },
+    set: function set(value) {
+      _setOptions(insProps[this._id], { overlayBlur: value });
+    }
+
+    // [DRAG]
+
+  }, {
+    key: 'dragHandle',
+    get: function get() {
+      return insProps[this._id].options.dragHandle;
+    },
+    set: function set(value) {
+      _setOptions(insProps[this._id], { dragHandle: value });
+    }
+    // [/DRAG]
+
+  }, {
+    key: 'onOpen',
+    get: function get() {
+      return insProps[this._id].options.onOpen;
+    },
+    set: function set(value) {
+      _setOptions(insProps[this._id], { onOpen: value });
+    }
+  }, {
+    key: 'onClose',
+    get: function get() {
+      return insProps[this._id].options.onClose;
+    },
+    set: function set(value) {
+      _setOptions(insProps[this._id], { onClose: value });
+    }
+  }, {
+    key: 'onBeforeOpen',
+    get: function get() {
+      return insProps[this._id].options.onBeforeOpen;
+    },
+    set: function set(value) {
+      _setOptions(insProps[this._id], { onBeforeOpen: value });
+    }
+  }, {
+    key: 'onBeforeClose',
+    get: function get() {
+      return insProps[this._id].options.onBeforeClose;
+    },
+    set: function set(value) {
+      _setOptions(insProps[this._id], { onBeforeClose: value });
+    }
   }], [{
+    key: 'escKey',
+    get: function get() {
+      return escKey;
+    },
+    set: function set(value) {
+      if (typeof value === 'boolean') {
+        escKey = value;
+      }
+    }
+  }, {
     key: 'STATE_CLOSED',
     get: function get() {
       return STATE_CLOSED;
