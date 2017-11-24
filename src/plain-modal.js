@@ -72,6 +72,7 @@ let insId = 0,
 
 // [DEBUG]
 window.insProps = insProps;
+window.shownProps = shownProps;
 // [/DEBUG]
 
 // [DEBUG]
@@ -126,7 +127,7 @@ function finishOpening(props) {
   traceLog.push('<finishOpening>', `_id:${props._id}`, `state:${STATE_TEXT[props.state]}`); // [DEBUG/]
   openCloseEffectProps = null;
   props.state = STATE_OPENED;
-  switchDraggable(props);
+  switchDraggable(props); // [DRAG/]
   if (props.parentProps) {
     // [DEBUG]
     traceLog.push(`parentProps._id:${props.parentProps._id}`,
@@ -150,7 +151,7 @@ function finishClosing(props) {
       `parentProps.state:${STATE_TEXT[props.parentProps.state]}`);
     // [/DEBUG]
     props.parentProps.state = STATE_OPENED;
-    switchDraggable(props.parentProps);
+    switchDraggable(props.parentProps); // [DRAG/]
     props.parentProps = null;
   }
   if (props.options.onClose) { props.options.onClose.call(props.ins); }
@@ -184,7 +185,7 @@ function execOpening(props, force) {
     mClassList(elmOverlay).add(STYLE_CLASS_OVERLAY_HIDE).toggle(STYLE_CLASS_OVERLAY_FORCE, !!force);
     // Update `state` regardless of force, for switchDraggable.
     parentProps.state = STATE_INACTIVATING;
-    switchDraggable(parentProps);
+    switchDraggable(parentProps); // [DRAG/]
   }
 
   // When `force`, `props.state` is updated immediately in
@@ -228,7 +229,7 @@ function execClosing(props, force, sync) {
   // something might run before `props.state` is updated in
   //    (setTimeout ->) plainOverlay.onHide -> finishClosing -> STATE_CLOSED
   props.state = STATE_CLOSING;
-  switchDraggable(props);
+  switchDraggable(props); // [DRAG/]
   props.plainOverlay.hide(force, sync);
   traceLog.push(`_id:${props._id}`, `state:${STATE_TEXT[props.state]}`, '</execClosing>'); // [DEBUG/]
 }
@@ -417,8 +418,8 @@ class PlainModal {
       options: { // Initial options (not default)
         closeButton: void 0,
         duration: DURATION,
-        overlayBlur: false,
-        dragHandle: void 0,
+        dragHandle: void 0, // [DRAG/]
+        overlayBlur: false
       },
       state: STATE_CLOSED
     };
