@@ -15,8 +15,7 @@ const
 
   MODULE_PACKAGES = [
     'jasmine-core',
-    'test-page-loader',
-    'cssprefix'
+    'test-page-loader'
   ],
 
   EXT_DIR = path.resolve(__dirname, '../../test-ext');
