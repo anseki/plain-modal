@@ -182,7 +182,9 @@ function execOpening(props, force) {
       elmOverlay.style[CSSPrefix.getName('transitionDuration')] =
         props.options.duration === DURATION ? '' : `${props.options.duration}ms`;
     }
-    mClassList(elmOverlay).add(STYLE_CLASS_OVERLAY_HIDE).toggle(STYLE_CLASS_OVERLAY_FORCE, !!force);
+    const elmOverlayClassList = mClassList(elmOverlay);
+    elmOverlayClassList.toggle(STYLE_CLASS_OVERLAY_FORCE, !!force);
+    elmOverlayClassList.add(STYLE_CLASS_OVERLAY_HIDE);
     // Update `state` regardless of force, for switchDraggable.
     parentProps.state = STATE_INACTIVATING;
     switchDraggable(parentProps); // [DRAG/]
@@ -220,7 +222,9 @@ function execClosing(props, force, sync) {
       elmOverlay.style[CSSPrefix.getName('transitionDuration')] =
         props.options.duration === DURATION ? '' : `${props.options.duration}ms`;
     }
-    mClassList(elmOverlay).remove(STYLE_CLASS_OVERLAY_HIDE).toggle(STYLE_CLASS_OVERLAY_FORCE, !!force);
+    const elmOverlayClassList = mClassList(elmOverlay);
+    elmOverlayClassList.toggle(STYLE_CLASS_OVERLAY_FORCE, !!force);
+    elmOverlayClassList(elmOverlay).remove(STYLE_CLASS_OVERLAY_HIDE);
     // same condition as props
     parentProps.state = STATE_ACTIVATING;
   }
@@ -556,6 +560,7 @@ PlainModal.limit = true;
 // [DEBUG]
 PlainModal.traceLog = traceLog;
 PlainModal.STATE_TEXT = STATE_TEXT;
+PlainModal.PlainOverlay = PlainOverlay; // to access to PlainOverlay.forceEvent
 // [/DEBUG]
 
 export default PlainModal;
