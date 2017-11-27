@@ -15,8 +15,8 @@ describe('dragHandle', function() {
       pageDone = done;
 
       modal = new PlainModal(document.getElementById('elm1'));
-      handle1 = document.getElementById('handle1');
-      handle2 = document.getElementById('handle2');
+      handle1 = document.getElementById('handle11');
+      handle2 = document.getElementById('handle12');
 
       beforeDone();
     });

@@ -28,8 +28,8 @@ describe('options', function() {
 
     beforeAll(function(done) {
       modal = new PlainModal(document.getElementById('elm1'));
-      button1 = document.getElementById('button1');
-      button2 = document.getElementById('button2');
+      button1 = document.getElementById('button11');
+      button2 = document.getElementById('button12');
       done();
     });
 
@@ -191,8 +191,8 @@ describe('options', function() {
 
     beforeAll(function(done) {
       modal = new PlainModal(document.getElementById('elm1'));
-      handle1 = document.getElementById('handle1');
-      handle2 = document.getElementById('handle2');
+      handle1 = document.getElementById('handle11');
+      handle2 = document.getElementById('handle12');
       done();
     });
 

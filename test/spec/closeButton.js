@@ -26,8 +26,8 @@ describe('closeButton', function() {
       pageDone = done;
 
       modal = new PlainModal(document.getElementById('elm1'));
-      button1 = document.getElementById('button1');
-      button2 = document.getElementById('button2');
+      button1 = document.getElementById('button11');
+      button2 = document.getElementById('button12');
 
       beforeDone();
     });
