@@ -1,0 +1,1258 @@
+
+describe('flow', function() {
+  'use strict';
+
+  var window, document, utils, PlainModal, traceLog, pageDone,
+    modal, modalCh,
+    cbChangeFncs = {};
+
+  beforeAll(function(beforeDone) {
+    loadPage('spec/common.html', function(pageWindow, pageDocument, pageBody, done) {
+      window = pageWindow;
+      document = pageDocument;
+      utils = window.utils;
+      PlainModal = window.PlainModal;
+      traceLog = PlainModal.traceLog;
+      pageDone = done;
+
+      modal = new PlainModal(document.getElementById('elm1'), {
+        dragHandle: document.getElementById('handle11'),
+        duration: 100
+      });
+      modalCh = new PlainModal(document.getElementById('elm2'), {
+        dragHandle: document.getElementById('handle21'),
+        duration: 150
+      });
+      PlainModal.PlainOverlay.forceEvent = true; // for hidden view
+
+      // Init cbChange of utils.makeState (1st, close(true) to reset)
+      cbChangeFncs[PlainModal.STATE_CLOSED] = function(modal) {
+        modal.close(true);
+        modalCh.close(true);
+      };
+      cbChangeFncs[PlainModal.STATE_OPENING] = function(modal) {
+        modal.close(true);
+        modalCh.close(true);
+        setTimeout(function() {
+          modal.open();
+        }, 10);
+      };
+      cbChangeFncs[PlainModal.STATE_OPENED] = function(modal) {
+        modal.close(true);
+        modalCh.close(true);
+        setTimeout(function() {
+          modal.open(true);
+        }, 10);
+      };
+      cbChangeFncs[PlainModal.STATE_CLOSING] = function(modal) {
+        modal.close(true);
+        modalCh.close(true);
+        setTimeout(function() {
+          modal.open(true);
+          setTimeout(function() {
+            modal.close();
+          }, 10);
+        }, 10);
+      };
+      cbChangeFncs[PlainModal.STATE_INACTIVATING] = function(modal) {
+        modal.close(true);
+        modalCh.close(true);
+        setTimeout(function() {
+          modal.open(true);
+          setTimeout(function() {
+            modalCh.open();
+          }, 10);
+        }, 10);
+      };
+      cbChangeFncs[PlainModal.STATE_INACTIVATED] = function(modal) {
+        modal.close(true);
+        modalCh.close(true);
+        setTimeout(function() {
+          modal.open(true);
+          setTimeout(function() {
+            modalCh.open(true);
+          }, 10);
+        }, 10);
+      };
+      cbChangeFncs[PlainModal.STATE_ACTIVATING] = function(modal) {
+        modal.close(true);
+        modalCh.close(true);
+        setTimeout(function() {
+          modal.open(true);
+          setTimeout(function() {
+            modalCh.open(true);
+            setTimeout(function() {
+              modalCh.close();
+            }, 10);
+          }, 10);
+        }, 10);
+      };
+
+      beforeDone();
+    });
+  });
+
+  afterAll(function() {
+    pageDone();
+  });
+
+  it('Check Edition (to be LIMIT: ' + !!self.top.LIMIT + ')', function() {
+    expect(!!window.PlainModal.limit).toBe(!!self.top.LIMIT);
+  });
+
+  it('Normal flow - open() -> close()', function(done) {
+    modal.onOpen = modal.onClose = modal.onBeforeOpen = modal.onBeforeClose = null;
+
+    utils.makeState(modal, PlainModal.STATE_CLOSED,
+      cbChangeFncs[PlainModal.STATE_CLOSED],
+      function() {
+
+        expect(modal.state).toBe(PlainModal.STATE_CLOSED);
+
+        modal.onOpen = function() { setTimeout(function() { modal.close(); }, 0); };
+        modal.onClose = function() {
+          setTimeout(function() {
+            expect(traceLog).toEqual([
+              // START: open
+              '<open>', '_id:' + modal._id, 'state:STATE_CLOSED',
+              'openCloseEffectProps:NONE',
+              'elmOverlay.CLASS_FORCE:true', 'elmOverlay.CLASS_HIDE:false',
+
+              '<execOpening>', '_id:' + modal._id, 'state:STATE_CLOSED',
+              'force:false',
+              // PlainOverlay.show()
+              '_id:' + modal._id, 'state:STATE_OPENING', '</execOpening>',
+
+              '_id:' + modal._id, 'state:STATE_OPENING', '</open>',
+              // DONE: open
+
+              '<finishOpening>', '_id:' + modal._id, 'state:STATE_OPENING',
+
+              '<switchDraggable>', '_id:' + modal._id, 'state:STATE_OPENED',
+              'plainDraggable.disabled: false',
+              '_id:' + modal._id, 'state:STATE_OPENED', '</switchDraggable>',
+
+              '_id:' + modal._id, 'state:STATE_OPENED', '</finishOpening>',
+
+              // onOpen -> close()
+
+              // START: close
+              '<close>', '_id:' + modal._id, 'state:STATE_OPENED',
+              'openCloseEffectProps:NONE',
+
+              '<execClosing>', '_id:' + modal._id, 'state:STATE_OPENED',
+              'force:false', 'sync:false',
+
+              '<switchDraggable>', '_id:' + modal._id, 'state:STATE_CLOSING',
+              'plainDraggable.disabled: true',
+              '_id:' + modal._id, 'state:STATE_CLOSING', '</switchDraggable>',
+
+              // PlainOverlay.hide()
+              '_id:' + modal._id, 'state:STATE_CLOSING', '</execClosing>',
+
+              '_id:' + modal._id, 'state:STATE_CLOSING', '</close>',
+              // DONE: close
+
+              '<finishClosing>', '_id:' + modal._id, 'state:STATE_CLOSING',
+              '_id:' + modal._id, 'state:STATE_CLOSED', '</finishClosing>'
+            ]);
+
+            done();
+          }, 0);
+        };
+
+        traceLog.length = 0;
+        modal.open();
+      }
+    );
+  });
+
+  // 'STATE_CLOSED -> open()' in 'Normal flow'
+
+  it('STATE_OPENING -> open()', function(done) {
+    modal.onOpen = modal.onClose = modal.onBeforeOpen = modal.onBeforeClose = null;
+
+    utils.makeState(modal, PlainModal.STATE_OPENING,
+      cbChangeFncs[PlainModal.STATE_OPENING],
+      function() {
+
+        expect(modal.state).toBe(PlainModal.STATE_OPENING);
+
+        traceLog.length = 0;
+        modal.open();
+
+        expect(traceLog).toEqual([
+          '<open>', '_id:' + modal._id, 'state:STATE_OPENING', 'cancel', '</open>'
+        ]);
+
+        done();
+      }
+    );
+  });
+
+  it('STATE_OPENED -> open()', function(done) {
+    modal.onOpen = modal.onClose = modal.onBeforeOpen = modal.onBeforeClose = null;
+
+    utils.makeState(modal, PlainModal.STATE_OPENED,
+      cbChangeFncs[PlainModal.STATE_OPENED],
+      function() {
+
+        expect(modal.state).toBe(PlainModal.STATE_OPENED);
+
+        traceLog.length = 0;
+        modal.open();
+
+        expect(traceLog).toEqual([
+          '<open>', '_id:' + modal._id, 'state:STATE_OPENED', 'cancel', '</open>'
+        ]);
+
+        done();
+      }
+    );
+  });
+
+  it('STATE_CLOSING -> open()', function(done) {
+    modal.onOpen = modal.onClose = modal.onBeforeOpen = modal.onBeforeClose = null;
+
+    utils.makeState(modal, PlainModal.STATE_CLOSING,
+      cbChangeFncs[PlainModal.STATE_CLOSING],
+      function() {
+
+        expect(modal.state).toBe(PlainModal.STATE_CLOSING);
+
+        modal.onOpen = function() {
+          setTimeout(function() {
+            expect(traceLog).toEqual([
+              // START: open
+              '<open>', '_id:' + modal._id, 'state:STATE_CLOSING',
+              'openCloseEffectProps:' + modal._id,
+
+              '<execOpening>', '_id:' + modal._id, 'state:STATE_CLOSING',
+              'force:false',
+              // PlainOverlay.show()
+              '_id:' + modal._id, 'state:STATE_OPENING', '</execOpening>',
+
+              '_id:' + modal._id, 'state:STATE_OPENING', '</open>',
+              // DONE: open
+
+              '<finishOpening>', '_id:' + modal._id, 'state:STATE_OPENING',
+
+              '<switchDraggable>', '_id:' + modal._id, 'state:STATE_OPENED',
+              'plainDraggable.disabled: false',
+              '_id:' + modal._id, 'state:STATE_OPENED', '</switchDraggable>',
+
+              '_id:' + modal._id, 'state:STATE_OPENED', '</finishOpening>'
+            ]);
+
+            done();
+          }, 0);
+        };
+
+        traceLog.length = 0;
+        modal.open();
+      }
+    );
+  });
+
+  it('STATE_INACTIVATING -> open()', function(done) {
+    modal.onOpen = modal.onClose = modal.onBeforeOpen = modal.onBeforeClose = null;
+
+    utils.makeState(modal, PlainModal.STATE_INACTIVATING,
+      cbChangeFncs[PlainModal.STATE_INACTIVATING],
+      function() {
+
+        expect(modal.state).toBe(PlainModal.STATE_INACTIVATING);
+
+        traceLog.length = 0;
+        modal.open();
+
+        expect(traceLog).toEqual([
+          '<open>', '_id:' + modal._id, 'state:STATE_INACTIVATING', 'cancel', '</open>'
+        ]);
+
+        done();
+      }
+    );
+  });
+
+  it('STATE_INACTIVATED -> open()', function(done) {
+    modal.onOpen = modal.onClose = modal.onBeforeOpen = modal.onBeforeClose = null;
+
+    utils.makeState(modal, PlainModal.STATE_INACTIVATED,
+      cbChangeFncs[PlainModal.STATE_INACTIVATED],
+      function() {
+
+        expect(modal.state).toBe(PlainModal.STATE_INACTIVATED);
+
+        traceLog.length = 0;
+        modal.open();
+
+        expect(traceLog).toEqual([
+          '<open>', '_id:' + modal._id, 'state:STATE_INACTIVATED', 'cancel', '</open>'
+        ]);
+
+        done();
+      }
+    );
+  });
+
+  it('STATE_ACTIVATING -> open()', function(done) {
+    modal.onOpen = modal.onClose = modal.onBeforeOpen = modal.onBeforeClose = null;
+
+    utils.makeState(modal, PlainModal.STATE_ACTIVATING,
+      cbChangeFncs[PlainModal.STATE_ACTIVATING],
+      function() {
+
+        expect(modal.state).toBe(PlainModal.STATE_ACTIVATING);
+
+        traceLog.length = 0;
+        modal.open();
+
+        expect(traceLog).toEqual([
+          '<open>', '_id:' + modal._id, 'state:STATE_ACTIVATING', 'cancel', '</open>'
+        ]);
+
+        done();
+      }
+    );
+  });
+
+  it('STATE_CLOSED -> open(force)', function(done) {
+    modal.onOpen = modal.onClose = modal.onBeforeOpen = modal.onBeforeClose = null;
+
+    utils.makeState(modal, PlainModal.STATE_CLOSED,
+      cbChangeFncs[PlainModal.STATE_CLOSED],
+      function() {
+
+        expect(modal.state).toBe(PlainModal.STATE_CLOSED);
+
+        modal.onOpen = function() {
+          setTimeout(function() {
+            expect(traceLog).toEqual([
+              // START: open
+              '<open>', '_id:' + modal._id, 'state:STATE_CLOSED',
+              'openCloseEffectProps:NONE',
+              'elmOverlay.CLASS_FORCE:true', 'elmOverlay.CLASS_HIDE:false',
+
+              '<execOpening>', '_id:' + modal._id, 'state:STATE_CLOSED',
+              'force:true',
+              // PlainOverlay.show()
+
+              '<finishOpening>', '_id:' + modal._id, 'state:STATE_CLOSED',
+
+              '<switchDraggable>', '_id:' + modal._id, 'state:STATE_OPENED',
+              'plainDraggable.disabled: false',
+              '_id:' + modal._id, 'state:STATE_OPENED', '</switchDraggable>',
+
+              '_id:' + modal._id, 'state:STATE_OPENED', '</finishOpening>',
+
+              '_id:' + modal._id, 'state:STATE_OPENED', '</execOpening>',
+
+              '_id:' + modal._id, 'state:STATE_OPENED', '</open>',
+              // DONE: open
+            ]);
+
+            done();
+          }, 0);
+        };
+
+        traceLog.length = 0;
+        modal.open(true);
+      }
+    );
+  });
+
+  it('STATE_OPENING -> open(force)', function(done) {
+    modal.onOpen = modal.onClose = modal.onBeforeOpen = modal.onBeforeClose = null;
+
+    utils.makeState(modal, PlainModal.STATE_OPENING,
+      cbChangeFncs[PlainModal.STATE_OPENING],
+      function() {
+
+        expect(modal.state).toBe(PlainModal.STATE_OPENING);
+
+        modal.onOpen = function() {
+          setTimeout(function() {
+            expect(traceLog).toEqual([
+              // START: open
+              '<open>', '_id:' + modal._id, 'state:STATE_OPENING',
+              'openCloseEffectProps:' + modal._id,
+
+              '<execOpening>', '_id:' + modal._id, 'state:STATE_OPENING',
+              'force:true',
+              // PlainOverlay.show()
+
+              '<finishOpening>', '_id:' + modal._id, 'state:STATE_OPENING',
+
+              '<switchDraggable>', '_id:' + modal._id, 'state:STATE_OPENED',
+              'plainDraggable.disabled: false',
+              '_id:' + modal._id, 'state:STATE_OPENED', '</switchDraggable>',
+
+              '_id:' + modal._id, 'state:STATE_OPENED', '</finishOpening>',
+
+              '_id:' + modal._id, 'state:STATE_OPENED', '</execOpening>',
+
+              '_id:' + modal._id, 'state:STATE_OPENED', '</open>',
+              // DONE: open
+            ]);
+
+            done();
+          }, 0);
+        };
+
+        traceLog.length = 0;
+        modal.open(true);
+      }
+    );
+  });
+
+  it('STATE_OPENED -> open(force)', function(done) {
+    modal.onOpen = modal.onClose = modal.onBeforeOpen = modal.onBeforeClose = null;
+
+    utils.makeState(modal, PlainModal.STATE_OPENED,
+      cbChangeFncs[PlainModal.STATE_OPENED],
+      function() {
+
+        expect(modal.state).toBe(PlainModal.STATE_OPENED);
+
+        traceLog.length = 0;
+        modal.open(true);
+
+        expect(traceLog).toEqual([
+          '<open>', '_id:' + modal._id, 'state:STATE_OPENED', 'cancel', '</open>'
+        ]);
+
+        done();
+      }
+    );
+  });
+
+  it('STATE_CLOSING -> open(force)', function(done) {
+    modal.onOpen = modal.onClose = modal.onBeforeOpen = modal.onBeforeClose = null;
+
+    utils.makeState(modal, PlainModal.STATE_CLOSING,
+      cbChangeFncs[PlainModal.STATE_CLOSING],
+      function() {
+
+        expect(modal.state).toBe(PlainModal.STATE_CLOSING);
+
+        modal.onOpen = function() {
+          setTimeout(function() {
+            expect(traceLog).toEqual([
+              // START: open
+              '<open>', '_id:' + modal._id, 'state:STATE_CLOSING',
+              'openCloseEffectProps:' + modal._id,
+
+              '<execOpening>', '_id:' + modal._id, 'state:STATE_CLOSING',
+              'force:true',
+              // PlainOverlay.show()
+
+              '<finishOpening>', '_id:' + modal._id, 'state:STATE_CLOSING',
+
+              '<switchDraggable>', '_id:' + modal._id, 'state:STATE_OPENED',
+              'plainDraggable.disabled: false',
+              '_id:' + modal._id, 'state:STATE_OPENED', '</switchDraggable>',
+
+              '_id:' + modal._id, 'state:STATE_OPENED', '</finishOpening>',
+
+              '_id:' + modal._id, 'state:STATE_OPENED', '</execOpening>',
+
+              '_id:' + modal._id, 'state:STATE_OPENED', '</open>',
+              // DONE: open
+            ]);
+
+            done();
+          }, 0);
+        };
+
+        traceLog.length = 0;
+        modal.open(true);
+      }
+    );
+  });
+
+  it('STATE_INACTIVATING -> open(force)', function(done) {
+    modal.onOpen = modal.onClose = modal.onBeforeOpen = modal.onBeforeClose = null;
+
+    utils.makeState(modal, PlainModal.STATE_INACTIVATING,
+      cbChangeFncs[PlainModal.STATE_INACTIVATING],
+      function() {
+
+        expect(modal.state).toBe(PlainModal.STATE_INACTIVATING);
+
+        traceLog.length = 0;
+        modal.open(true);
+
+        expect(traceLog).toEqual([
+          '<open>', '_id:' + modal._id, 'state:STATE_INACTIVATING', 'cancel', '</open>'
+        ]);
+
+        done();
+      }
+    );
+  });
+
+  it('STATE_INACTIVATED -> open(force)', function(done) {
+    modal.onOpen = modal.onClose = modal.onBeforeOpen = modal.onBeforeClose = null;
+
+    utils.makeState(modal, PlainModal.STATE_INACTIVATED,
+      cbChangeFncs[PlainModal.STATE_INACTIVATED],
+      function() {
+
+        expect(modal.state).toBe(PlainModal.STATE_INACTIVATED);
+
+        traceLog.length = 0;
+        modal.open(true);
+
+        expect(traceLog).toEqual([
+          '<open>', '_id:' + modal._id, 'state:STATE_INACTIVATED', 'cancel', '</open>'
+        ]);
+
+        done();
+      }
+    );
+  });
+
+  it('STATE_ACTIVATING -> open(force)', function(done) {
+    modal.onOpen = modal.onClose = modal.onBeforeOpen = modal.onBeforeClose = null;
+
+    utils.makeState(modal, PlainModal.STATE_ACTIVATING,
+      cbChangeFncs[PlainModal.STATE_ACTIVATING],
+      function() {
+
+        expect(modal.state).toBe(PlainModal.STATE_ACTIVATING);
+
+        traceLog.length = 0;
+        modal.open(true);
+
+        expect(traceLog).toEqual([
+          '<open>', '_id:' + modal._id, 'state:STATE_ACTIVATING', 'cancel', '</open>'
+        ]);
+
+        done();
+      }
+    );
+  });
+
+  it('STATE_CLOSED -> close()', function(done) {
+    modal.onOpen = modal.onClose = modal.onBeforeOpen = modal.onBeforeClose = null;
+
+    utils.makeState(modal, PlainModal.STATE_CLOSED,
+      cbChangeFncs[PlainModal.STATE_CLOSED],
+      function() {
+
+        expect(modal.state).toBe(PlainModal.STATE_CLOSED);
+
+        traceLog.length = 0;
+        modal.close();
+
+        expect(traceLog).toEqual([
+          '<close>', '_id:' + modal._id, 'state:STATE_CLOSED', 'cancel', '</close>'
+        ]);
+
+        done();
+      }
+    );
+  });
+
+  it('STATE_OPENING -> close()', function(done) {
+    modal.onOpen = modal.onClose = modal.onBeforeOpen = modal.onBeforeClose = null;
+
+    utils.makeState(modal, PlainModal.STATE_OPENING,
+      cbChangeFncs[PlainModal.STATE_OPENING],
+      function() {
+
+        expect(modal.state).toBe(PlainModal.STATE_OPENING);
+
+        modal.onClose = function() {
+          setTimeout(function() {
+            expect(traceLog).toEqual([
+              // START: close
+              '<close>', '_id:' + modal._id, 'state:STATE_OPENING',
+              'openCloseEffectProps:' + modal._id,
+
+              '<execClosing>', '_id:' + modal._id, 'state:STATE_OPENING',
+              'force:false', 'sync:false',
+
+              '<switchDraggable>', '_id:' + modal._id, 'state:STATE_CLOSING',
+              'plainDraggable.disabled: true',
+              '_id:' + modal._id, 'state:STATE_CLOSING', '</switchDraggable>',
+
+              // PlainOverlay.hide()
+              '_id:' + modal._id, 'state:STATE_CLOSING', '</execClosing>',
+
+              '_id:' + modal._id, 'state:STATE_CLOSING', '</close>',
+              // DONE: close
+
+              '<finishClosing>', '_id:' + modal._id, 'state:STATE_CLOSING',
+              '_id:' + modal._id, 'state:STATE_CLOSED', '</finishClosing>'
+            ]);
+
+            done();
+          }, 0);
+        };
+
+        traceLog.length = 0;
+        modal.close();
+      }
+    );
+  });
+
+  // 'STATE_OPENED -> close()' in 'Normal flow'
+
+  it('STATE_CLOSING -> close()', function(done) {
+    modal.onOpen = modal.onClose = modal.onBeforeOpen = modal.onBeforeClose = null;
+
+    utils.makeState(modal, PlainModal.STATE_CLOSING,
+      cbChangeFncs[PlainModal.STATE_CLOSING],
+      function() {
+
+        expect(modal.state).toBe(PlainModal.STATE_CLOSING);
+
+        traceLog.length = 0;
+        modal.close();
+
+        expect(traceLog).toEqual([
+          '<close>', '_id:' + modal._id, 'state:STATE_CLOSING', 'cancel', '</close>'
+        ]);
+
+        done();
+      }
+    );
+  });
+
+  it('STATE_INACTIVATING -> close()', function(done) {
+    modal.onOpen = modal.onClose = modal.onBeforeOpen = modal.onBeforeClose = null;
+
+    utils.makeState(modal, PlainModal.STATE_INACTIVATING,
+      cbChangeFncs[PlainModal.STATE_INACTIVATING],
+      function() {
+
+        expect(modal.state).toBe(PlainModal.STATE_INACTIVATING);
+
+        modal.onClose = function() {
+          setTimeout(function() {
+            expect(traceLog).toEqual([
+              // START: close
+              '<close>', '_id:' + modal._id, 'state:STATE_INACTIVATING',
+              'openCloseEffectProps:' + modalCh._id,
+
+              // START: fixOpenClose
+              '<fixOpenClose>', '_id:' + modalCh._id, 'state:STATE_OPENING',
+
+              '<execOpening>', '_id:' + modalCh._id, 'state:STATE_OPENING',
+              'force:true',
+
+              'parentProps._id:' + modal._id, 'parentProps.state:STATE_INACTIVATING',
+              'elmOverlay.CLASS_FORCE:true', 'elmOverlay.CLASS_HIDE:true',
+              '<switchDraggable>', '_id:' + modal._id, 'state:STATE_INACTIVATING',
+              'plainDraggable.disabled: true',
+              '_id:' + modal._id, 'state:STATE_INACTIVATING', '</switchDraggable>',
+
+              // PlainOverlay.show()
+
+              '<finishOpening>', '_id:' + modalCh._id, 'state:STATE_OPENING',
+
+              '<switchDraggable>', '_id:' + modalCh._id, 'state:STATE_OPENED',
+              'plainDraggable.disabled: false',
+              '_id:' + modalCh._id, 'state:STATE_OPENED', '</switchDraggable>',
+
+              'parentProps._id:' + modal._id, 'parentProps.state:STATE_INACTIVATING',
+              '_id:' + modalCh._id, 'state:STATE_OPENED', '</finishOpening>',
+
+              '_id:' + modalCh._id, 'state:STATE_OPENED', '</execOpening>',
+
+              '_id:' + modalCh._id, 'state:STATE_OPENED', '</fixOpenClose>',
+              // DONE: fixOpenClose
+
+              // START: Close others - loop
+              'topProps._id:' + modalCh._id, 'topProps.state:STATE_OPENED',
+
+              '<execClosing>', '_id:' + modalCh._id, 'state:STATE_OPENED',
+              'force:true', 'sync:true',
+
+              'parentProps._id:' + modal._id, 'parentProps.state:STATE_INACTIVATED',
+              'elmOverlay.duration:150ms',
+              'elmOverlay.CLASS_FORCE:true', 'elmOverlay.CLASS_HIDE:false',
+
+              '<switchDraggable>', '_id:' + modalCh._id, 'state:STATE_CLOSING',
+              'plainDraggable.disabled: true',
+              '_id:' + modalCh._id, 'state:STATE_CLOSING', '</switchDraggable>',
+
+              // PlainOverlay.hide()
+
+              '<finishClosing>', '_id:' + modalCh._id, 'state:STATE_CLOSING',
+
+              'parentProps._id:' + modal._id, 'parentProps.state:STATE_ACTIVATING',
+              '<switchDraggable>', '_id:' + modal._id, 'state:STATE_OPENED',
+              'plainDraggable.disabled: false',
+              '_id:' + modal._id, 'state:STATE_OPENED', '</switchDraggable>',
+
+              '_id:' + modalCh._id, 'state:STATE_CLOSED', '</finishClosing>',
+
+              '_id:' + modalCh._id, 'state:STATE_CLOSED', '</execClosing>',
+              // DONE: Close others - loop
+
+              '<execClosing>', '_id:' + modal._id, 'state:STATE_OPENED',
+              'force:false', 'sync:false',
+
+              '<switchDraggable>', '_id:' + modal._id, 'state:STATE_CLOSING',
+              'plainDraggable.disabled: true',
+              '_id:' + modal._id, 'state:STATE_CLOSING', '</switchDraggable>',
+
+              // PlainOverlay.hide()
+              '_id:' + modal._id, 'state:STATE_CLOSING', '</execClosing>',
+
+              '_id:' + modal._id, 'state:STATE_CLOSING', '</close>',
+              // DONE: close
+
+              '<finishClosing>', '_id:' + modal._id, 'state:STATE_CLOSING',
+              '_id:' + modal._id, 'state:STATE_CLOSED', '</finishClosing>'
+            ]);
+
+            done();
+          }, 400);
+        };
+
+        traceLog.length = 0;
+        modal.close();
+      }
+    );
+  });
+
+  it('STATE_INACTIVATED -> close()', function(done) {
+    modal.onOpen = modal.onClose = modal.onBeforeOpen = modal.onBeforeClose = null;
+
+    utils.makeState(modal, PlainModal.STATE_INACTIVATED,
+      cbChangeFncs[PlainModal.STATE_INACTIVATED],
+      function() {
+
+        expect(modal.state).toBe(PlainModal.STATE_INACTIVATED);
+
+        modal.onClose = function() {
+          setTimeout(function() {
+            expect(traceLog).toEqual([
+              // START: close
+              '<close>', '_id:' + modal._id, 'state:STATE_INACTIVATED',
+              'openCloseEffectProps:NONE',
+
+              // START: Close others - loop
+              'topProps._id:' + modalCh._id, 'topProps.state:STATE_OPENED',
+
+              '<execClosing>', '_id:' + modalCh._id, 'state:STATE_OPENED',
+              'force:true', 'sync:true',
+
+              'parentProps._id:' + modal._id, 'parentProps.state:STATE_INACTIVATED',
+              'elmOverlay.duration:150ms',
+              'elmOverlay.CLASS_FORCE:true', 'elmOverlay.CLASS_HIDE:false',
+
+              '<switchDraggable>', '_id:' + modalCh._id, 'state:STATE_CLOSING',
+              'plainDraggable.disabled: true',
+              '_id:' + modalCh._id, 'state:STATE_CLOSING', '</switchDraggable>',
+
+              // PlainOverlay.hide()
+
+              '<finishClosing>', '_id:' + modalCh._id, 'state:STATE_CLOSING',
+
+              'parentProps._id:' + modal._id, 'parentProps.state:STATE_ACTIVATING',
+              '<switchDraggable>', '_id:' + modal._id, 'state:STATE_OPENED',
+              'plainDraggable.disabled: false',
+              '_id:' + modal._id, 'state:STATE_OPENED', '</switchDraggable>',
+
+              '_id:' + modalCh._id, 'state:STATE_CLOSED', '</finishClosing>',
+
+              '_id:' + modalCh._id, 'state:STATE_CLOSED', '</execClosing>',
+              // DONE: Close others - loop
+
+              '<execClosing>', '_id:' + modal._id, 'state:STATE_OPENED',
+              'force:false', 'sync:false',
+
+              '<switchDraggable>', '_id:' + modal._id, 'state:STATE_CLOSING',
+              'plainDraggable.disabled: true',
+              '_id:' + modal._id, 'state:STATE_CLOSING', '</switchDraggable>',
+
+              // PlainOverlay.hide()
+              '_id:' + modal._id, 'state:STATE_CLOSING', '</execClosing>',
+
+              '_id:' + modal._id, 'state:STATE_CLOSING', '</close>',
+              // DONE: close
+
+              '<finishClosing>', '_id:' + modal._id, 'state:STATE_CLOSING',
+              '_id:' + modal._id, 'state:STATE_CLOSED', '</finishClosing>'
+            ]);
+
+            done();
+          }, 0);
+        };
+
+        traceLog.length = 0;
+        modal.close();
+      }
+    );
+  });
+
+  it('STATE_ACTIVATING -> close()', function(done) {
+    modal.onOpen = modal.onClose = modal.onBeforeOpen = modal.onBeforeClose = null;
+
+    utils.makeState(modal, PlainModal.STATE_ACTIVATING,
+      cbChangeFncs[PlainModal.STATE_ACTIVATING],
+      function() {
+
+        expect(modal.state).toBe(PlainModal.STATE_ACTIVATING);
+
+        modal.onClose = function() {
+          setTimeout(function() {
+            expect(traceLog).toEqual([
+              // START: close
+              '<close>', '_id:' + modal._id, 'state:STATE_ACTIVATING',
+              'openCloseEffectProps:' + modalCh._id,
+
+              // START: fixOpenClose
+              '<fixOpenClose>', '_id:' + modalCh._id, 'state:STATE_CLOSING',
+
+              '<execClosing>', '_id:' + modalCh._id, 'state:STATE_CLOSING',
+              'force:true', 'sync:true',
+
+              'parentProps._id:' + modal._id, 'parentProps.state:STATE_ACTIVATING',
+              'elmOverlay.CLASS_FORCE:true', 'elmOverlay.CLASS_HIDE:false',
+
+              '<switchDraggable>', '_id:' + modalCh._id, 'state:STATE_CLOSING',
+              'plainDraggable.disabled: true',
+              '_id:' + modalCh._id, 'state:STATE_CLOSING', '</switchDraggable>',
+
+              // PlainOverlay.hide()
+
+              '<finishClosing>', '_id:' + modalCh._id, 'state:STATE_CLOSING',
+
+              'parentProps._id:' + modal._id, 'parentProps.state:STATE_ACTIVATING',
+              '<switchDraggable>', '_id:' + modal._id, 'state:STATE_OPENED',
+              'plainDraggable.disabled: false',
+              '_id:' + modal._id, 'state:STATE_OPENED', '</switchDraggable>',
+
+              '_id:' + modalCh._id, 'state:STATE_CLOSED', '</finishClosing>',
+
+              '_id:' + modalCh._id, 'state:STATE_CLOSED', '</execClosing>',
+
+              '_id:' + modalCh._id, 'state:STATE_CLOSED', '</fixOpenClose>',
+              // DONE: fixOpenClose
+
+              '<execClosing>', '_id:' + modal._id, 'state:STATE_OPENED',
+              'force:false', 'sync:false',
+
+              '<switchDraggable>', '_id:' + modal._id, 'state:STATE_CLOSING',
+              'plainDraggable.disabled: true',
+              '_id:' + modal._id, 'state:STATE_CLOSING', '</switchDraggable>',
+
+              // PlainOverlay.hide()
+              '_id:' + modal._id, 'state:STATE_CLOSING', '</execClosing>',
+
+              '_id:' + modal._id, 'state:STATE_CLOSING', '</close>',
+              // DONE: close
+
+              '<finishClosing>', '_id:' + modal._id, 'state:STATE_CLOSING',
+              '_id:' + modal._id, 'state:STATE_CLOSED', '</finishClosing>'
+            ]);
+
+            done();
+          }, 0);
+        };
+
+        traceLog.length = 0;
+        modal.close();
+      }
+    );
+  });
+
+  it('STATE_CLOSED -> close(force)', function(done) {
+    modal.onOpen = modal.onClose = modal.onBeforeOpen = modal.onBeforeClose = null;
+
+    utils.makeState(modal, PlainModal.STATE_CLOSED,
+      cbChangeFncs[PlainModal.STATE_CLOSED],
+      function() {
+
+        expect(modal.state).toBe(PlainModal.STATE_CLOSED);
+
+        traceLog.length = 0;
+        modal.close(true);
+
+        expect(traceLog).toEqual([
+          '<close>', '_id:' + modal._id, 'state:STATE_CLOSED', 'cancel', '</close>'
+        ]);
+
+        done();
+      }
+    );
+  });
+
+  it('STATE_OPENING -> close(force)', function(done) {
+    modal.onOpen = modal.onClose = modal.onBeforeOpen = modal.onBeforeClose = null;
+
+    utils.makeState(modal, PlainModal.STATE_OPENING,
+      cbChangeFncs[PlainModal.STATE_OPENING],
+      function() {
+
+        expect(modal.state).toBe(PlainModal.STATE_OPENING);
+
+        modal.onClose = function() {
+          setTimeout(function() {
+            expect(traceLog).toEqual([
+              // START: close
+              '<close>', '_id:' + modal._id, 'state:STATE_OPENING',
+              'openCloseEffectProps:' + modal._id,
+
+              '<execClosing>', '_id:' + modal._id, 'state:STATE_OPENING',
+              'force:true', 'sync:false',
+
+              '<switchDraggable>', '_id:' + modal._id, 'state:STATE_CLOSING',
+              'plainDraggable.disabled: true',
+              '_id:' + modal._id, 'state:STATE_CLOSING', '</switchDraggable>',
+
+              // PlainOverlay.hide()
+              '_id:' + modal._id, 'state:STATE_CLOSING', '</execClosing>',
+
+              '_id:' + modal._id, 'state:STATE_CLOSING', '</close>',
+              // DONE: close
+
+              '<finishClosing>', '_id:' + modal._id, 'state:STATE_CLOSING',
+              '_id:' + modal._id, 'state:STATE_CLOSED', '</finishClosing>'
+            ]);
+
+            done();
+          }, 0);
+        };
+
+        traceLog.length = 0;
+        modal.close(true);
+      }
+    );
+  });
+
+  it('STATE_OPENED -> close(force)', function(done) {
+    modal.onOpen = modal.onClose = modal.onBeforeOpen = modal.onBeforeClose = null;
+
+    utils.makeState(modal, PlainModal.STATE_OPENED,
+      cbChangeFncs[PlainModal.STATE_OPENED],
+      function() {
+
+        expect(modal.state).toBe(PlainModal.STATE_OPENED);
+
+        modal.onClose = function() {
+          setTimeout(function() {
+            expect(traceLog).toEqual([
+              // START: close
+              '<close>', '_id:' + modal._id, 'state:STATE_OPENED',
+              'openCloseEffectProps:NONE',
+
+              '<execClosing>', '_id:' + modal._id, 'state:STATE_OPENED',
+              'force:true', 'sync:false',
+
+              '<switchDraggable>', '_id:' + modal._id, 'state:STATE_CLOSING',
+              'plainDraggable.disabled: true',
+              '_id:' + modal._id, 'state:STATE_CLOSING', '</switchDraggable>',
+
+              // PlainOverlay.hide()
+              '_id:' + modal._id, 'state:STATE_CLOSING', '</execClosing>',
+
+              '_id:' + modal._id, 'state:STATE_CLOSING', '</close>',
+              // DONE: close
+
+              '<finishClosing>', '_id:' + modal._id, 'state:STATE_CLOSING',
+              '_id:' + modal._id, 'state:STATE_CLOSED', '</finishClosing>'
+            ]);
+
+            done();
+          }, 0);
+        };
+
+        traceLog.length = 0;
+        modal.close(true);
+      }
+    );
+  });
+
+  it('STATE_CLOSING -> close(force)', function(done) {
+    modal.onOpen = modal.onClose = modal.onBeforeOpen = modal.onBeforeClose = null;
+
+    utils.makeState(modal, PlainModal.STATE_CLOSING,
+      cbChangeFncs[PlainModal.STATE_CLOSING],
+      function() {
+
+        expect(modal.state).toBe(PlainModal.STATE_CLOSING);
+
+        modal.onClose = function() {
+          setTimeout(function() {
+            expect(traceLog).toEqual([
+              // START: close
+              '<close>', '_id:' + modal._id, 'state:STATE_CLOSING',
+              'openCloseEffectProps:' + modal._id,
+
+              '<execClosing>', '_id:' + modal._id, 'state:STATE_CLOSING',
+              'force:true', 'sync:false',
+
+              '<switchDraggable>', '_id:' + modal._id, 'state:STATE_CLOSING',
+              'plainDraggable.disabled: true',
+              '_id:' + modal._id, 'state:STATE_CLOSING', '</switchDraggable>',
+
+              // PlainOverlay.hide()
+              '_id:' + modal._id, 'state:STATE_CLOSING', '</execClosing>',
+
+              '_id:' + modal._id, 'state:STATE_CLOSING', '</close>',
+              // DONE: close
+
+              '<finishClosing>', '_id:' + modal._id, 'state:STATE_CLOSING',
+              '_id:' + modal._id, 'state:STATE_CLOSED', '</finishClosing>'
+            ]);
+
+            done();
+          }, 0);
+        };
+
+        traceLog.length = 0;
+        modal.close(true);
+      }
+    );
+  });
+
+  it('STATE_INACTIVATING -> close(force)', function(done) {
+    modal.onOpen = modal.onClose = modal.onBeforeOpen = modal.onBeforeClose = null;
+
+    utils.makeState(modal, PlainModal.STATE_INACTIVATING,
+      cbChangeFncs[PlainModal.STATE_INACTIVATING],
+      function() {
+
+        expect(modal.state).toBe(PlainModal.STATE_INACTIVATING);
+
+        modal.onClose = function() {
+          setTimeout(function() {
+            expect(traceLog).toEqual([
+              // START: close
+              '<close>', '_id:' + modal._id, 'state:STATE_INACTIVATING',
+              'openCloseEffectProps:' + modalCh._id,
+
+              // START: fixOpenClose
+              '<fixOpenClose>', '_id:' + modalCh._id, 'state:STATE_OPENING',
+
+              '<execOpening>', '_id:' + modalCh._id, 'state:STATE_OPENING',
+              'force:true',
+
+              'parentProps._id:' + modal._id, 'parentProps.state:STATE_INACTIVATING',
+              'elmOverlay.CLASS_FORCE:true', 'elmOverlay.CLASS_HIDE:true',
+              '<switchDraggable>', '_id:' + modal._id, 'state:STATE_INACTIVATING',
+              'plainDraggable.disabled: true',
+              '_id:' + modal._id, 'state:STATE_INACTIVATING', '</switchDraggable>',
+
+              // PlainOverlay.show()
+
+              '<finishOpening>', '_id:' + modalCh._id, 'state:STATE_OPENING',
+
+              '<switchDraggable>', '_id:' + modalCh._id, 'state:STATE_OPENED',
+              'plainDraggable.disabled: false',
+              '_id:' + modalCh._id, 'state:STATE_OPENED', '</switchDraggable>',
+
+              'parentProps._id:' + modal._id, 'parentProps.state:STATE_INACTIVATING',
+              '_id:' + modalCh._id, 'state:STATE_OPENED', '</finishOpening>',
+
+              '_id:' + modalCh._id, 'state:STATE_OPENED', '</execOpening>',
+
+              '_id:' + modalCh._id, 'state:STATE_OPENED', '</fixOpenClose>',
+              // DONE: fixOpenClose
+
+              // START: Close others - loop
+              'topProps._id:' + modalCh._id, 'topProps.state:STATE_OPENED',
+
+              '<execClosing>', '_id:' + modalCh._id, 'state:STATE_OPENED',
+              'force:true', 'sync:true',
+
+              'parentProps._id:' + modal._id, 'parentProps.state:STATE_INACTIVATED',
+              'elmOverlay.duration:150ms',
+              'elmOverlay.CLASS_FORCE:true', 'elmOverlay.CLASS_HIDE:false',
+
+              '<switchDraggable>', '_id:' + modalCh._id, 'state:STATE_CLOSING',
+              'plainDraggable.disabled: true',
+              '_id:' + modalCh._id, 'state:STATE_CLOSING', '</switchDraggable>',
+
+              // PlainOverlay.hide()
+
+              '<finishClosing>', '_id:' + modalCh._id, 'state:STATE_CLOSING',
+
+              'parentProps._id:' + modal._id, 'parentProps.state:STATE_ACTIVATING',
+              '<switchDraggable>', '_id:' + modal._id, 'state:STATE_OPENED',
+              'plainDraggable.disabled: false',
+              '_id:' + modal._id, 'state:STATE_OPENED', '</switchDraggable>',
+
+              '_id:' + modalCh._id, 'state:STATE_CLOSED', '</finishClosing>',
+
+              '_id:' + modalCh._id, 'state:STATE_CLOSED', '</execClosing>',
+              // DONE: Close others - loop
+
+              '<execClosing>', '_id:' + modal._id, 'state:STATE_OPENED',
+              'force:true', 'sync:false',
+
+              '<switchDraggable>', '_id:' + modal._id, 'state:STATE_CLOSING',
+              'plainDraggable.disabled: true',
+              '_id:' + modal._id, 'state:STATE_CLOSING', '</switchDraggable>',
+
+              // PlainOverlay.hide()
+              '_id:' + modal._id, 'state:STATE_CLOSING', '</execClosing>',
+
+              '_id:' + modal._id, 'state:STATE_CLOSING', '</close>',
+              // DONE: close
+
+              '<finishClosing>', '_id:' + modal._id, 'state:STATE_CLOSING',
+              '_id:' + modal._id, 'state:STATE_CLOSED', '</finishClosing>'
+            ]);
+
+            done();
+          }, 0);
+        };
+
+        traceLog.length = 0;
+        modal.close(true);
+      }
+    );
+  });
+
+  it('STATE_INACTIVATED -> close(force)', function(done) {
+    modal.onOpen = modal.onClose = modal.onBeforeOpen = modal.onBeforeClose = null;
+
+    utils.makeState(modal, PlainModal.STATE_INACTIVATED,
+      cbChangeFncs[PlainModal.STATE_INACTIVATED],
+      function() {
+
+        expect(modal.state).toBe(PlainModal.STATE_INACTIVATED);
+
+        modal.onClose = function() {
+          setTimeout(function() {
+            expect(traceLog).toEqual([
+              // START: close
+              '<close>', '_id:' + modal._id, 'state:STATE_INACTIVATED',
+              'openCloseEffectProps:NONE',
+
+              // START: Close others - loop
+              'topProps._id:' + modalCh._id, 'topProps.state:STATE_OPENED',
+
+              '<execClosing>', '_id:' + modalCh._id, 'state:STATE_OPENED',
+              'force:true', 'sync:true',
+
+              'parentProps._id:' + modal._id, 'parentProps.state:STATE_INACTIVATED',
+              'elmOverlay.duration:150ms',
+              'elmOverlay.CLASS_FORCE:true', 'elmOverlay.CLASS_HIDE:false',
+
+              '<switchDraggable>', '_id:' + modalCh._id, 'state:STATE_CLOSING',
+              'plainDraggable.disabled: true',
+              '_id:' + modalCh._id, 'state:STATE_CLOSING', '</switchDraggable>',
+
+              // PlainOverlay.hide()
+
+              '<finishClosing>', '_id:' + modalCh._id, 'state:STATE_CLOSING',
+
+              'parentProps._id:' + modal._id, 'parentProps.state:STATE_ACTIVATING',
+              '<switchDraggable>', '_id:' + modal._id, 'state:STATE_OPENED',
+              'plainDraggable.disabled: false',
+              '_id:' + modal._id, 'state:STATE_OPENED', '</switchDraggable>',
+
+              '_id:' + modalCh._id, 'state:STATE_CLOSED', '</finishClosing>',
+
+              '_id:' + modalCh._id, 'state:STATE_CLOSED', '</execClosing>',
+              // DONE: Close others - loop
+
+              '<execClosing>', '_id:' + modal._id, 'state:STATE_OPENED',
+              'force:true', 'sync:false',
+
+              '<switchDraggable>', '_id:' + modal._id, 'state:STATE_CLOSING',
+              'plainDraggable.disabled: true',
+              '_id:' + modal._id, 'state:STATE_CLOSING', '</switchDraggable>',
+
+              // PlainOverlay.hide()
+              '_id:' + modal._id, 'state:STATE_CLOSING', '</execClosing>',
+
+              '_id:' + modal._id, 'state:STATE_CLOSING', '</close>',
+              // DONE: close
+
+              '<finishClosing>', '_id:' + modal._id, 'state:STATE_CLOSING',
+              '_id:' + modal._id, 'state:STATE_CLOSED', '</finishClosing>'
+            ]);
+
+            done();
+          }, 0);
+        };
+
+        traceLog.length = 0;
+        modal.close(true);
+      }
+    );
+  });
+
+  it('STATE_ACTIVATING -> close(force)', function(done) {
+    modal.onOpen = modal.onClose = modal.onBeforeOpen = modal.onBeforeClose = null;
+
+    utils.makeState(modal, PlainModal.STATE_ACTIVATING,
+      cbChangeFncs[PlainModal.STATE_ACTIVATING],
+      function() {
+
+        expect(modal.state).toBe(PlainModal.STATE_ACTIVATING);
+
+        modal.onClose = function() {
+          setTimeout(function() {
+            expect(traceLog).toEqual([
+              // START: close
+              '<close>', '_id:' + modal._id, 'state:STATE_ACTIVATING',
+              'openCloseEffectProps:' + modalCh._id,
+
+              // START: fixOpenClose
+              '<fixOpenClose>', '_id:' + modalCh._id, 'state:STATE_CLOSING',
+
+              '<execClosing>', '_id:' + modalCh._id, 'state:STATE_CLOSING',
+              'force:true', 'sync:true',
+
+              'parentProps._id:' + modal._id, 'parentProps.state:STATE_ACTIVATING',
+              'elmOverlay.CLASS_FORCE:true', 'elmOverlay.CLASS_HIDE:false',
+
+              '<switchDraggable>', '_id:' + modalCh._id, 'state:STATE_CLOSING',
+              'plainDraggable.disabled: true',
+              '_id:' + modalCh._id, 'state:STATE_CLOSING', '</switchDraggable>',
+
+              // PlainOverlay.hide()
+
+              '<finishClosing>', '_id:' + modalCh._id, 'state:STATE_CLOSING',
+
+              'parentProps._id:' + modal._id, 'parentProps.state:STATE_ACTIVATING',
+              '<switchDraggable>', '_id:' + modal._id, 'state:STATE_OPENED',
+              'plainDraggable.disabled: false',
+              '_id:' + modal._id, 'state:STATE_OPENED', '</switchDraggable>',
+
+              '_id:' + modalCh._id, 'state:STATE_CLOSED', '</finishClosing>',
+
+              '_id:' + modalCh._id, 'state:STATE_CLOSED', '</execClosing>',
+
+              '_id:' + modalCh._id, 'state:STATE_CLOSED', '</fixOpenClose>',
+              // DONE: fixOpenClose
+
+              '<execClosing>', '_id:' + modal._id, 'state:STATE_OPENED',
+              'force:true', 'sync:false',
+
+              '<switchDraggable>', '_id:' + modal._id, 'state:STATE_CLOSING',
+              'plainDraggable.disabled: true',
+              '_id:' + modal._id, 'state:STATE_CLOSING', '</switchDraggable>',
+
+              // PlainOverlay.hide()
+              '_id:' + modal._id, 'state:STATE_CLOSING', '</execClosing>',
+
+              '_id:' + modal._id, 'state:STATE_CLOSING', '</close>',
+              // DONE: close
+
+              '<finishClosing>', '_id:' + modal._id, 'state:STATE_CLOSING',
+              '_id:' + modal._id, 'state:STATE_CLOSED', '</finishClosing>'
+            ]);
+
+            done();
+          }, 0);
+        };
+
+        traceLog.length = 0;
+        modal.close(true);
+      }
+    );
+  });
+
+});
