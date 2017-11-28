@@ -116,23 +116,26 @@ describe('flow', function() {
               // START: open
               '<open>', '_id:' + modal._id, 'state:STATE_CLOSED',
               'openCloseEffectProps:NONE',
+              'shownProps:' + modal._id,
               'elmOverlay.CLASS_FORCE:true', 'elmOverlay.CLASS_HIDE:false',
 
               '<execOpening>', '_id:' + modal._id, 'state:STATE_CLOSED',
               'force:false',
+              'state:STATE_OPENING',
               // PlainOverlay.show()
-              '_id:' + modal._id, 'state:STATE_OPENING', '</execOpening>',
+              '_id:' + modal._id, '</execOpening>',
 
-              '_id:' + modal._id, 'state:STATE_OPENING', '</open>',
+              '_id:' + modal._id, '</open>',
               // DONE: open
 
               '<finishOpening>', '_id:' + modal._id, 'state:STATE_OPENING',
+              'state:STATE_OPENED',
 
               '<switchDraggable>', '_id:' + modal._id, 'state:STATE_OPENED',
-              'plainDraggable.disabled: false',
-              '_id:' + modal._id, 'state:STATE_OPENED', '</switchDraggable>',
+              'plainDraggable.disabled:false',
+              '</switchDraggable>',
 
-              '_id:' + modal._id, 'state:STATE_OPENED', '</finishOpening>',
+              '</finishOpening>',
 
               // onOpen -> close()
 
@@ -142,19 +145,22 @@ describe('flow', function() {
 
               '<execClosing>', '_id:' + modal._id, 'state:STATE_OPENED',
               'force:false', 'sync:false',
+              'state:STATE_CLOSING',
 
               '<switchDraggable>', '_id:' + modal._id, 'state:STATE_CLOSING',
-              'plainDraggable.disabled: true',
-              '_id:' + modal._id, 'state:STATE_CLOSING', '</switchDraggable>',
+              'plainDraggable.disabled:true',
+              '</switchDraggable>',
 
               // PlainOverlay.hide()
-              '_id:' + modal._id, 'state:STATE_CLOSING', '</execClosing>',
+              '_id:' + modal._id, '</execClosing>',
 
-              '_id:' + modal._id, 'state:STATE_CLOSING', '</close>',
+              '_id:' + modal._id, '</close>',
               // DONE: close
 
               '<finishClosing>', '_id:' + modal._id, 'state:STATE_CLOSING',
-              '_id:' + modal._id, 'state:STATE_CLOSED', '</finishClosing>'
+              'shownProps:NONE',
+              'state:STATE_CLOSED',
+              '</finishClosing>'
             ]);
 
             done();
@@ -169,7 +175,7 @@ describe('flow', function() {
 
   // 'STATE_CLOSED -> open()' in 'Normal flow'
 
-  it('STATE_OPENING -> open()', function(done) {
+  it('STATE_OPENING -> open()', function(done) { // -> CANCEL
     modal.onOpen = modal.onClose = modal.onBeforeOpen = modal.onBeforeClose = null;
 
     utils.makeState(modal, PlainModal.STATE_OPENING,
@@ -182,7 +188,7 @@ describe('flow', function() {
         modal.open();
 
         expect(traceLog).toEqual([
-          '<open>', '_id:' + modal._id, 'state:STATE_OPENING', 'cancel', '</open>'
+          '<open>', '_id:' + modal._id, 'state:STATE_OPENING', 'CANCEL', '</open>'
         ]);
 
         done();
@@ -190,7 +196,7 @@ describe('flow', function() {
     );
   });
 
-  it('STATE_OPENED -> open()', function(done) {
+  it('STATE_OPENED -> open()', function(done) { // -> CANCEL
     modal.onOpen = modal.onClose = modal.onBeforeOpen = modal.onBeforeClose = null;
 
     utils.makeState(modal, PlainModal.STATE_OPENED,
@@ -203,7 +209,7 @@ describe('flow', function() {
         modal.open();
 
         expect(traceLog).toEqual([
-          '<open>', '_id:' + modal._id, 'state:STATE_OPENED', 'cancel', '</open>'
+          '<open>', '_id:' + modal._id, 'state:STATE_OPENED', 'CANCEL', '</open>'
         ]);
 
         done();
@@ -229,19 +235,21 @@ describe('flow', function() {
 
               '<execOpening>', '_id:' + modal._id, 'state:STATE_CLOSING',
               'force:false',
+              'state:STATE_OPENING',
               // PlainOverlay.show()
-              '_id:' + modal._id, 'state:STATE_OPENING', '</execOpening>',
+              '_id:' + modal._id, '</execOpening>',
 
-              '_id:' + modal._id, 'state:STATE_OPENING', '</open>',
+              '_id:' + modal._id, '</open>',
               // DONE: open
 
               '<finishOpening>', '_id:' + modal._id, 'state:STATE_OPENING',
+              'state:STATE_OPENED',
 
               '<switchDraggable>', '_id:' + modal._id, 'state:STATE_OPENED',
-              'plainDraggable.disabled: false',
-              '_id:' + modal._id, 'state:STATE_OPENED', '</switchDraggable>',
+              'plainDraggable.disabled:false',
+              '</switchDraggable>',
 
-              '_id:' + modal._id, 'state:STATE_OPENED', '</finishOpening>'
+              '</finishOpening>'
             ]);
 
             done();
@@ -254,7 +262,7 @@ describe('flow', function() {
     );
   });
 
-  it('STATE_INACTIVATING -> open()', function(done) {
+  it('STATE_INACTIVATING -> open()', function(done) { // -> CANCEL
     modal.onOpen = modal.onClose = modal.onBeforeOpen = modal.onBeforeClose = null;
 
     utils.makeState(modal, PlainModal.STATE_INACTIVATING,
@@ -267,7 +275,7 @@ describe('flow', function() {
         modal.open();
 
         expect(traceLog).toEqual([
-          '<open>', '_id:' + modal._id, 'state:STATE_INACTIVATING', 'cancel', '</open>'
+          '<open>', '_id:' + modal._id, 'state:STATE_INACTIVATING', 'CANCEL', '</open>'
         ]);
 
         done();
@@ -275,7 +283,7 @@ describe('flow', function() {
     );
   });
 
-  it('STATE_INACTIVATED -> open()', function(done) {
+  it('STATE_INACTIVATED -> open()', function(done) { // -> CANCEL
     modal.onOpen = modal.onClose = modal.onBeforeOpen = modal.onBeforeClose = null;
 
     utils.makeState(modal, PlainModal.STATE_INACTIVATED,
@@ -288,7 +296,7 @@ describe('flow', function() {
         modal.open();
 
         expect(traceLog).toEqual([
-          '<open>', '_id:' + modal._id, 'state:STATE_INACTIVATED', 'cancel', '</open>'
+          '<open>', '_id:' + modal._id, 'state:STATE_INACTIVATED', 'CANCEL', '</open>'
         ]);
 
         done();
@@ -296,7 +304,7 @@ describe('flow', function() {
     );
   });
 
-  it('STATE_ACTIVATING -> open()', function(done) {
+  it('STATE_ACTIVATING -> open()', function(done) { // -> CANCEL
     modal.onOpen = modal.onClose = modal.onBeforeOpen = modal.onBeforeClose = null;
 
     utils.makeState(modal, PlainModal.STATE_ACTIVATING,
@@ -309,7 +317,7 @@ describe('flow', function() {
         modal.open();
 
         expect(traceLog).toEqual([
-          '<open>', '_id:' + modal._id, 'state:STATE_ACTIVATING', 'cancel', '</open>'
+          '<open>', '_id:' + modal._id, 'state:STATE_ACTIVATING', 'CANCEL', '</open>'
         ]);
 
         done();
@@ -332,6 +340,7 @@ describe('flow', function() {
               // START: open
               '<open>', '_id:' + modal._id, 'state:STATE_CLOSED',
               'openCloseEffectProps:NONE',
+              'shownProps:' + modal._id,
               'elmOverlay.CLASS_FORCE:true', 'elmOverlay.CLASS_HIDE:false',
 
               '<execOpening>', '_id:' + modal._id, 'state:STATE_CLOSED',
@@ -339,16 +348,17 @@ describe('flow', function() {
               // PlainOverlay.show()
 
               '<finishOpening>', '_id:' + modal._id, 'state:STATE_CLOSED',
+              'state:STATE_OPENED',
 
               '<switchDraggable>', '_id:' + modal._id, 'state:STATE_OPENED',
-              'plainDraggable.disabled: false',
-              '_id:' + modal._id, 'state:STATE_OPENED', '</switchDraggable>',
+              'plainDraggable.disabled:false',
+              '</switchDraggable>',
 
-              '_id:' + modal._id, 'state:STATE_OPENED', '</finishOpening>',
+              '</finishOpening>',
 
-              '_id:' + modal._id, 'state:STATE_OPENED', '</execOpening>',
+              '_id:' + modal._id, '</execOpening>',
 
-              '_id:' + modal._id, 'state:STATE_OPENED', '</open>',
+              '_id:' + modal._id, '</open>',
               // DONE: open
             ]);
 
@@ -383,16 +393,17 @@ describe('flow', function() {
               // PlainOverlay.show()
 
               '<finishOpening>', '_id:' + modal._id, 'state:STATE_OPENING',
+              'state:STATE_OPENED',
 
               '<switchDraggable>', '_id:' + modal._id, 'state:STATE_OPENED',
-              'plainDraggable.disabled: false',
-              '_id:' + modal._id, 'state:STATE_OPENED', '</switchDraggable>',
+              'plainDraggable.disabled:false',
+              '</switchDraggable>',
 
-              '_id:' + modal._id, 'state:STATE_OPENED', '</finishOpening>',
+              '</finishOpening>',
 
-              '_id:' + modal._id, 'state:STATE_OPENED', '</execOpening>',
+              '_id:' + modal._id, '</execOpening>',
 
-              '_id:' + modal._id, 'state:STATE_OPENED', '</open>',
+              '_id:' + modal._id, '</open>',
               // DONE: open
             ]);
 
@@ -406,7 +417,7 @@ describe('flow', function() {
     );
   });
 
-  it('STATE_OPENED -> open(force)', function(done) {
+  it('STATE_OPENED -> open(force)', function(done) { // -> CANCEL
     modal.onOpen = modal.onClose = modal.onBeforeOpen = modal.onBeforeClose = null;
 
     utils.makeState(modal, PlainModal.STATE_OPENED,
@@ -419,7 +430,7 @@ describe('flow', function() {
         modal.open(true);
 
         expect(traceLog).toEqual([
-          '<open>', '_id:' + modal._id, 'state:STATE_OPENED', 'cancel', '</open>'
+          '<open>', '_id:' + modal._id, 'state:STATE_OPENED', 'CANCEL', '</open>'
         ]);
 
         done();
@@ -448,16 +459,17 @@ describe('flow', function() {
               // PlainOverlay.show()
 
               '<finishOpening>', '_id:' + modal._id, 'state:STATE_CLOSING',
+              'state:STATE_OPENED',
 
               '<switchDraggable>', '_id:' + modal._id, 'state:STATE_OPENED',
-              'plainDraggable.disabled: false',
-              '_id:' + modal._id, 'state:STATE_OPENED', '</switchDraggable>',
+              'plainDraggable.disabled:false',
+              '</switchDraggable>',
 
-              '_id:' + modal._id, 'state:STATE_OPENED', '</finishOpening>',
+              '</finishOpening>',
 
-              '_id:' + modal._id, 'state:STATE_OPENED', '</execOpening>',
+              '_id:' + modal._id, '</execOpening>',
 
-              '_id:' + modal._id, 'state:STATE_OPENED', '</open>',
+              '_id:' + modal._id, '</open>',
               // DONE: open
             ]);
 
@@ -471,7 +483,7 @@ describe('flow', function() {
     );
   });
 
-  it('STATE_INACTIVATING -> open(force)', function(done) {
+  it('STATE_INACTIVATING -> open(force)', function(done) { // -> CANCEL
     modal.onOpen = modal.onClose = modal.onBeforeOpen = modal.onBeforeClose = null;
 
     utils.makeState(modal, PlainModal.STATE_INACTIVATING,
@@ -484,7 +496,7 @@ describe('flow', function() {
         modal.open(true);
 
         expect(traceLog).toEqual([
-          '<open>', '_id:' + modal._id, 'state:STATE_INACTIVATING', 'cancel', '</open>'
+          '<open>', '_id:' + modal._id, 'state:STATE_INACTIVATING', 'CANCEL', '</open>'
         ]);
 
         done();
@@ -492,7 +504,7 @@ describe('flow', function() {
     );
   });
 
-  it('STATE_INACTIVATED -> open(force)', function(done) {
+  it('STATE_INACTIVATED -> open(force)', function(done) { // -> CANCEL
     modal.onOpen = modal.onClose = modal.onBeforeOpen = modal.onBeforeClose = null;
 
     utils.makeState(modal, PlainModal.STATE_INACTIVATED,
@@ -505,7 +517,7 @@ describe('flow', function() {
         modal.open(true);
 
         expect(traceLog).toEqual([
-          '<open>', '_id:' + modal._id, 'state:STATE_INACTIVATED', 'cancel', '</open>'
+          '<open>', '_id:' + modal._id, 'state:STATE_INACTIVATED', 'CANCEL', '</open>'
         ]);
 
         done();
@@ -513,7 +525,7 @@ describe('flow', function() {
     );
   });
 
-  it('STATE_ACTIVATING -> open(force)', function(done) {
+  it('STATE_ACTIVATING -> open(force)', function(done) { // -> CANCEL
     modal.onOpen = modal.onClose = modal.onBeforeOpen = modal.onBeforeClose = null;
 
     utils.makeState(modal, PlainModal.STATE_ACTIVATING,
@@ -526,7 +538,7 @@ describe('flow', function() {
         modal.open(true);
 
         expect(traceLog).toEqual([
-          '<open>', '_id:' + modal._id, 'state:STATE_ACTIVATING', 'cancel', '</open>'
+          '<open>', '_id:' + modal._id, 'state:STATE_ACTIVATING', 'CANCEL', '</open>'
         ]);
 
         done();
@@ -534,7 +546,7 @@ describe('flow', function() {
     );
   });
 
-  it('STATE_CLOSED -> close()', function(done) {
+  it('STATE_CLOSED -> close()', function(done) { // -> CANCEL
     modal.onOpen = modal.onClose = modal.onBeforeOpen = modal.onBeforeClose = null;
 
     utils.makeState(modal, PlainModal.STATE_CLOSED,
@@ -547,7 +559,7 @@ describe('flow', function() {
         modal.close();
 
         expect(traceLog).toEqual([
-          '<close>', '_id:' + modal._id, 'state:STATE_CLOSED', 'cancel', '</close>'
+          '<close>', '_id:' + modal._id, 'state:STATE_CLOSED', 'CANCEL', '</close>'
         ]);
 
         done();
@@ -573,19 +585,22 @@ describe('flow', function() {
 
               '<execClosing>', '_id:' + modal._id, 'state:STATE_OPENING',
               'force:false', 'sync:false',
+              'state:STATE_CLOSING',
 
               '<switchDraggable>', '_id:' + modal._id, 'state:STATE_CLOSING',
-              'plainDraggable.disabled: true',
-              '_id:' + modal._id, 'state:STATE_CLOSING', '</switchDraggable>',
+              'plainDraggable.disabled:true',
+              '</switchDraggable>',
 
               // PlainOverlay.hide()
-              '_id:' + modal._id, 'state:STATE_CLOSING', '</execClosing>',
+              '_id:' + modal._id, '</execClosing>',
 
-              '_id:' + modal._id, 'state:STATE_CLOSING', '</close>',
+              '_id:' + modal._id, '</close>',
               // DONE: close
 
               '<finishClosing>', '_id:' + modal._id, 'state:STATE_CLOSING',
-              '_id:' + modal._id, 'state:STATE_CLOSED', '</finishClosing>'
+              'shownProps:NONE',
+              'state:STATE_CLOSED',
+              '</finishClosing>'
             ]);
 
             done();
@@ -600,7 +615,7 @@ describe('flow', function() {
 
   // 'STATE_OPENED -> close()' in 'Normal flow'
 
-  it('STATE_CLOSING -> close()', function(done) {
+  it('STATE_CLOSING -> close()', function(done) { // -> CANCEL
     modal.onOpen = modal.onClose = modal.onBeforeOpen = modal.onBeforeClose = null;
 
     utils.makeState(modal, PlainModal.STATE_CLOSING,
@@ -613,7 +628,7 @@ describe('flow', function() {
         modal.close();
 
         expect(traceLog).toEqual([
-          '<close>', '_id:' + modal._id, 'state:STATE_CLOSING', 'cancel', '</close>'
+          '<close>', '_id:' + modal._id, 'state:STATE_CLOSING', 'CANCEL', '</close>'
         ]);
 
         done();
@@ -645,25 +660,32 @@ describe('flow', function() {
 
               'parentProps._id:' + modal._id, 'parentProps.state:STATE_INACTIVATING',
               'elmOverlay.CLASS_FORCE:true', 'elmOverlay.CLASS_HIDE:true',
+              'parentProps.state:STATE_INACTIVATING',
+
               '<switchDraggable>', '_id:' + modal._id, 'state:STATE_INACTIVATING',
-              'plainDraggable.disabled: true',
-              '_id:' + modal._id, 'state:STATE_INACTIVATING', '</switchDraggable>',
+              'plainDraggable.disabled:true',
+              '</switchDraggable>',
 
               // PlainOverlay.show()
 
               '<finishOpening>', '_id:' + modalCh._id, 'state:STATE_OPENING',
+              'state:STATE_OPENED',
 
               '<switchDraggable>', '_id:' + modalCh._id, 'state:STATE_OPENED',
-              'plainDraggable.disabled: false',
-              '_id:' + modalCh._id, 'state:STATE_OPENED', '</switchDraggable>',
+              'plainDraggable.disabled:false',
+              '</switchDraggable>',
 
               'parentProps._id:' + modal._id, 'parentProps.state:STATE_INACTIVATING',
-              '_id:' + modalCh._id, 'state:STATE_OPENED', '</finishOpening>',
+              'parentProps.state:STATE_INACTIVATED',
 
-              '_id:' + modalCh._id, 'state:STATE_OPENED', '</execOpening>',
+              '</finishOpening>',
 
-              '_id:' + modalCh._id, 'state:STATE_OPENED', '</fixOpenClose>',
+              '_id:' + modalCh._id, '</execOpening>',
+
+              '_id:' + modalCh._id, '</fixOpenClose>',
               // DONE: fixOpenClose
+
+              'shownProps:' + modal._id + ',' + modalCh._id,
 
               // START: Close others - loop
               'topProps._id:' + modalCh._id, 'topProps.state:STATE_OPENED',
@@ -674,40 +696,51 @@ describe('flow', function() {
               'parentProps._id:' + modal._id, 'parentProps.state:STATE_INACTIVATED',
               'elmOverlay.duration:150ms',
               'elmOverlay.CLASS_FORCE:true', 'elmOverlay.CLASS_HIDE:false',
+              'parentProps.state:STATE_ACTIVATING',
+              'state:STATE_CLOSING',
 
               '<switchDraggable>', '_id:' + modalCh._id, 'state:STATE_CLOSING',
-              'plainDraggable.disabled: true',
-              '_id:' + modalCh._id, 'state:STATE_CLOSING', '</switchDraggable>',
+              'plainDraggable.disabled:true',
+              '</switchDraggable>',
 
               // PlainOverlay.hide()
 
               '<finishClosing>', '_id:' + modalCh._id, 'state:STATE_CLOSING',
+              'shownProps:' + modal._id,
+              'state:STATE_CLOSED',
 
               'parentProps._id:' + modal._id, 'parentProps.state:STATE_ACTIVATING',
+              'parentProps.state:STATE_OPENED',
+
               '<switchDraggable>', '_id:' + modal._id, 'state:STATE_OPENED',
-              'plainDraggable.disabled: false',
-              '_id:' + modal._id, 'state:STATE_OPENED', '</switchDraggable>',
+              'plainDraggable.disabled:false',
+              '</switchDraggable>',
 
-              '_id:' + modalCh._id, 'state:STATE_CLOSED', '</finishClosing>',
+              'parentProps(UNLINK):' + modal._id,
 
-              '_id:' + modalCh._id, 'state:STATE_CLOSED', '</execClosing>',
+              '</finishClosing>',
+
+              '_id:' + modalCh._id, '</execClosing>',
               // DONE: Close others - loop
 
               '<execClosing>', '_id:' + modal._id, 'state:STATE_OPENED',
               'force:false', 'sync:false',
+              'state:STATE_CLOSING',
 
               '<switchDraggable>', '_id:' + modal._id, 'state:STATE_CLOSING',
-              'plainDraggable.disabled: true',
-              '_id:' + modal._id, 'state:STATE_CLOSING', '</switchDraggable>',
+              'plainDraggable.disabled:true',
+              '</switchDraggable>',
 
               // PlainOverlay.hide()
-              '_id:' + modal._id, 'state:STATE_CLOSING', '</execClosing>',
+              '_id:' + modal._id, '</execClosing>',
 
-              '_id:' + modal._id, 'state:STATE_CLOSING', '</close>',
+              '_id:' + modal._id, '</close>',
               // DONE: close
 
               '<finishClosing>', '_id:' + modal._id, 'state:STATE_CLOSING',
-              '_id:' + modal._id, 'state:STATE_CLOSED', '</finishClosing>'
+              'shownProps:NONE',
+              'state:STATE_CLOSED',
+              '</finishClosing>'
             ]);
 
             done();
@@ -736,6 +769,8 @@ describe('flow', function() {
               '<close>', '_id:' + modal._id, 'state:STATE_INACTIVATED',
               'openCloseEffectProps:NONE',
 
+              'shownProps:' + modal._id + ',' + modalCh._id,
+
               // START: Close others - loop
               'topProps._id:' + modalCh._id, 'topProps.state:STATE_OPENED',
 
@@ -745,40 +780,51 @@ describe('flow', function() {
               'parentProps._id:' + modal._id, 'parentProps.state:STATE_INACTIVATED',
               'elmOverlay.duration:150ms',
               'elmOverlay.CLASS_FORCE:true', 'elmOverlay.CLASS_HIDE:false',
+              'parentProps.state:STATE_ACTIVATING',
+              'state:STATE_CLOSING',
 
               '<switchDraggable>', '_id:' + modalCh._id, 'state:STATE_CLOSING',
-              'plainDraggable.disabled: true',
-              '_id:' + modalCh._id, 'state:STATE_CLOSING', '</switchDraggable>',
+              'plainDraggable.disabled:true',
+              '</switchDraggable>',
 
               // PlainOverlay.hide()
 
               '<finishClosing>', '_id:' + modalCh._id, 'state:STATE_CLOSING',
+              'shownProps:' + modal._id,
+              'state:STATE_CLOSED',
 
               'parentProps._id:' + modal._id, 'parentProps.state:STATE_ACTIVATING',
+              'parentProps.state:STATE_OPENED',
+
               '<switchDraggable>', '_id:' + modal._id, 'state:STATE_OPENED',
-              'plainDraggable.disabled: false',
-              '_id:' + modal._id, 'state:STATE_OPENED', '</switchDraggable>',
+              'plainDraggable.disabled:false',
+              '</switchDraggable>',
 
-              '_id:' + modalCh._id, 'state:STATE_CLOSED', '</finishClosing>',
+              'parentProps(UNLINK):' + modal._id,
 
-              '_id:' + modalCh._id, 'state:STATE_CLOSED', '</execClosing>',
+              '</finishClosing>',
+
+              '_id:' + modalCh._id, '</execClosing>',
               // DONE: Close others - loop
 
               '<execClosing>', '_id:' + modal._id, 'state:STATE_OPENED',
               'force:false', 'sync:false',
+              'state:STATE_CLOSING',
 
               '<switchDraggable>', '_id:' + modal._id, 'state:STATE_CLOSING',
-              'plainDraggable.disabled: true',
-              '_id:' + modal._id, 'state:STATE_CLOSING', '</switchDraggable>',
+              'plainDraggable.disabled:true',
+              '</switchDraggable>',
 
               // PlainOverlay.hide()
-              '_id:' + modal._id, 'state:STATE_CLOSING', '</execClosing>',
+              '_id:' + modal._id, '</execClosing>',
 
-              '_id:' + modal._id, 'state:STATE_CLOSING', '</close>',
+              '_id:' + modal._id, '</close>',
               // DONE: close
 
               '<finishClosing>', '_id:' + modal._id, 'state:STATE_CLOSING',
-              '_id:' + modal._id, 'state:STATE_CLOSED', '</finishClosing>'
+              'shownProps:NONE',
+              'state:STATE_CLOSED',
+              '</finishClosing>'
             ]);
 
             done();
@@ -815,42 +861,53 @@ describe('flow', function() {
 
               'parentProps._id:' + modal._id, 'parentProps.state:STATE_ACTIVATING',
               'elmOverlay.CLASS_FORCE:true', 'elmOverlay.CLASS_HIDE:false',
+              'parentProps.state:STATE_ACTIVATING',
+              'state:STATE_CLOSING',
 
               '<switchDraggable>', '_id:' + modalCh._id, 'state:STATE_CLOSING',
-              'plainDraggable.disabled: true',
-              '_id:' + modalCh._id, 'state:STATE_CLOSING', '</switchDraggable>',
+              'plainDraggable.disabled:true',
+              '</switchDraggable>',
 
               // PlainOverlay.hide()
 
               '<finishClosing>', '_id:' + modalCh._id, 'state:STATE_CLOSING',
+              'shownProps:' + modal._id,
+              'state:STATE_CLOSED',
 
               'parentProps._id:' + modal._id, 'parentProps.state:STATE_ACTIVATING',
+              'parentProps.state:STATE_OPENED',
+
               '<switchDraggable>', '_id:' + modal._id, 'state:STATE_OPENED',
-              'plainDraggable.disabled: false',
-              '_id:' + modal._id, 'state:STATE_OPENED', '</switchDraggable>',
+              'plainDraggable.disabled:false',
+              '</switchDraggable>',
 
-              '_id:' + modalCh._id, 'state:STATE_CLOSED', '</finishClosing>',
+              'parentProps(UNLINK):' + modal._id,
 
-              '_id:' + modalCh._id, 'state:STATE_CLOSED', '</execClosing>',
+              '</finishClosing>',
 
-              '_id:' + modalCh._id, 'state:STATE_CLOSED', '</fixOpenClose>',
+              '_id:' + modalCh._id, '</execClosing>',
+
+              '_id:' + modalCh._id, '</fixOpenClose>',
               // DONE: fixOpenClose
 
               '<execClosing>', '_id:' + modal._id, 'state:STATE_OPENED',
               'force:false', 'sync:false',
+              'state:STATE_CLOSING',
 
               '<switchDraggable>', '_id:' + modal._id, 'state:STATE_CLOSING',
-              'plainDraggable.disabled: true',
-              '_id:' + modal._id, 'state:STATE_CLOSING', '</switchDraggable>',
+              'plainDraggable.disabled:true',
+              '</switchDraggable>',
 
               // PlainOverlay.hide()
-              '_id:' + modal._id, 'state:STATE_CLOSING', '</execClosing>',
+              '_id:' + modal._id, '</execClosing>',
 
-              '_id:' + modal._id, 'state:STATE_CLOSING', '</close>',
+              '_id:' + modal._id, '</close>',
               // DONE: close
 
               '<finishClosing>', '_id:' + modal._id, 'state:STATE_CLOSING',
-              '_id:' + modal._id, 'state:STATE_CLOSED', '</finishClosing>'
+              'shownProps:NONE',
+              'state:STATE_CLOSED',
+              '</finishClosing>'
             ]);
 
             done();
@@ -863,7 +920,7 @@ describe('flow', function() {
     );
   });
 
-  it('STATE_CLOSED -> close(force)', function(done) {
+  it('STATE_CLOSED -> close(force)', function(done) { // -> CANCEL
     modal.onOpen = modal.onClose = modal.onBeforeOpen = modal.onBeforeClose = null;
 
     utils.makeState(modal, PlainModal.STATE_CLOSED,
@@ -876,7 +933,7 @@ describe('flow', function() {
         modal.close(true);
 
         expect(traceLog).toEqual([
-          '<close>', '_id:' + modal._id, 'state:STATE_CLOSED', 'cancel', '</close>'
+          '<close>', '_id:' + modal._id, 'state:STATE_CLOSED', 'CANCEL', '</close>'
         ]);
 
         done();
@@ -902,19 +959,22 @@ describe('flow', function() {
 
               '<execClosing>', '_id:' + modal._id, 'state:STATE_OPENING',
               'force:true', 'sync:false',
+              'state:STATE_CLOSING',
 
               '<switchDraggable>', '_id:' + modal._id, 'state:STATE_CLOSING',
-              'plainDraggable.disabled: true',
-              '_id:' + modal._id, 'state:STATE_CLOSING', '</switchDraggable>',
+              'plainDraggable.disabled:true',
+              '</switchDraggable>',
 
               // PlainOverlay.hide()
-              '_id:' + modal._id, 'state:STATE_CLOSING', '</execClosing>',
+              '_id:' + modal._id, '</execClosing>',
 
-              '_id:' + modal._id, 'state:STATE_CLOSING', '</close>',
+              '_id:' + modal._id, '</close>',
               // DONE: close
 
               '<finishClosing>', '_id:' + modal._id, 'state:STATE_CLOSING',
-              '_id:' + modal._id, 'state:STATE_CLOSED', '</finishClosing>'
+              'shownProps:NONE',
+              'state:STATE_CLOSED',
+              '</finishClosing>'
             ]);
 
             done();
@@ -945,19 +1005,22 @@ describe('flow', function() {
 
               '<execClosing>', '_id:' + modal._id, 'state:STATE_OPENED',
               'force:true', 'sync:false',
+              'state:STATE_CLOSING',
 
               '<switchDraggable>', '_id:' + modal._id, 'state:STATE_CLOSING',
-              'plainDraggable.disabled: true',
-              '_id:' + modal._id, 'state:STATE_CLOSING', '</switchDraggable>',
+              'plainDraggable.disabled:true',
+              '</switchDraggable>',
 
               // PlainOverlay.hide()
-              '_id:' + modal._id, 'state:STATE_CLOSING', '</execClosing>',
+              '_id:' + modal._id, '</execClosing>',
 
-              '_id:' + modal._id, 'state:STATE_CLOSING', '</close>',
+              '_id:' + modal._id, '</close>',
               // DONE: close
 
               '<finishClosing>', '_id:' + modal._id, 'state:STATE_CLOSING',
-              '_id:' + modal._id, 'state:STATE_CLOSED', '</finishClosing>'
+              'shownProps:NONE',
+              'state:STATE_CLOSED',
+              '</finishClosing>'
             ]);
 
             done();
@@ -988,19 +1051,22 @@ describe('flow', function() {
 
               '<execClosing>', '_id:' + modal._id, 'state:STATE_CLOSING',
               'force:true', 'sync:false',
+              'state:STATE_CLOSING',
 
               '<switchDraggable>', '_id:' + modal._id, 'state:STATE_CLOSING',
-              'plainDraggable.disabled: true',
-              '_id:' + modal._id, 'state:STATE_CLOSING', '</switchDraggable>',
+              'plainDraggable.disabled:true',
+              '</switchDraggable>',
 
               // PlainOverlay.hide()
-              '_id:' + modal._id, 'state:STATE_CLOSING', '</execClosing>',
+              '_id:' + modal._id, '</execClosing>',
 
-              '_id:' + modal._id, 'state:STATE_CLOSING', '</close>',
+              '_id:' + modal._id, '</close>',
               // DONE: close
 
               '<finishClosing>', '_id:' + modal._id, 'state:STATE_CLOSING',
-              '_id:' + modal._id, 'state:STATE_CLOSED', '</finishClosing>'
+              'shownProps:NONE',
+              'state:STATE_CLOSED',
+              '</finishClosing>'
             ]);
 
             done();
@@ -1037,25 +1103,32 @@ describe('flow', function() {
 
               'parentProps._id:' + modal._id, 'parentProps.state:STATE_INACTIVATING',
               'elmOverlay.CLASS_FORCE:true', 'elmOverlay.CLASS_HIDE:true',
+              'parentProps.state:STATE_INACTIVATING',
+
               '<switchDraggable>', '_id:' + modal._id, 'state:STATE_INACTIVATING',
-              'plainDraggable.disabled: true',
-              '_id:' + modal._id, 'state:STATE_INACTIVATING', '</switchDraggable>',
+              'plainDraggable.disabled:true',
+              '</switchDraggable>',
 
               // PlainOverlay.show()
 
               '<finishOpening>', '_id:' + modalCh._id, 'state:STATE_OPENING',
+              'state:STATE_OPENED',
 
               '<switchDraggable>', '_id:' + modalCh._id, 'state:STATE_OPENED',
-              'plainDraggable.disabled: false',
-              '_id:' + modalCh._id, 'state:STATE_OPENED', '</switchDraggable>',
+              'plainDraggable.disabled:false',
+              '</switchDraggable>',
 
               'parentProps._id:' + modal._id, 'parentProps.state:STATE_INACTIVATING',
-              '_id:' + modalCh._id, 'state:STATE_OPENED', '</finishOpening>',
+              'parentProps.state:STATE_INACTIVATED',
 
-              '_id:' + modalCh._id, 'state:STATE_OPENED', '</execOpening>',
+              '</finishOpening>',
 
-              '_id:' + modalCh._id, 'state:STATE_OPENED', '</fixOpenClose>',
+              '_id:' + modalCh._id, '</execOpening>',
+
+              '_id:' + modalCh._id, '</fixOpenClose>',
               // DONE: fixOpenClose
+
+              'shownProps:' + modal._id + ',' + modalCh._id,
 
               // START: Close others - loop
               'topProps._id:' + modalCh._id, 'topProps.state:STATE_OPENED',
@@ -1066,40 +1139,51 @@ describe('flow', function() {
               'parentProps._id:' + modal._id, 'parentProps.state:STATE_INACTIVATED',
               'elmOverlay.duration:150ms',
               'elmOverlay.CLASS_FORCE:true', 'elmOverlay.CLASS_HIDE:false',
+              'parentProps.state:STATE_ACTIVATING',
+              'state:STATE_CLOSING',
 
               '<switchDraggable>', '_id:' + modalCh._id, 'state:STATE_CLOSING',
-              'plainDraggable.disabled: true',
-              '_id:' + modalCh._id, 'state:STATE_CLOSING', '</switchDraggable>',
+              'plainDraggable.disabled:true',
+              '</switchDraggable>',
 
               // PlainOverlay.hide()
 
               '<finishClosing>', '_id:' + modalCh._id, 'state:STATE_CLOSING',
+              'shownProps:' + modal._id,
+              'state:STATE_CLOSED',
 
               'parentProps._id:' + modal._id, 'parentProps.state:STATE_ACTIVATING',
+              'parentProps.state:STATE_OPENED',
+
               '<switchDraggable>', '_id:' + modal._id, 'state:STATE_OPENED',
-              'plainDraggable.disabled: false',
-              '_id:' + modal._id, 'state:STATE_OPENED', '</switchDraggable>',
+              'plainDraggable.disabled:false',
+              '</switchDraggable>',
 
-              '_id:' + modalCh._id, 'state:STATE_CLOSED', '</finishClosing>',
+              'parentProps(UNLINK):' + modal._id,
 
-              '_id:' + modalCh._id, 'state:STATE_CLOSED', '</execClosing>',
+              '</finishClosing>',
+
+              '_id:' + modalCh._id, '</execClosing>',
               // DONE: Close others - loop
 
               '<execClosing>', '_id:' + modal._id, 'state:STATE_OPENED',
               'force:true', 'sync:false',
+              'state:STATE_CLOSING',
 
               '<switchDraggable>', '_id:' + modal._id, 'state:STATE_CLOSING',
-              'plainDraggable.disabled: true',
-              '_id:' + modal._id, 'state:STATE_CLOSING', '</switchDraggable>',
+              'plainDraggable.disabled:true',
+              '</switchDraggable>',
 
               // PlainOverlay.hide()
-              '_id:' + modal._id, 'state:STATE_CLOSING', '</execClosing>',
+              '_id:' + modal._id, '</execClosing>',
 
-              '_id:' + modal._id, 'state:STATE_CLOSING', '</close>',
+              '_id:' + modal._id, '</close>',
               // DONE: close
 
               '<finishClosing>', '_id:' + modal._id, 'state:STATE_CLOSING',
-              '_id:' + modal._id, 'state:STATE_CLOSED', '</finishClosing>'
+              'shownProps:NONE',
+              'state:STATE_CLOSED',
+              '</finishClosing>'
             ]);
 
             done();
@@ -1128,6 +1212,8 @@ describe('flow', function() {
               '<close>', '_id:' + modal._id, 'state:STATE_INACTIVATED',
               'openCloseEffectProps:NONE',
 
+              'shownProps:' + modal._id + ',' + modalCh._id,
+
               // START: Close others - loop
               'topProps._id:' + modalCh._id, 'topProps.state:STATE_OPENED',
 
@@ -1137,40 +1223,51 @@ describe('flow', function() {
               'parentProps._id:' + modal._id, 'parentProps.state:STATE_INACTIVATED',
               'elmOverlay.duration:150ms',
               'elmOverlay.CLASS_FORCE:true', 'elmOverlay.CLASS_HIDE:false',
+              'parentProps.state:STATE_ACTIVATING',
+              'state:STATE_CLOSING',
 
               '<switchDraggable>', '_id:' + modalCh._id, 'state:STATE_CLOSING',
-              'plainDraggable.disabled: true',
-              '_id:' + modalCh._id, 'state:STATE_CLOSING', '</switchDraggable>',
+              'plainDraggable.disabled:true',
+              '</switchDraggable>',
 
               // PlainOverlay.hide()
 
               '<finishClosing>', '_id:' + modalCh._id, 'state:STATE_CLOSING',
+              'shownProps:' + modal._id,
+              'state:STATE_CLOSED',
 
               'parentProps._id:' + modal._id, 'parentProps.state:STATE_ACTIVATING',
+              'parentProps.state:STATE_OPENED',
+
               '<switchDraggable>', '_id:' + modal._id, 'state:STATE_OPENED',
-              'plainDraggable.disabled: false',
-              '_id:' + modal._id, 'state:STATE_OPENED', '</switchDraggable>',
+              'plainDraggable.disabled:false',
+              '</switchDraggable>',
 
-              '_id:' + modalCh._id, 'state:STATE_CLOSED', '</finishClosing>',
+              'parentProps(UNLINK):' + modal._id,
 
-              '_id:' + modalCh._id, 'state:STATE_CLOSED', '</execClosing>',
+              '</finishClosing>',
+
+              '_id:' + modalCh._id, '</execClosing>',
               // DONE: Close others - loop
 
               '<execClosing>', '_id:' + modal._id, 'state:STATE_OPENED',
               'force:true', 'sync:false',
+              'state:STATE_CLOSING',
 
               '<switchDraggable>', '_id:' + modal._id, 'state:STATE_CLOSING',
-              'plainDraggable.disabled: true',
-              '_id:' + modal._id, 'state:STATE_CLOSING', '</switchDraggable>',
+              'plainDraggable.disabled:true',
+              '</switchDraggable>',
 
               // PlainOverlay.hide()
-              '_id:' + modal._id, 'state:STATE_CLOSING', '</execClosing>',
+              '_id:' + modal._id, '</execClosing>',
 
-              '_id:' + modal._id, 'state:STATE_CLOSING', '</close>',
+              '_id:' + modal._id, '</close>',
               // DONE: close
 
               '<finishClosing>', '_id:' + modal._id, 'state:STATE_CLOSING',
-              '_id:' + modal._id, 'state:STATE_CLOSED', '</finishClosing>'
+              'shownProps:NONE',
+              'state:STATE_CLOSED',
+              '</finishClosing>'
             ]);
 
             done();
@@ -1207,42 +1304,53 @@ describe('flow', function() {
 
               'parentProps._id:' + modal._id, 'parentProps.state:STATE_ACTIVATING',
               'elmOverlay.CLASS_FORCE:true', 'elmOverlay.CLASS_HIDE:false',
+              'parentProps.state:STATE_ACTIVATING',
+              'state:STATE_CLOSING',
 
               '<switchDraggable>', '_id:' + modalCh._id, 'state:STATE_CLOSING',
-              'plainDraggable.disabled: true',
-              '_id:' + modalCh._id, 'state:STATE_CLOSING', '</switchDraggable>',
+              'plainDraggable.disabled:true',
+              '</switchDraggable>',
 
               // PlainOverlay.hide()
 
               '<finishClosing>', '_id:' + modalCh._id, 'state:STATE_CLOSING',
+              'shownProps:' + modal._id,
+              'state:STATE_CLOSED',
 
               'parentProps._id:' + modal._id, 'parentProps.state:STATE_ACTIVATING',
+              'parentProps.state:STATE_OPENED',
+
               '<switchDraggable>', '_id:' + modal._id, 'state:STATE_OPENED',
-              'plainDraggable.disabled: false',
-              '_id:' + modal._id, 'state:STATE_OPENED', '</switchDraggable>',
+              'plainDraggable.disabled:false',
+              '</switchDraggable>',
 
-              '_id:' + modalCh._id, 'state:STATE_CLOSED', '</finishClosing>',
+              'parentProps(UNLINK):' + modal._id,
 
-              '_id:' + modalCh._id, 'state:STATE_CLOSED', '</execClosing>',
+              '</finishClosing>',
 
-              '_id:' + modalCh._id, 'state:STATE_CLOSED', '</fixOpenClose>',
+              '_id:' + modalCh._id, '</execClosing>',
+
+              '_id:' + modalCh._id, '</fixOpenClose>',
               // DONE: fixOpenClose
 
               '<execClosing>', '_id:' + modal._id, 'state:STATE_OPENED',
               'force:true', 'sync:false',
+              'state:STATE_CLOSING',
 
               '<switchDraggable>', '_id:' + modal._id, 'state:STATE_CLOSING',
-              'plainDraggable.disabled: true',
-              '_id:' + modal._id, 'state:STATE_CLOSING', '</switchDraggable>',
+              'plainDraggable.disabled:true',
+              '</switchDraggable>',
 
               // PlainOverlay.hide()
-              '_id:' + modal._id, 'state:STATE_CLOSING', '</execClosing>',
+              '_id:' + modal._id, '</execClosing>',
 
-              '_id:' + modal._id, 'state:STATE_CLOSING', '</close>',
+              '_id:' + modal._id, '</close>',
               // DONE: close
 
               '<finishClosing>', '_id:' + modal._id, 'state:STATE_CLOSING',
-              '_id:' + modal._id, 'state:STATE_CLOSED', '</finishClosing>'
+              'shownProps:NONE',
+              'state:STATE_CLOSED',
+              '</finishClosing>'
             ]);
 
             done();

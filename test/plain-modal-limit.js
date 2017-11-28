@@ -525,18 +525,18 @@ function finishOpening(props) {
   // [/DEBUG]
   openCloseEffectProps = null;
   props.state = STATE_OPENED;
+  traceLog.push('state:' + STATE_TEXT[props.state]); // [DEBUG/]
   if (props.parentProps) {
     // [DEBUG]
     traceLog.push('parentProps._id:' + props.parentProps._id, 'parentProps.state:' + STATE_TEXT[props.parentProps.state]);
     // [/DEBUG]
     props.parentProps.state = STATE_INACTIVATED;
+    traceLog.push('parentProps.state:' + STATE_TEXT[props.parentProps.state]); // [DEBUG/]
   }
   if (props.options.onOpen) {
     props.options.onOpen.call(props.ins);
   }
-  // [DEBUG]
-  traceLog.push('_id:' + props._id, 'state:' + STATE_TEXT[props.state], '</finishOpening>');
-  // [/DEBUG]
+  traceLog.push('</finishOpening>'); // [DEBUG/]
 }
 
 function finishClosing(props) {
@@ -547,21 +547,27 @@ function finishClosing(props) {
   }
   // [/DEBUG]
   shownProps.pop();
+  // [DEBUG]
+  traceLog.push('shownProps:' + (shownProps.length ? shownProps.map(function (props) {
+    return props._id;
+  }).join(',') : 'NONE'));
+  // [/DEBUG]
   openCloseEffectProps = null;
   props.state = STATE_CLOSED;
+  traceLog.push('state:' + STATE_TEXT[props.state]); // [DEBUG/]
   if (props.parentProps) {
     // [DEBUG]
     traceLog.push('parentProps._id:' + props.parentProps._id, 'parentProps.state:' + STATE_TEXT[props.parentProps.state]);
     // [/DEBUG]
     props.parentProps.state = STATE_OPENED;
+    traceLog.push('parentProps.state:' + STATE_TEXT[props.parentProps.state]); // [DEBUG/]
+    traceLog.push('parentProps(UNLINK):' + props.parentProps._id); // [DEBUG/]
     props.parentProps = null;
   }
   if (props.options.onClose) {
     props.options.onClose.call(props.ins);
   }
-  // [DEBUG]
-  traceLog.push('_id:' + props._id, 'state:' + STATE_TEXT[props.state], '</finishClosing>');
-  // [/DEBUG]
+  traceLog.push('</finishClosing>'); // [DEBUG/]
 }
 
 /**
@@ -602,17 +608,17 @@ function execOpening(props, force) {
     // [/DEBUG]
     // Update `state` regardless of force, for switchDraggable.
     parentProps.state = STATE_INACTIVATING;
+    traceLog.push('parentProps.state:' + STATE_TEXT[props.parentProps.state]); // [DEBUG/]
   }
 
   // When `force`, `props.state` is updated immediately in
   //    plainOverlay.onShow -> finishOpening -> STATE_OPENED
   if (!force) {
     props.state = STATE_OPENING;
+    traceLog.push('state:' + STATE_TEXT[props.state]); // [DEBUG/]
   }
   props.plainOverlay.show(force);
-  // [DEBUG]
-  traceLog.push('_id:' + props._id, 'state:' + STATE_TEXT[props.state], '</execOpening>');
-  // [/DEBUG]
+  traceLog.push('_id:' + props._id, '</execOpening>'); // [DEBUG/]
 }
 
 /**
@@ -654,16 +660,16 @@ function execClosing(props, force, sync) {
     // [/DEBUG]
     // same condition as props
     parentProps.state = STATE_ACTIVATING;
+    traceLog.push('parentProps.state:' + STATE_TEXT[props.parentProps.state]); // [DEBUG/]
   }
 
   // Even when `force`, `props.state` is updated with "async" (if !sync),
   // something might run before `props.state` is updated in
   //    (setTimeout ->) plainOverlay.onHide -> finishClosing -> STATE_CLOSED
   props.state = STATE_CLOSING;
+  traceLog.push('state:' + STATE_TEXT[props.state]); // [DEBUG/]
   props.plainOverlay.hide(force, sync);
-  // [DEBUG]
-  traceLog.push('_id:' + props._id, 'state:' + STATE_TEXT[props.state], '</execClosing>');
-  // [/DEBUG]
+  traceLog.push('_id:' + props._id, '</execClosing>'); // [DEBUG/]
 }
 
 /**
@@ -680,9 +686,7 @@ function fixOpenClose(props) {
   } else if (props.state === STATE_CLOSING) {
     execClosing(props, true, true);
   }
-  // [DEBUG]
-  traceLog.push('_id:' + props._id, 'state:' + STATE_TEXT[props.state], '</fixOpenClose>');
-  // [/DEBUG]
+  traceLog.push('_id:' + props._id, '</fixOpenClose>'); // [DEBUG/]
 }
 
 /**
@@ -693,7 +697,7 @@ function fixOpenClose(props) {
 function _open(props, force) {
   traceLog.push('<open>', '_id:' + props._id, 'state:' + STATE_TEXT[props.state]); // [DEBUG/]
   if (props.state !== STATE_CLOSED && props.state !== STATE_CLOSING && props.state !== STATE_OPENING || props.state === STATE_OPENING && !force || props.state !== STATE_OPENING && props.options.onBeforeOpen && props.options.onBeforeOpen.call(props.ins) === false) {
-    traceLog.push('cancel', '</open>'); // [DEBUG/]
+    traceLog.push('CANCEL', '</open>'); // [DEBUG/]
     return;
   }
   /*
@@ -712,13 +716,20 @@ function _open(props, force) {
     openCloseEffectProps = props;
 
     if (shownProps.length) {
+      // [DEBUG]
       if (shownProps.indexOf(props) !== -1) {
         throw new Error('`shownProps` is broken.');
-      } // [DEBUG/]
+      }
+      // [/DEBUG]
       props.parentProps = shownProps[shownProps.length - 1];
-      traceLog.push('parentProps:' + props.parentProps._id); // [DEBUG/]
+      traceLog.push('parentProps(LINK):' + props.parentProps._id); // [DEBUG/]
     }
     shownProps.push(props);
+    // [DEBUG]
+    traceLog.push('shownProps:' + (shownProps.length ? shownProps.map(function (props) {
+      return props._id;
+    }).join(',') : 'NONE'));
+    // [/DEBUG]
 
     (0, _mClassList2.default)(props.elmOverlay).add(STYLE_CLASS_OVERLAY_FORCE).remove(STYLE_CLASS_OVERLAY_HIDE);
     // [DEBUG]
@@ -728,7 +739,7 @@ function _open(props, force) {
   }
 
   execOpening(props, force);
-  traceLog.push('_id:' + props._id, 'state:' + STATE_TEXT[props.state], '</open>'); // [DEBUG/]
+  traceLog.push('_id:' + props._id, '</open>'); // [DEBUG/]
 }
 
 /**
@@ -739,7 +750,7 @@ function _open(props, force) {
 function _close(props, force) {
   traceLog.push('<close>', '_id:' + props._id, 'state:' + STATE_TEXT[props.state]); // [DEBUG/]
   if (props.state === STATE_CLOSED || props.state === STATE_CLOSING && !force || props.state !== STATE_CLOSING && props.options.onBeforeClose && props.options.onBeforeClose.call(props.ins) === false) {
-    traceLog.push('cancel', '</close>'); // [DEBUG/]
+    traceLog.push('CANCEL', '</close>'); // [DEBUG/]
     return;
   }
   /*
@@ -767,13 +778,16 @@ function _close(props, force) {
     if (i === -1 || i === shownProps.length - 1) {
       throw new Error('`shownProps` is broken.');
     }
+    traceLog.push('shownProps:' + (shownProps.length ? shownProps.map(function (props) {
+      return props._id;
+    }).join(',') : 'NONE'));
     // [/DEBUG]
     var topProps = void 0;
     while ((topProps = shownProps[shownProps.length - 1]) !== props) {
+      // [DEBUG]
       if (topProps.state !== STATE_OPENED) {
         throw new Error('`shownProps` is broken.');
-      } // [DEBUG/]
-      // [DEBUG]
+      }
       traceLog.push('topProps._id:' + topProps._id, 'topProps.state:' + STATE_TEXT[topProps.state]);
       // [/DEBUG]
       execClosing(topProps, true, true);
@@ -793,7 +807,7 @@ function _close(props, force) {
   }
 
   execClosing(props, force);
-  traceLog.push('_id:' + props._id, 'state:' + STATE_TEXT[props.state], '</close>'); // [DEBUG/]
+  traceLog.push('_id:' + props._id, '</close>'); // [DEBUG/]
 }
 
 /**

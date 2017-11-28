@@ -77,7 +77,7 @@ describe('closeButton', function() {
     traceLog.length = 0;
     clickElement(button1);
     expect(traceLog).toEqual([
-      '<close>', '_id:' + modal._id, 'state:STATE_CLOSED', 'cancel', '</close>'
+      '<close>', '_id:' + modal._id, 'state:STATE_CLOSED', 'CANCEL', '</close>'
     ]);
 
     traceLog.length = 0;
@@ -98,7 +98,7 @@ describe('closeButton', function() {
     traceLog.length = 0;
     clickElement(button2);
     expect(traceLog).toEqual([
-      '<close>', '_id:' + modal._id, 'state:STATE_CLOSED', 'cancel', '</close>'
+      '<close>', '_id:' + modal._id, 'state:STATE_CLOSED', 'CANCEL', '</close>'
     ]);
 
     done();

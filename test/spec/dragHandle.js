@@ -49,8 +49,8 @@ describe('dragHandle', function() {
     expect(modal.dragHandle).toBe(handle1);
     expect(traceLog).toEqual([
       '<switchDraggable>', '_id:' + modal._id, 'state:STATE_CLOSED',
-      'plainDraggable.disabled: true',
-      '_id:' + modal._id, 'state:STATE_CLOSED', '</switchDraggable>'
+      'plainDraggable.disabled:true',
+      '</switchDraggable>'
     ]);
     expect(insProps[modal._id].plainDraggable == null).toBe(false);
     expect(insProps[modal._id].plainDraggable.handle).toBe(handle1);
@@ -64,8 +64,8 @@ describe('dragHandle', function() {
     expect(modal.dragHandle).toBe(handle2);
     expect(traceLog).toEqual([
       '<switchDraggable>', '_id:' + modal._id, 'state:STATE_CLOSED',
-      'plainDraggable.disabled: true',
-      '_id:' + modal._id, 'state:STATE_CLOSED', '</switchDraggable>'
+      'plainDraggable.disabled:true',
+      '</switchDraggable>'
     ]);
     expect(insProps[modal._id].plainDraggable == null).toBe(false);
     expect(insProps[modal._id].plainDraggable.handle).toBe(handle2);
@@ -79,8 +79,8 @@ describe('dragHandle', function() {
     expect(typeof modal.dragHandle).toBe('undefined');
     expect(traceLog).toEqual([
       '<switchDraggable>', '_id:' + modal._id, 'state:STATE_CLOSED',
-      'plainDraggable.disabled: true',
-      '_id:' + modal._id, 'state:STATE_CLOSED', '</switchDraggable>'
+      'plainDraggable.disabled:true',
+      '</switchDraggable>'
     ]);
     expect(insProps[modal._id].plainDraggable == null).toBe(false);
     expect(insProps[modal._id].plainDraggable.handle).toBe(handle2); // Not changed
