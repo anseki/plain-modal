@@ -18,7 +18,9 @@ const
     'test-page-loader'
   ],
 
-  EXT_DIR = path.resolve(__dirname, '../../test-ext');
+  EXT_DIR = path.resolve(__dirname, '../../test-ext'),
+
+  SLOW_RESPONSE = 10000;
 
 log4js.configure({
   appenders: {
@@ -36,7 +38,7 @@ let logger = log4js.getLogger('node-static-alias');
 
 http.createServer((request, response) => {
   request.addListener('end', () => {
-    (new staticAlias.Server(DOC_ROOT, {
+    var server = new staticAlias.Server(DOC_ROOT, {
       cache: false,
       headers: {'Cache-Control': 'no-cache, must-revalidate'},
       alias: MODULE_PACKAGES.map(packageName => (
@@ -83,18 +85,28 @@ http.createServer((request, response) => {
           }
         ]),
       logger: logger
-    }))
-    .serve(request, response, e => {
-      if (e) {
-        response.writeHead(e.status, e.headers);
-        logger.error('(%s) %s', request.url, response.statusCode);
-        if (e.status === 404) {
-          response.end('Not Found');
-        }
-      } else {
-        logger.info('(%s) %s', request.url, response.statusCode);
-      }
     });
+
+    function serve() {
+      server.serve(request, response, e => {
+        if (e) {
+          response.writeHead(e.status, e.headers);
+          logger.error('(%s) %s', request.url, response.statusCode);
+          if (e.status === 404) {
+            response.end('Not Found');
+          }
+        } else {
+          logger.info('(%s) %s', request.url, response.statusCode);
+        }
+      });
+    }
+
+    if (request.url === '/slow.gif') { // slow response
+      logger.info('(%s) SLOW RESPONSE %dms', request.url, SLOW_RESPONSE);
+      setTimeout(serve, SLOW_RESPONSE);
+    } else {
+      serve();
+    }
   }).resume();
 }).listen(PORT);
 
