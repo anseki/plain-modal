@@ -23,6 +23,7 @@ describe('flow', function() {
         dragHandle: document.getElementById('handle21'),
         duration: 150
       });
+
       PlainModal.PlainOverlay.forceEvent = true; // for hidden view
 
       // Init cbChange of utils.makeState (1st, close(true) to reset)
