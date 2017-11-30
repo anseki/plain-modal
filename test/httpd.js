@@ -101,7 +101,7 @@ http.createServer((request, response) => {
       });
     }
 
-    if (request.url === '/slow.gif') { // slow response
+    if (/^\/slow\.gif/.test(request.url)) { // slow response
       logger.info('(%s) SLOW RESPONSE %dms', request.url, SLOW_RESPONSE);
       setTimeout(serve, SLOW_RESPONSE);
     } else {
