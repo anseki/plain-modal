@@ -316,7 +316,7 @@ function open(props, force) {
       props.state !== STATE_OPENING &&
         props.options.onBeforeOpen && props.options.onBeforeOpen.call(props.ins) === false) {
     traceLog.push('CANCEL', '</open>'); // [DEBUG/]
-    return;
+    return false;
   }
   /*
     Cases:
@@ -355,6 +355,7 @@ function open(props, force) {
 
   execOpening(props, force);
   traceLog.push(`_id:${props._id}`, '</open>'); // [DEBUG/]
+  return true;
 }
 
 /**
@@ -369,7 +370,7 @@ function close(props, force) {
       props.state !== STATE_CLOSING &&
         props.options.onBeforeClose && props.options.onBeforeClose.call(props.ins) === false) {
     traceLog.push('CANCEL', '</close>'); // [DEBUG/]
-    return;
+    return false;
   }
   /*
     Cases:
@@ -418,6 +419,7 @@ function close(props, force) {
 
   execClosing(props, force);
   traceLog.push(`_id:${props._id}`, '</close>'); // [DEBUG/]
+  return true;
 }
 
 /**
@@ -518,6 +520,20 @@ class PlainModal {
       sheet.id = STYLE_ELEMENT_ID;
       sheet.textContent = CSS_TEXT;
       if (IS_TRIDENT || IS_EDGE) { forceReflow(sheet); } // Trident bug
+
+      // for KeyboardEvent
+      window.addEventListener('keydown', function(event) {
+        let key, topProps;
+        if (escKey &&
+            ((key = event.key.toLowerCase()) === 'escape' || key === 'esc') &&
+            (topProps = shownProps.length && shownProps[shownProps.length - 1]) &&
+            close(topProps)) {
+          traceLog.push('<keydown/>', 'CLOSE', `_id:${topProps._id}`); // [DEBUG/]
+          event.preventDefault();
+          event.stopImmediatePropagation(); // preventDefault stops other listeners, maybe.
+          event.stopPropagation();
+        }
+      }, true);
     }
 
     mClassList(content).add(STYLE_CLASS_CONTENT);
