@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <style>
+
+.timestamp {
+  margin-right: 1em;
+  color: #999;
+  font-size: 0.8em;
+}
+
+.type {
+  display: inline-block;
+  width: 8em;
+  margin: 0 1em;
+  font-weight: bold;
+}
+
+.key {
+  display: inline-block;
+  width: 5em;
+  margin: 0 1em;
+}
+
+.boolTrue, .boolFalse {
+  margin: 0 1em;
+}
+.boolTrue { color: #4785c6; }
+.boolFalse { color: #c6478c; }
+
+code {
+  padding: 2px 3px;
+  background-color: #ddd;
+  font-size: 1em;
+}
+
+  </style>
+</head>
+<body>
+
+<h1>How browser fire key events</h1>
+<p><a href="https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent#Notes">Browser compatibility</a></p>
+
+<div id="log" style="padding: 3px 5px; background-color: #eee; line-height: 1;"></div>
+
+<img src="/slow.gif" id="img" style="display: block; width: 200px; height: 200px; border: 3px solid blue; margin: 10px;">
+<button id="btnImg">LOAD</button>
+<input type="checkbox" id="useEsc">useEsc
+
+<script>
+
+var elmLog = document.getElementById('log'),
+  logs = [],
+  MAX_LOGS = 30;
+
+function addLog(msg) {
+  logs.push('<span class="timestamp">[' + (new Date()).toTimeString() + ']</span>' + msg);
+  var lenLogs = logs.length;
+  if (lenLogs > MAX_LOGS) {
+    logs.splice(0, lenLogs - MAX_LOGS);
+  }
+  elmLog.innerHTML = logs.join('<br>');
+}
+
+// ----------------------------------------------------------------
+
+var elmChk = document.getElementById('useEsc');
+
+window.addEventListener('keydown', function(e) {
+  var key = e.key.toLowerCase();
+  if (elmChk.checked && (key === 'escape' || key === 'esc')) {
+    e.preventDefault();
+    e.stopImmediatePropagation(); // preventDefault stops other listeners, maybe.
+    e.stopPropagation();
+    elmChk.checked = false;
+    addLog('preventDefault');
+  }
+}, true);
+
+// ----------------------------------------------------------------
+
+function keyEvent(e) {
+  addLog('<span class="type">' + e.type + '</span>' +
+    'key:<span class="key">' + e.key + '</span>' +
+    'repeat:<span class="' + (e.repeat ? 'boolTrue' : 'boolFalse') + '">' + e.repeat + '</span>');
+}
+
+['keydown', 'keypress', 'keyup'].forEach(function(type) {
+  window.addEventListener(type, keyEvent, true);
+});
+
+// ----------------------------------------------------------------
+
+var elmImg = document.getElementById('img'),
+  imgCnt = 0;
+
+// Changed HTML doesn't accept "Escape".
+document.getElementById('btnImg').style.display = 'none';
+
+document.getElementById('btnImg').addEventListener('click', function() {
+  var src = '/slow.gif?' + imgCnt++;
+  elmImg.src = src;
+  addLog('img.src = "' + src + '"');
+}, false);
+
+function loadEvent(e) {
+  addLog('<span class="type">' + e.type + '</span>');
+}
+
+['load', 'error', 'abort'].forEach(function(type) {
+  elmImg.addEventListener(type, loadEvent, false);
+});
+
+</script>
+
+<ul>
+  <li>Some browsers don't fire <code>`keypress`</code> when "Escape" key is pressed.</li>
+  <li>In some browsers, the "Escape" key returns <code>`Esc`</code> instead of <code>`Escape`</code> as <code>`key`</code>.</li>
+</ul>
+
+<h2>Test</h2>
+<ul>
+  <li><code>`keydown`</code> event is fired when "Escape" key pressed.</li>
+  <li>When "Escape" key is pressed before the image is loaded, <code>`keydown`</code> -&gt; <code>`error`</code> or <code>`abort`</code> -&gt; <code>`keyup`</code> events are fired.</li>
+  <li>When the checkbox that the key event does <code>`preventDefault`</code> is enabled, "Escape" key can't cancel the loading the image. Second clicking works.</li>
+</ul>
+
+</body>
+</html>
