@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="/plain-modal.js"></script>
+
+  <style>
+
+#elm1, #elm2, #elm3 {
+  background-color: green;
+}
+
+#elm1 {
+  width: 600px;
+  height: 130px;
+}
+
+#elm2 {
+  width: 500px;
+  height: 230px;
+}
+
+#elm3 {
+  width: 400px;
+  height: 330px;
+}
+
+  </style>
+
+</head>
+<body>
+
+
+  <div id="elm1">
+    elm1
+    <button id="btn2">Open 2</button>
+  </div>
+  <div id="elm2">
+    elm2
+    <button id="btn3">Open 3</button>
+  </div>
+  <div id="elm3">
+    elm3
+    <button id="btnLog">Log</button>
+  </div>
+
+  <img src="/slow.gif" id="img" style="display: block; width: 200px; height: 200px; border: 3px solid blue; margin: 10px;">
+
+  <button id="btn1">Open 1</button>
+
+<script>
+
+var modal1 = new PlainModal(document.getElementById('elm1')),
+  modal2 = new PlainModal(document.getElementById('elm2')),
+  modal3 = new PlainModal(document.getElementById('elm3'));
+
+document.getElementById('btn1').addEventListener('click', function() { modal1.open(); }, false);
+document.getElementById('btn2').addEventListener('click', function() { modal2.open(); }, false);
+document.getElementById('btn3').addEventListener('click', function() { modal3.open(); }, false);
+document.getElementById('btnLog').addEventListener('click', function() {
+  PlainModal.traceLog.length = 0;
+  // console.dir(PlainModal.traceLog);
+}, false);
+
+</script>
+
+<h2>Test</h2>
+<ul>
+  <li>"Escape" key closes 3 modals and cancel loading image.</li>
+</ul>
+
+</body>
+</html>
