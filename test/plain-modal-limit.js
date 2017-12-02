@@ -698,7 +698,7 @@ function _open(props, force) {
   traceLog.push('<open>', '_id:' + props._id, 'state:' + STATE_TEXT[props.state]); // [DEBUG/]
   if (props.state !== STATE_CLOSED && props.state !== STATE_CLOSING && props.state !== STATE_OPENING || props.state === STATE_OPENING && !force || props.state !== STATE_OPENING && props.options.onBeforeOpen && props.options.onBeforeOpen.call(props.ins) === false) {
     traceLog.push('CANCEL', '</open>'); // [DEBUG/]
-    return;
+    return false;
   }
   /*
     Cases:
@@ -740,6 +740,7 @@ function _open(props, force) {
 
   execOpening(props, force);
   traceLog.push('_id:' + props._id, '</open>'); // [DEBUG/]
+  return true;
 }
 
 /**
@@ -751,7 +752,7 @@ function _close(props, force) {
   traceLog.push('<close>', '_id:' + props._id, 'state:' + STATE_TEXT[props.state]); // [DEBUG/]
   if (props.state === STATE_CLOSED || props.state === STATE_CLOSING && !force || props.state !== STATE_CLOSING && props.options.onBeforeClose && props.options.onBeforeClose.call(props.ins) === false) {
     traceLog.push('CANCEL', '</close>'); // [DEBUG/]
-    return;
+    return false;
   }
   /*
     Cases:
@@ -808,6 +809,7 @@ function _close(props, force) {
 
   execClosing(props, force);
   traceLog.push('_id:' + props._id, '</close>'); // [DEBUG/]
+  return true;
 }
 
 /**
@@ -895,6 +897,18 @@ var PlainModal = function () {
       if (IS_TRIDENT || IS_EDGE) {
         forceReflow(sheet);
       } // Trident bug
+
+      // for KeyboardEvent
+      window.addEventListener('keydown', function (event) {
+        var key = void 0,
+            topProps = void 0;
+        if (escKey && ((key = event.key.toLowerCase()) === 'escape' || key === 'esc') && (topProps = shownProps.length && shownProps[shownProps.length - 1]) && (traceLog.push('<keydown/>', 'CLOSE', '_id:' + topProps._id), true) && // [DEBUG/]
+        _close(topProps)) {
+          event.preventDefault();
+          event.stopImmediatePropagation(); // preventDefault stops other listeners, maybe.
+          event.stopPropagation();
+        }
+      }, true);
     }
 
     (0, _mClassList2.default)(content).add(STYLE_CLASS_CONTENT);
