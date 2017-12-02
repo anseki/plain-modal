@@ -527,8 +527,8 @@ class PlainModal {
         if (escKey &&
             ((key = event.key.toLowerCase()) === 'escape' || key === 'esc') &&
             (topProps = shownProps.length && shownProps[shownProps.length - 1]) &&
+            (traceLog.push('<keydown/>', 'CLOSE', `_id:${topProps._id}`), true) && // [DEBUG/]
             close(topProps)) {
-          traceLog.push('<keydown/>', 'CLOSE', `_id:${topProps._id}`); // [DEBUG/]
           event.preventDefault();
           event.stopImmediatePropagation(); // preventDefault stops other listeners, maybe.
           event.stopPropagation();
