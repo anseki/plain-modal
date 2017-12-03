@@ -2,13 +2,14 @@
 describe('options', function() {
   'use strict';
 
-  var window, document, PlainModal, pageDone;
+  var window, document, PlainModal, insProps, pageDone;
 
   beforeAll(function(beforeDone) {
     loadPage('spec/common.html', function(pageWindow, pageDocument, pageBody, done) {
       window = pageWindow;
       document = pageDocument;
       PlainModal = window.PlainModal;
+      insProps = window.insProps;
       pageDone = done;
 
       beforeDone();
@@ -88,6 +89,7 @@ describe('options', function() {
 
     it('default', function(done) {
       expect(modal.duration).toBe(200);
+      expect(insProps[modal._id].plainOverlay.duration).toBe(200); // Passed value
 
       done();
     });
@@ -95,6 +97,7 @@ describe('options', function() {
     it('Update - number', function(done) {
       modal.duration = 255;
       expect(modal.duration).toBe(255);
+      expect(insProps[modal._id].plainOverlay.duration).toBe(255); // Passed value
 
       done();
     });
@@ -102,6 +105,7 @@ describe('options', function() {
     it('Update - another number', function(done) {
       modal.duration = 64;
       expect(modal.duration).toBe(64);
+      expect(insProps[modal._id].plainOverlay.duration).toBe(64); // Passed value
 
       done();
     });
@@ -109,6 +113,7 @@ describe('options', function() {
     it('Update - default', function(done) {
       modal.duration = 200;
       expect(modal.duration).toBe(200);
+      expect(insProps[modal._id].plainOverlay.duration).toBe(200); // Passed value
 
       done();
     });
@@ -116,9 +121,11 @@ describe('options', function() {
     it('Update - Invalid value -> ignored', function(done) {
       modal.duration = 400;
       expect(modal.duration).toBe(400);
+      expect(insProps[modal._id].plainOverlay.duration).toBe(400); // Passed value
 
       modal.duration = false;
       expect(modal.duration).toBe(400);
+      expect(insProps[modal._id].plainOverlay.duration).toBe(400); // Passed value
 
       done();
     });
@@ -126,6 +133,7 @@ describe('options', function() {
     it('Update another option -> ignored', function(done) {
       modal.overlayBlur = 5;
       expect(modal.duration).toBe(400);
+      expect(insProps[modal._id].plainOverlay.duration).toBe(400); // Passed value
 
       done();
     });
@@ -141,6 +149,7 @@ describe('options', function() {
 
     it('default', function(done) {
       expect(modal.overlayBlur).toBe(false);
+      expect(insProps[modal._id].plainOverlay.blur).toBe(false); // Passed value
 
       done();
     });
@@ -148,6 +157,7 @@ describe('options', function() {
     it('Update - number', function(done) {
       modal.overlayBlur = 2;
       expect(modal.overlayBlur).toBe(2);
+      expect(insProps[modal._id].plainOverlay.blur).toBe(2); // Passed value
 
       done();
     });
@@ -155,6 +165,7 @@ describe('options', function() {
     it('Update - another number', function(done) {
       modal.overlayBlur = 5;
       expect(modal.overlayBlur).toBe(5);
+      expect(insProps[modal._id].plainOverlay.blur).toBe(5); // Passed value
 
       done();
     });
@@ -162,6 +173,7 @@ describe('options', function() {
     it('Update - default', function(done) {
       modal.overlayBlur = false;
       expect(modal.overlayBlur).toBe(false);
+      expect(insProps[modal._id].plainOverlay.blur).toBe(false); // Passed value
 
       done();
     });
@@ -169,9 +181,11 @@ describe('options', function() {
     it('Update - Invalid value -> ignored', function(done) {
       modal.overlayBlur = 3;
       expect(modal.overlayBlur).toBe(3);
+      expect(insProps[modal._id].plainOverlay.blur).toBe(3); // Passed value
 
       modal.overlayBlur = 'x';
       expect(modal.overlayBlur).toBe(3);
+      expect(insProps[modal._id].plainOverlay.blur).toBe(3); // Passed value
 
       done();
     });
@@ -179,6 +193,7 @@ describe('options', function() {
     it('Update another option -> ignored', function(done) {
       modal.duration = 5;
       expect(modal.overlayBlur).toBe(3);
+      expect(insProps[modal._id].plainOverlay.blur).toBe(3); // Passed value
 
       done();
     });
