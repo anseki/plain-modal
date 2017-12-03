@@ -68,7 +68,7 @@ const
 
 let insId = 0,
   openCloseEffectProps, // A `props` that is running the "open/close" effect now.
-  escKey = true;
+  closeByEscKey = true;
 
 // [DEBUG]
 window.insProps = insProps;
@@ -524,7 +524,7 @@ class PlainModal {
       // for KeyboardEvent
       window.addEventListener('keydown', function(event) {
         let key, topProps;
-        if (escKey &&
+        if (closeByEscKey &&
             ((key = event.key.toLowerCase()) === 'escape' || key === 'esc') &&
             (topProps = shownProps.length && shownProps[shownProps.length - 1]) &&
             (traceLog.push('<keydown/>', 'CLOSE', `_id:${topProps._id}`), true) && // [DEBUG/]
@@ -624,8 +624,8 @@ class PlainModal {
   get onBeforeClose() { return insProps[this._id].options.onBeforeClose; }
   set onBeforeClose(value) { setOptions(insProps[this._id], {onBeforeClose: value}); }
 
-  static get escKey() { return escKey; }
-  static set escKey(value) { if (typeof value === 'boolean') { escKey = value; } }
+  static get closeByEscKey() { return closeByEscKey; }
+  static set closeByEscKey(value) { if (typeof value === 'boolean') { closeByEscKey = value; } }
 
   static get STATE_CLOSED() { return STATE_CLOSED; }
   static get STATE_OPENING() { return STATE_OPENING; }

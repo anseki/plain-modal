@@ -1,5 +1,5 @@
 
-describe('escKey', function() {
+describe('closeByEscKey', function() {
   'use strict';
 
   var window, document, utils, PlainModal, traceLog, shownProps, pageDone,
@@ -124,13 +124,13 @@ describe('escKey', function() {
 
         traceLog.length = 0;
         window.cntEscKey = 0;
-        PlainModal.escKey = true;
+        PlainModal.closeByEscKey = true;
         escKeyDown();
       }
     );
   });
 
-  it('PlainModal.escKey = false, keydown -> ignored', function(done) {
+  it('PlainModal.closeByEscKey = false, keydown -> ignored', function(done) {
     modal1.onOpen = modal1.onClose = modal1.onBeforeOpen = modal1.onBeforeClose =
       modal2.onOpen = modal2.onClose = modal2.onBeforeOpen = modal2.onBeforeClose =
       modal3.onOpen = modal3.onClose = modal3.onBeforeOpen = modal3.onBeforeClose = null;
@@ -167,7 +167,7 @@ describe('escKey', function() {
 
         traceLog.length = 0;
         window.cntEscKey = 0;
-        PlainModal.escKey = false;
+        PlainModal.closeByEscKey = false;
         escKeyDown();
       }
     );
@@ -205,7 +205,7 @@ describe('escKey', function() {
 
         traceLog.length = 0;
         window.cntEscKey = 0;
-        PlainModal.escKey = true;
+        PlainModal.closeByEscKey = true;
         escKeyDown();
       }
     );
@@ -255,7 +255,7 @@ describe('escKey', function() {
 
         traceLog.length = 0;
         window.cntEscKey = 0;
-        PlainModal.escKey = true;
+        PlainModal.closeByEscKey = true;
         escKeyDown();
       }
     );
@@ -384,7 +384,7 @@ describe('escKey', function() {
 
         traceLog.length = 0;
         window.cntEscKey = 0;
-        PlainModal.escKey = true;
+        PlainModal.closeByEscKey = true;
         escKeyDown();
         setTimeout(function() {
           escKeyDown();
@@ -421,7 +421,7 @@ describe('escKey', function() {
 
         traceLog.length = 0;
         window.cntEscKey = 0;
-        PlainModal.escKey = true;
+        PlainModal.closeByEscKey = true;
 
         escKeyDown(); // 1
 
