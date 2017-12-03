@@ -623,7 +623,7 @@ shownProps = [];
 var insId = 0,
     openCloseEffectProps = void 0,
     // A `props` that is running the "open/close" effect now.
-escKey = true;
+closeByEscKey = true;
 
 // [DEBUG]
 window.insProps = insProps;
@@ -1083,7 +1083,7 @@ var PlainModal = function () {
       window.addEventListener('keydown', function (event) {
         var key = void 0,
             topProps = void 0;
-        if (escKey && ((key = event.key.toLowerCase()) === 'escape' || key === 'esc') && (topProps = shownProps.length && shownProps[shownProps.length - 1]) && (traceLog.push('<keydown/>', 'CLOSE', '_id:' + topProps._id), true) && // [DEBUG/]
+        if (closeByEscKey && ((key = event.key.toLowerCase()) === 'escape' || key === 'esc') && (topProps = shownProps.length && shownProps[shownProps.length - 1]) && (traceLog.push('<keydown/>', 'CLOSE', '_id:' + topProps._id), true) && // [DEBUG/]
         _close(topProps)) {
           event.preventDefault();
           event.stopImmediatePropagation(); // preventDefault stops other listeners, maybe.
@@ -1239,13 +1239,13 @@ var PlainModal = function () {
       _setOptions(insProps[this._id], { onBeforeClose: value });
     }
   }], [{
-    key: 'escKey',
+    key: 'closeByEscKey',
     get: function get() {
-      return escKey;
+      return closeByEscKey;
     },
     set: function set(value) {
       if (typeof value === 'boolean') {
-        escKey = value;
+        closeByEscKey = value;
       }
     }
   }, {
