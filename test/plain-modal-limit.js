@@ -480,7 +480,8 @@ shownProps = [];
 var insId = 0,
     openCloseEffectProps = void 0,
     // A `props` that is running the "open/close" effect now.
-closeByEscKey = true;
+closeByEscKey = true,
+    closeByOverlay = true;
 
 // [DEBUG]
 window.insProps = insProps;
@@ -898,7 +899,7 @@ var PlainModal = function () {
         forceReflow(sheet);
       } // Trident bug
 
-      // for KeyboardEvent
+      // for closeByEscKey
       window.addEventListener('keydown', function (event) {
         var key = void 0,
             topProps = void 0;
@@ -926,7 +927,15 @@ var PlainModal = function () {
     (0, _mClassList2.default)(elmPlainOverlayBody.parentElement).add(STYLE_CLASS); // elmOverlay of PlainOverlay
 
     // elmOverlay (own overlay)
-    (props.elmOverlay = elmPlainOverlayBody.appendChild(document.createElement('div'))).className = STYLE_CLASS_OVERLAY;
+    var elmOverlay = props.elmOverlay = elmPlainOverlayBody.appendChild(document.createElement('div'));
+    elmOverlay.className = STYLE_CLASS_OVERLAY;
+    // for closeByOverlay
+    elmOverlay.addEventListener('click', function (event) {
+      if (event.target === elmOverlay && closeByOverlay) {
+        traceLog.push('<overlayClick/>', 'CLOSE', '_id:' + props._id); // [DEBUG/]
+        _close(props);
+      }
+    }, true);
 
     // Prepare removable event listeners for each instance.
     props.handleClose = function () {
@@ -1052,6 +1061,16 @@ var PlainModal = function () {
     set: function set(value) {
       if (typeof value === 'boolean') {
         closeByEscKey = value;
+      }
+    }
+  }, {
+    key: 'closeByOverlay',
+    get: function get() {
+      return closeByOverlay;
+    },
+    set: function set(value) {
+      if (typeof value === 'boolean') {
+        closeByOverlay = value;
       }
     }
   }, {
@@ -1824,6 +1843,7 @@ function _show(props, force) {
   var elmOverlay = props.elmOverlay,
       elmOverlayClassList = (0, _mClassList2.default)(elmOverlay);
   if (props.state === STATE_HIDDEN) {
+    props.document.body.appendChild(elmOverlay); // Move to last (for same z-index)
     var targetElements = getTargetElements(props);
     window.targetElements = targetElements; // [DEBUG/]
 

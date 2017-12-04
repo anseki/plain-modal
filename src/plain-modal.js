@@ -68,7 +68,7 @@ const
 
 let insId = 0,
   openCloseEffectProps, // A `props` that is running the "open/close" effect now.
-  closeByEscKey = true;
+  closeByEscKey = true, closeByOverlay = true;
 
 // [DEBUG]
 window.insProps = insProps;
@@ -521,7 +521,7 @@ class PlainModal {
       sheet.textContent = CSS_TEXT;
       if (IS_TRIDENT || IS_EDGE) { forceReflow(sheet); } // Trident bug
 
-      // for KeyboardEvent
+      // for closeByEscKey
       window.addEventListener('keydown', function(event) {
         let key, topProps;
         if (closeByEscKey &&
@@ -547,8 +547,16 @@ class PlainModal {
     mClassList(elmPlainOverlayBody.parentElement).add(STYLE_CLASS); // elmOverlay of PlainOverlay
 
     // elmOverlay (own overlay)
-    (props.elmOverlay = elmPlainOverlayBody.appendChild(document.createElement('div')))
-      .className = STYLE_CLASS_OVERLAY;
+    const elmOverlay =
+      props.elmOverlay = elmPlainOverlayBody.appendChild(document.createElement('div'));
+    elmOverlay.className = STYLE_CLASS_OVERLAY;
+    // for closeByOverlay
+    elmOverlay.addEventListener('click', function(event) {
+      if (event.target === elmOverlay && closeByOverlay) {
+        traceLog.push('<overlayClick/>', 'CLOSE', `_id:${props._id}`); // [DEBUG/]
+        close(props);
+      }
+    }, true);
 
     // Prepare removable event listeners for each instance.
     props.handleClose = () => { close(props); };
@@ -626,6 +634,9 @@ class PlainModal {
 
   static get closeByEscKey() { return closeByEscKey; }
   static set closeByEscKey(value) { if (typeof value === 'boolean') { closeByEscKey = value; } }
+
+  static get closeByOverlay() { return closeByOverlay; }
+  static set closeByOverlay(value) { if (typeof value === 'boolean') { closeByOverlay = value; } }
 
   static get STATE_CLOSED() { return STATE_CLOSED; }
   static get STATE_OPENING() { return STATE_OPENING; }
