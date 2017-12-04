@@ -211,6 +211,75 @@ describe('closeByEscKey', function() {
     );
   });
 
+  it('STATE_OPENING, keydown -> close()', function(done) {
+    modal1.onOpen = modal1.onClose = modal1.onBeforeOpen = modal1.onBeforeClose =
+      modal2.onOpen = modal2.onClose = modal2.onBeforeOpen = modal2.onBeforeClose =
+      modal3.onOpen = modal3.onClose = modal3.onBeforeOpen = modal3.onBeforeClose = null;
+
+    var cbChangeDone;
+    utils.makeState(allModals,
+      [PlainModal.STATE_OPENING, PlainModal.STATE_CLOSED],
+      function() {
+        if (cbChangeDone) { return; }
+        modal1.close(true);
+        modal2.close(true);
+        modal3.close(true);
+        setTimeout(function() {
+          modal1.open();
+        }, 10);
+        cbChangeDone = true;
+      },
+      function() {
+
+        expect(modal1.state).toBe(PlainModal.STATE_OPENING);
+        expect(shownProps.map(function(props) { return props.ins; }))
+          .toEqual([modal1]);
+
+        modal1.onClose = function() {
+          setTimeout(function() {
+            expect(modal1.state).toBe(PlainModal.STATE_CLOSED);
+            expect(shownProps).toEqual([]);
+            expect(window.cntEscKey).toBe(0); // window get no event
+
+            expect(traceLog).toEqual([
+              '<keydown/>', 'CLOSE', '_id:' + modal1._id,
+
+              // START: close
+              '<close>', '_id:' + modal1._id, 'state:STATE_OPENING',
+              'openCloseEffectProps:' + modal1._id,
+
+              '<execClosing>', '_id:' + modal1._id, 'state:STATE_OPENING',
+              'force:false', 'sync:false',
+              'state:STATE_CLOSING',
+
+              '<switchDraggable>', '_id:' + modal1._id, 'state:STATE_CLOSING',
+              'plainDraggable:NONE',
+              '</switchDraggable>',
+
+              // PlainOverlay.hide()
+              '_id:' + modal1._id, '</execClosing>',
+
+              '_id:' + modal1._id, '</close>',
+              // DONE: close
+
+              '<finishClosing>', '_id:' + modal1._id, 'state:STATE_CLOSING',
+              'shownProps:NONE',
+              'state:STATE_CLOSED',
+              '</finishClosing>'
+            ]);
+
+            done();
+          }, 0);
+        };
+
+        traceLog.length = 0;
+        window.cntEscKey = 0;
+        PlainModal.closeByEscKey = true;
+        escKeyDown();
+      }
+    );
+  });
+
   it('STATE_CLOSING, keydown -> close() -> CANCEL', function(done) {
     modal1.onOpen = modal1.onClose = modal1.onBeforeOpen = modal1.onBeforeClose =
       modal2.onOpen = modal2.onClose = modal2.onBeforeOpen = modal2.onBeforeClose =
