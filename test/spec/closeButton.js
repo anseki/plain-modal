@@ -8,7 +8,7 @@ describe('closeButton', function() {
   function clickElement(element) {
     var event;
     try {
-      event = new MouseEvent('click');
+      event = new window.MouseEvent('click');
     } catch (error) {
       event = document.createEvent('MouseEvent');
       event.initMouseEvent('click', true, true, document.defaultView, 1,
