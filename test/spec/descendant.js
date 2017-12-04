@@ -805,7 +805,7 @@ describe('descendant', function() {
       modal4.onOpen = modal4.onClose = modal4.onBeforeOpen = modal4.onBeforeClose =
       modal5.onOpen = modal5.onClose = modal5.onBeforeOpen = modal5.onBeforeClose = null;
 
-    var cbChangeDone;
+    var cbChangeDone, timer1, timer2, timer3;
     utils.makeState(allModals,
       [PlainModal.STATE_INACTIVATED, PlainModal.STATE_INACTIVATED, PlainModal.STATE_OPENED,
         PlainModal.STATE_CLOSED, PlainModal.STATE_CLOSED],
@@ -816,12 +816,15 @@ describe('descendant', function() {
         modal3.close(true);
         modal4.close(true);
         modal5.close(true);
-        setTimeout(function() { modal1.open(true); }, 10);
-        setTimeout(function() { modal2.open(true); }, 10);
-        setTimeout(function() { modal3.open(true); }, 10);
+        timer1 = setTimeout(function() { modal1.open(true); }, 10);
+        timer2 = setTimeout(function() { modal2.open(true); }, 10);
+        timer3 = setTimeout(function() { modal3.open(true); }, 10);
         cbChangeDone = true;
       },
       function() {
+        clearTimeout(timer1);
+        clearTimeout(timer2);
+        clearTimeout(timer3);
 
         expect(modal1.state).toBe(PlainModal.STATE_INACTIVATED);
         expect(modal2.state).toBe(PlainModal.STATE_INACTIVATED);
@@ -898,7 +901,7 @@ describe('descendant', function() {
       modal4.onOpen = modal4.onClose = modal4.onBeforeOpen = modal4.onBeforeClose =
       modal5.onOpen = modal5.onClose = modal5.onBeforeOpen = modal5.onBeforeClose = null;
 
-    var cbChangeDone;
+    var cbChangeDone, timer1, timer2, timer3, timer4, timer5;
     utils.makeState(allModals,
       [PlainModal.STATE_INACTIVATED, PlainModal.STATE_INACTIVATED, PlainModal.STATE_INACTIVATED,
         PlainModal.STATE_INACTIVATED, PlainModal.STATE_OPENED],
@@ -909,14 +912,19 @@ describe('descendant', function() {
         modal3.close(true);
         modal4.close(true);
         modal5.close(true);
-        setTimeout(function() { modal1.open(true); }, 10);
-        setTimeout(function() { modal2.open(true); }, 10);
-        setTimeout(function() { modal3.open(true); }, 10);
-        setTimeout(function() { modal4.open(true); }, 10);
-        setTimeout(function() { modal5.open(true); }, 10);
+        timer1 = setTimeout(function() { modal1.open(true); }, 10);
+        timer2 = setTimeout(function() { modal2.open(true); }, 10);
+        timer3 = setTimeout(function() { modal3.open(true); }, 10);
+        timer4 = setTimeout(function() { modal4.open(true); }, 10);
+        timer5 = setTimeout(function() { modal5.open(true); }, 10);
         cbChangeDone = true;
       },
       function() {
+        clearTimeout(timer1);
+        clearTimeout(timer2);
+        clearTimeout(timer3);
+        clearTimeout(timer4);
+        clearTimeout(timer5);
 
         expect(modal1.state).toBe(PlainModal.STATE_INACTIVATED);
         expect(modal2.state).toBe(PlainModal.STATE_INACTIVATED);
@@ -1042,7 +1050,7 @@ describe('descendant', function() {
       modal4.onOpen = modal4.onClose = modal4.onBeforeOpen = modal4.onBeforeClose =
       modal5.onOpen = modal5.onClose = modal5.onBeforeOpen = modal5.onBeforeClose = null;
 
-    var cbChangeDone;
+    var cbChangeDone, timer1, timer2, timer3, timer4, timer5;
     utils.makeState(allModals,
       [PlainModal.STATE_INACTIVATED, PlainModal.STATE_INACTIVATED, PlainModal.STATE_INACTIVATED,
         PlainModal.STATE_OPENED, PlainModal.STATE_INACTIVATED],
@@ -1054,14 +1062,19 @@ describe('descendant', function() {
         modal4.close(true);
         modal5.close(true);
         // 2, 3, 5, 1, 4
-        setTimeout(function() { modal2.open(true); }, 10);
-        setTimeout(function() { modal3.open(true); }, 10);
-        setTimeout(function() { modal5.open(true); }, 10);
-        setTimeout(function() { modal1.open(true); }, 10);
-        setTimeout(function() { modal4.open(true); }, 10);
+        timer1 = setTimeout(function() { modal2.open(true); }, 10);
+        timer2 = setTimeout(function() { modal3.open(true); }, 10);
+        timer3 = setTimeout(function() { modal5.open(true); }, 10);
+        timer4 = setTimeout(function() { modal1.open(true); }, 10);
+        timer5 = setTimeout(function() { modal4.open(true); }, 10);
         cbChangeDone = true;
       },
       function() {
+        clearTimeout(timer1);
+        clearTimeout(timer2);
+        clearTimeout(timer3);
+        clearTimeout(timer4);
+        clearTimeout(timer5);
 
         expect(modal2.state).toBe(PlainModal.STATE_INACTIVATED);
         expect(modal3.state).toBe(PlainModal.STATE_INACTIVATED);

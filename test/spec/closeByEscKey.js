@@ -66,7 +66,7 @@ describe('closeByEscKey', function() {
       modal2.onOpen = modal2.onClose = modal2.onBeforeOpen = modal2.onBeforeClose =
       modal3.onOpen = modal3.onClose = modal3.onBeforeOpen = modal3.onBeforeClose = null;
 
-    var cbChangeDone;
+    var cbChangeDone, timer1;
     utils.makeState(allModals,
       [PlainModal.STATE_OPENED, PlainModal.STATE_CLOSED],
       function() {
@@ -74,12 +74,13 @@ describe('closeByEscKey', function() {
         modal1.close(true);
         modal2.close(true);
         modal3.close(true);
-        setTimeout(function() {
+        timer1 = setTimeout(function() {
           modal1.open(true);
         }, 10);
         cbChangeDone = true;
       },
       function() {
+        clearTimeout(timer1);
 
         expect(modal1.state).toBe(PlainModal.STATE_OPENED);
         expect(shownProps.map(function(props) { return props.ins; }))
@@ -135,7 +136,7 @@ describe('closeByEscKey', function() {
       modal2.onOpen = modal2.onClose = modal2.onBeforeOpen = modal2.onBeforeClose =
       modal3.onOpen = modal3.onClose = modal3.onBeforeOpen = modal3.onBeforeClose = null;
 
-    var cbChangeDone;
+    var cbChangeDone, timer1;
     utils.makeState(allModals,
       [PlainModal.STATE_OPENED, PlainModal.STATE_CLOSED],
       function() {
@@ -143,12 +144,13 @@ describe('closeByEscKey', function() {
         modal1.close(true);
         modal2.close(true);
         modal3.close(true);
-        setTimeout(function() {
+        timer1 = setTimeout(function() {
           modal1.open(true);
         }, 10);
         cbChangeDone = true;
       },
       function() {
+        clearTimeout(timer1);
 
         expect(modal1.state).toBe(PlainModal.STATE_OPENED);
         expect(shownProps.map(function(props) { return props.ins; }))
@@ -216,7 +218,7 @@ describe('closeByEscKey', function() {
       modal2.onOpen = modal2.onClose = modal2.onBeforeOpen = modal2.onBeforeClose =
       modal3.onOpen = modal3.onClose = modal3.onBeforeOpen = modal3.onBeforeClose = null;
 
-    var cbChangeDone;
+    var cbChangeDone, timer1;
     utils.makeState(allModals,
       [PlainModal.STATE_OPENING, PlainModal.STATE_CLOSED],
       function() {
@@ -224,12 +226,13 @@ describe('closeByEscKey', function() {
         modal1.close(true);
         modal2.close(true);
         modal3.close(true);
-        setTimeout(function() {
+        timer1 = setTimeout(function() {
           modal1.open();
         }, 10);
         cbChangeDone = true;
       },
       function() {
+        clearTimeout(timer1);
 
         expect(modal1.state).toBe(PlainModal.STATE_OPENING);
         expect(shownProps.map(function(props) { return props.ins; }))
@@ -285,7 +288,7 @@ describe('closeByEscKey', function() {
       modal2.onOpen = modal2.onClose = modal2.onBeforeOpen = modal2.onBeforeClose =
       modal3.onOpen = modal3.onClose = modal3.onBeforeOpen = modal3.onBeforeClose = null;
 
-    var cbChangeDone;
+    var cbChangeDone, timer1;
     utils.makeState(allModals,
       [PlainModal.STATE_CLOSING, PlainModal.STATE_CLOSED],
       function() {
@@ -293,15 +296,16 @@ describe('closeByEscKey', function() {
         modal1.close(true);
         modal2.close(true);
         modal3.close(true);
-        setTimeout(function() {
+        timer1 = setTimeout(function() {
           modal1.open(true);
-          setTimeout(function() {
+          timer1 = setTimeout(function() {
             modal1.close();
           }, 10);
         }, 10);
         cbChangeDone = true;
       },
       function() {
+        clearTimeout(timer1);
 
         expect(modal1.state).toBe(PlainModal.STATE_CLOSING);
         expect(shownProps.map(function(props) { return props.ins; }))
@@ -335,7 +339,7 @@ describe('closeByEscKey', function() {
       modal2.onOpen = modal2.onClose = modal2.onBeforeOpen = modal2.onBeforeClose =
       modal3.onOpen = modal3.onClose = modal3.onBeforeOpen = modal3.onBeforeClose = null;
 
-    var cbChangeDone;
+    var cbChangeDone, timer1, timer2, timer3;
     utils.makeState(allModals,
       [PlainModal.STATE_INACTIVATED, PlainModal.STATE_INACTIVATED, PlainModal.STATE_OPENED],
       function() {
@@ -343,12 +347,15 @@ describe('closeByEscKey', function() {
         modal1.close(true);
         modal2.close(true);
         modal3.close(true);
-        setTimeout(function() { modal1.open(true); }, 10);
-        setTimeout(function() { modal2.open(true); }, 10);
-        setTimeout(function() { modal3.open(true); }, 10);
+        timer1 = setTimeout(function() { modal1.open(true); }, 10);
+        timer2 = setTimeout(function() { modal2.open(true); }, 10);
+        timer3 = setTimeout(function() { modal3.open(true); }, 10);
         cbChangeDone = true;
       },
       function() {
+        clearTimeout(timer1);
+        clearTimeout(timer2);
+        clearTimeout(timer3);
 
         expect(modal1.state).toBe(PlainModal.STATE_INACTIVATED);
         expect(modal2.state).toBe(PlainModal.STATE_INACTIVATED);
@@ -467,7 +474,7 @@ describe('closeByEscKey', function() {
       modal2.onOpen = modal2.onClose = modal2.onBeforeOpen = modal2.onBeforeClose =
       modal3.onOpen = modal3.onClose = modal3.onBeforeOpen = modal3.onBeforeClose = null;
 
-    var cbChangeDone;
+    var cbChangeDone, timer1, timer2;
     utils.makeState(allModals,
       [PlainModal.STATE_OPENED, PlainModal.STATE_CLOSED, PlainModal.STATE_INACTIVATED],
       function() {
@@ -476,11 +483,13 @@ describe('closeByEscKey', function() {
         modal2.close(true);
         modal3.close(true);
         // 3, 1
-        setTimeout(function() { modal3.open(true); }, 10);
-        setTimeout(function() { modal1.open(true); }, 10);
+        timer1 = setTimeout(function() { modal3.open(true); }, 10);
+        timer2 = setTimeout(function() { modal1.open(true); }, 10);
         cbChangeDone = true;
       },
       function() {
+        clearTimeout(timer1);
+        clearTimeout(timer2);
 
         expect(modal3.state).toBe(PlainModal.STATE_INACTIVATED);
         expect(modal1.state).toBe(PlainModal.STATE_OPENED);

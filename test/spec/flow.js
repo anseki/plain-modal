@@ -4,7 +4,7 @@ describe('flow', function() {
 
   var window, document, utils, PlainModal, traceLog, pageDone,
     modal, modalCh,
-    cbChangeFncs = {};
+    cbChangeFncs = {}, timer;
 
   beforeAll(function(beforeDone) {
     loadPage('spec/common.html', function(pageWindow, pageDocument, pageBody, done) {
@@ -34,23 +34,23 @@ describe('flow', function() {
       cbChangeFncs[PlainModal.STATE_OPENING] = function(modal) {
         modal.close(true);
         modalCh.close(true);
-        setTimeout(function() {
+        timer = setTimeout(function() {
           modal.open();
         }, 10);
       };
       cbChangeFncs[PlainModal.STATE_OPENED] = function(modal) {
         modal.close(true);
         modalCh.close(true);
-        setTimeout(function() {
+        timer = setTimeout(function() {
           modal.open(true);
         }, 10);
       };
       cbChangeFncs[PlainModal.STATE_CLOSING] = function(modal) {
         modal.close(true);
         modalCh.close(true);
-        setTimeout(function() {
+        timer = setTimeout(function() {
           modal.open(true);
-          setTimeout(function() {
+          timer = setTimeout(function() {
             modal.close();
           }, 10);
         }, 10);
@@ -58,9 +58,9 @@ describe('flow', function() {
       cbChangeFncs[PlainModal.STATE_INACTIVATING] = function(modal) {
         modal.close(true);
         modalCh.close(true);
-        setTimeout(function() {
+        timer = setTimeout(function() {
           modal.open(true);
-          setTimeout(function() {
+          timer = setTimeout(function() {
             modalCh.open();
           }, 10);
         }, 10);
@@ -68,9 +68,9 @@ describe('flow', function() {
       cbChangeFncs[PlainModal.STATE_INACTIVATED] = function(modal) {
         modal.close(true);
         modalCh.close(true);
-        setTimeout(function() {
+        timer = setTimeout(function() {
           modal.open(true);
-          setTimeout(function() {
+          timer = setTimeout(function() {
             modalCh.open(true);
           }, 10);
         }, 10);
@@ -78,11 +78,11 @@ describe('flow', function() {
       cbChangeFncs[PlainModal.STATE_ACTIVATING] = function(modal) {
         modal.close(true);
         modalCh.close(true);
-        setTimeout(function() {
+        timer = setTimeout(function() {
           modal.open(true);
-          setTimeout(function() {
+          timer = setTimeout(function() {
             modalCh.open(true);
-            setTimeout(function() {
+            timer = setTimeout(function() {
               modalCh.close();
             }, 10);
           }, 10);
@@ -107,6 +107,7 @@ describe('flow', function() {
     utils.makeState(modal, PlainModal.STATE_CLOSED,
       cbChangeFncs[PlainModal.STATE_CLOSED],
       function() {
+        clearTimeout(timer);
 
         expect(modal.state).toBe(PlainModal.STATE_CLOSED);
 
@@ -182,6 +183,7 @@ describe('flow', function() {
     utils.makeState(modal, PlainModal.STATE_OPENING,
       cbChangeFncs[PlainModal.STATE_OPENING],
       function() {
+        clearTimeout(timer);
 
         expect(modal.state).toBe(PlainModal.STATE_OPENING);
 
@@ -203,6 +205,7 @@ describe('flow', function() {
     utils.makeState(modal, PlainModal.STATE_OPENED,
       cbChangeFncs[PlainModal.STATE_OPENED],
       function() {
+        clearTimeout(timer);
 
         expect(modal.state).toBe(PlainModal.STATE_OPENED);
 
@@ -224,6 +227,7 @@ describe('flow', function() {
     utils.makeState(modal, PlainModal.STATE_CLOSING,
       cbChangeFncs[PlainModal.STATE_CLOSING],
       function() {
+        clearTimeout(timer);
 
         expect(modal.state).toBe(PlainModal.STATE_CLOSING);
 
@@ -269,6 +273,7 @@ describe('flow', function() {
     utils.makeState(modal, PlainModal.STATE_INACTIVATING,
       cbChangeFncs[PlainModal.STATE_INACTIVATING],
       function() {
+        clearTimeout(timer);
 
         expect(modal.state).toBe(PlainModal.STATE_INACTIVATING);
 
@@ -290,6 +295,7 @@ describe('flow', function() {
     utils.makeState(modal, PlainModal.STATE_INACTIVATED,
       cbChangeFncs[PlainModal.STATE_INACTIVATED],
       function() {
+        clearTimeout(timer);
 
         expect(modal.state).toBe(PlainModal.STATE_INACTIVATED);
 
@@ -311,6 +317,7 @@ describe('flow', function() {
     utils.makeState(modal, PlainModal.STATE_ACTIVATING,
       cbChangeFncs[PlainModal.STATE_ACTIVATING],
       function() {
+        clearTimeout(timer);
 
         expect(modal.state).toBe(PlainModal.STATE_ACTIVATING);
 
@@ -332,6 +339,7 @@ describe('flow', function() {
     utils.makeState(modal, PlainModal.STATE_CLOSED,
       cbChangeFncs[PlainModal.STATE_CLOSED],
       function() {
+        clearTimeout(timer);
 
         expect(modal.state).toBe(PlainModal.STATE_CLOSED);
 
@@ -379,6 +387,7 @@ describe('flow', function() {
     utils.makeState(modal, PlainModal.STATE_OPENING,
       cbChangeFncs[PlainModal.STATE_OPENING],
       function() {
+        clearTimeout(timer);
 
         expect(modal.state).toBe(PlainModal.STATE_OPENING);
 
@@ -424,6 +433,7 @@ describe('flow', function() {
     utils.makeState(modal, PlainModal.STATE_OPENED,
       cbChangeFncs[PlainModal.STATE_OPENED],
       function() {
+        clearTimeout(timer);
 
         expect(modal.state).toBe(PlainModal.STATE_OPENED);
 
@@ -445,6 +455,7 @@ describe('flow', function() {
     utils.makeState(modal, PlainModal.STATE_CLOSING,
       cbChangeFncs[PlainModal.STATE_CLOSING],
       function() {
+        clearTimeout(timer);
 
         expect(modal.state).toBe(PlainModal.STATE_CLOSING);
 
@@ -490,6 +501,7 @@ describe('flow', function() {
     utils.makeState(modal, PlainModal.STATE_INACTIVATING,
       cbChangeFncs[PlainModal.STATE_INACTIVATING],
       function() {
+        clearTimeout(timer);
 
         expect(modal.state).toBe(PlainModal.STATE_INACTIVATING);
 
@@ -511,6 +523,7 @@ describe('flow', function() {
     utils.makeState(modal, PlainModal.STATE_INACTIVATED,
       cbChangeFncs[PlainModal.STATE_INACTIVATED],
       function() {
+        clearTimeout(timer);
 
         expect(modal.state).toBe(PlainModal.STATE_INACTIVATED);
 
@@ -532,6 +545,7 @@ describe('flow', function() {
     utils.makeState(modal, PlainModal.STATE_ACTIVATING,
       cbChangeFncs[PlainModal.STATE_ACTIVATING],
       function() {
+        clearTimeout(timer);
 
         expect(modal.state).toBe(PlainModal.STATE_ACTIVATING);
 
@@ -553,6 +567,7 @@ describe('flow', function() {
     utils.makeState(modal, PlainModal.STATE_CLOSED,
       cbChangeFncs[PlainModal.STATE_CLOSED],
       function() {
+        clearTimeout(timer);
 
         expect(modal.state).toBe(PlainModal.STATE_CLOSED);
 
@@ -574,6 +589,7 @@ describe('flow', function() {
     utils.makeState(modal, PlainModal.STATE_OPENING,
       cbChangeFncs[PlainModal.STATE_OPENING],
       function() {
+        clearTimeout(timer);
 
         expect(modal.state).toBe(PlainModal.STATE_OPENING);
 
@@ -622,6 +638,7 @@ describe('flow', function() {
     utils.makeState(modal, PlainModal.STATE_CLOSING,
       cbChangeFncs[PlainModal.STATE_CLOSING],
       function() {
+        clearTimeout(timer);
 
         expect(modal.state).toBe(PlainModal.STATE_CLOSING);
 
@@ -643,6 +660,7 @@ describe('flow', function() {
     utils.makeState(modal, PlainModal.STATE_INACTIVATING,
       cbChangeFncs[PlainModal.STATE_INACTIVATING],
       function() {
+        clearTimeout(timer);
 
         expect(modal.state).toBe(PlainModal.STATE_INACTIVATING);
 
@@ -760,6 +778,7 @@ describe('flow', function() {
     utils.makeState(modal, PlainModal.STATE_INACTIVATED,
       cbChangeFncs[PlainModal.STATE_INACTIVATED],
       function() {
+        clearTimeout(timer);
 
         expect(modal.state).toBe(PlainModal.STATE_INACTIVATED);
 
@@ -844,6 +863,7 @@ describe('flow', function() {
     utils.makeState(modal, PlainModal.STATE_ACTIVATING,
       cbChangeFncs[PlainModal.STATE_ACTIVATING],
       function() {
+        clearTimeout(timer);
 
         expect(modal.state).toBe(PlainModal.STATE_ACTIVATING);
 
@@ -927,6 +947,7 @@ describe('flow', function() {
     utils.makeState(modal, PlainModal.STATE_CLOSED,
       cbChangeFncs[PlainModal.STATE_CLOSED],
       function() {
+        clearTimeout(timer);
 
         expect(modal.state).toBe(PlainModal.STATE_CLOSED);
 
@@ -948,6 +969,7 @@ describe('flow', function() {
     utils.makeState(modal, PlainModal.STATE_OPENING,
       cbChangeFncs[PlainModal.STATE_OPENING],
       function() {
+        clearTimeout(timer);
 
         expect(modal.state).toBe(PlainModal.STATE_OPENING);
 
@@ -994,6 +1016,7 @@ describe('flow', function() {
     utils.makeState(modal, PlainModal.STATE_OPENED,
       cbChangeFncs[PlainModal.STATE_OPENED],
       function() {
+        clearTimeout(timer);
 
         expect(modal.state).toBe(PlainModal.STATE_OPENED);
 
@@ -1040,6 +1063,7 @@ describe('flow', function() {
     utils.makeState(modal, PlainModal.STATE_CLOSING,
       cbChangeFncs[PlainModal.STATE_CLOSING],
       function() {
+        clearTimeout(timer);
 
         expect(modal.state).toBe(PlainModal.STATE_CLOSING);
 
@@ -1086,6 +1110,7 @@ describe('flow', function() {
     utils.makeState(modal, PlainModal.STATE_INACTIVATING,
       cbChangeFncs[PlainModal.STATE_INACTIVATING],
       function() {
+        clearTimeout(timer);
 
         expect(modal.state).toBe(PlainModal.STATE_INACTIVATING);
 
@@ -1203,6 +1228,7 @@ describe('flow', function() {
     utils.makeState(modal, PlainModal.STATE_INACTIVATED,
       cbChangeFncs[PlainModal.STATE_INACTIVATED],
       function() {
+        clearTimeout(timer);
 
         expect(modal.state).toBe(PlainModal.STATE_INACTIVATED);
 
@@ -1287,6 +1313,7 @@ describe('flow', function() {
     utils.makeState(modal, PlainModal.STATE_ACTIVATING,
       cbChangeFncs[PlainModal.STATE_ACTIVATING],
       function() {
+        clearTimeout(timer);
 
         expect(modal.state).toBe(PlainModal.STATE_ACTIVATING);
 
