@@ -31,7 +31,7 @@
     "node-sass": "^4.5.3",
     "node-static-alias": "^1.0.0",
     "plain-draggable": "^2.0.13",
-    "plain-overlay": "^1.3.2",
+    "plain-overlay": "^1.3.3",
     "pre-proc": "^0.2.7",
     "pre-proc-loader": "^1.0.8",
     "sass-loader": "^6.0.6",
