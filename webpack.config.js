@@ -23,8 +23,8 @@ const
       'cssprefix',
       'anim-event',
       'm-class-list',
-      ['plain-overlay', {EDITION: 'limit', SYNC: 'yes', SRC: ''}],
-      ['plain-draggable', {EDITION: 'limit', SRC: ''}]
+      ['plain-overlay', {EDITION: 'limit', SYNC: 'yes'}],
+      ['plain-draggable', {EDITION: 'limit'}]
     ].reduce((rules, packageName) => {
       if (Array.isArray(packageName)) { // [packageName, {env1: value1, ...}]
         // Force parameters
@@ -44,8 +44,7 @@ const
   BUILD = process.env.NODE_ENV === 'production',
   LIMIT = process.env.EDITION === 'limit',
 
-  SRC_PATH = path.resolve(__dirname, 'src'),
-  ENTRY_PATH = path.resolve(SRC_PATH, `${BASE_NAME}.js`),
+  ENTRY_PATH = path.resolve(__dirname, 'src', `${BASE_NAME}.js`),
   BUILD_PATH = BUILD ? __dirname : path.resolve(__dirname, 'test'),
   BUILD_FILE = `${BASE_NAME}${LIMIT ? '-limit' : ''}${BUILD ? '.min' : ''}.js`;
 
