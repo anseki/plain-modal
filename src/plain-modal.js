@@ -548,7 +548,7 @@ class PlainModal {
       if (IS_TRIDENT || IS_EDGE) { forceReflow(sheet); } // Trident bug
 
       // for closeByEscKey
-      window.addEventListener('keydown', function(event) {
+      window.addEventListener('keydown', event => {
         let key, topProps;
         if (closeByEscKey &&
             ((key = event.key.toLowerCase()) === 'escape' || key === 'esc') &&
@@ -577,7 +577,7 @@ class PlainModal {
       props.elmOverlay = elmPlainOverlayBody.appendChild(document.createElement('div'));
     elmOverlay.className = STYLE_CLASS_OVERLAY;
     // for closeByOverlay
-    elmOverlay.addEventListener('click', function(event) {
+    elmOverlay.addEventListener('click', event => {
       if (event.target === elmOverlay && closeByOverlay) {
         traceLog.push('<overlayClick/>', 'CLOSE', `_id:${props._id}`); // [DEBUG/]
         close(props);
