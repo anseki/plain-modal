@@ -354,9 +354,10 @@ describe('flow', function() {
 
               '<execOpening>', '_id:' + modal._id, 'state:STATE_CLOSED',
               'force:true',
+              'state:STATE_OPENING',
               // PlainOverlay.show()
 
-              '<finishOpening>', '_id:' + modal._id, 'state:STATE_CLOSED',
+              '<finishOpening>', '_id:' + modal._id, 'state:STATE_OPENING',
               'state:STATE_OPENED',
 
               '<switchDraggable>', '_id:' + modal._id, 'state:STATE_OPENED',
@@ -400,6 +401,7 @@ describe('flow', function() {
 
               '<execOpening>', '_id:' + modal._id, 'state:STATE_OPENING',
               'force:true',
+              'state:STATE_OPENING',
               // PlainOverlay.show()
 
               '<finishOpening>', '_id:' + modal._id, 'state:STATE_OPENING',
@@ -468,9 +470,10 @@ describe('flow', function() {
 
               '<execOpening>', '_id:' + modal._id, 'state:STATE_CLOSING',
               'force:true',
+              'state:STATE_OPENING',
               // PlainOverlay.show()
 
-              '<finishOpening>', '_id:' + modal._id, 'state:STATE_CLOSING',
+              '<finishOpening>', '_id:' + modal._id, 'state:STATE_OPENING',
               'state:STATE_OPENED',
 
               '<switchDraggable>', '_id:' + modal._id, 'state:STATE_OPENED',
@@ -685,6 +688,7 @@ describe('flow', function() {
               'plainDraggable.disabled:true',
               '</switchDraggable>',
 
+              'state:STATE_OPENING',
               // PlainOverlay.show()
 
               '<finishOpening>', '_id:' + modalCh._id, 'state:STATE_OPENING',
@@ -1135,6 +1139,7 @@ describe('flow', function() {
               'plainDraggable.disabled:true',
               '</switchDraggable>',
 
+              'state:STATE_OPENING',
               // PlainOverlay.show()
 
               '<finishOpening>', '_id:' + modalCh._id, 'state:STATE_OPENING',

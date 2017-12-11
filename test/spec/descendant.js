@@ -527,6 +527,7 @@ describe('descendant', function() {
               '<execOpening>', '_id:' + modal1._id, 'state:STATE_OPENING',
               'force:true',
 
+              'state:STATE_OPENING',
               // PlainOverlay.show()
 
               '<finishOpening>', '_id:' + modal1._id, 'state:STATE_OPENING',
@@ -585,6 +586,7 @@ describe('descendant', function() {
               'plainDraggable.disabled:true',
               '</switchDraggable>',
 
+              'state:STATE_OPENING',
               // PlainOverlay.show()
 
               '<finishOpening>', '_id:' + modal2._id, 'state:STATE_OPENING',
