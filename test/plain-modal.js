@@ -112,7 +112,7 @@ getDeclaration = function () {
 /**
  * Normalize name.
  * @param {} propName - A name that is normalized.
- * @returns {string} - A normalized name.
+ * @returns {string} A normalized name.
  */
 normalizeName = function () {
   var rePrefixedName = new RegExp('^(?:' + PREFIXES.join('|') + ')(.)', 'i'),
@@ -133,7 +133,7 @@ normalizeName = function () {
 /**
  * Normalize value.
  * @param {} propValue - A value that is normalized.
- * @returns {string} - A normalized value.
+ * @returns {string} A normalized value.
  */
 normalizeValue = function () {
   var rePrefixedValue = new RegExp('^(?:' + VALUE_PREFIXES.join('|') + ')', 'i');
@@ -147,7 +147,7 @@ normalizeValue = function () {
  * Polyfill for `CSS.supports`.
  * @param {string} propName - A name.
  * @param {string} propValue - A value.
- * @returns {boolean} - `true` if given pair is accepted.
+ * @returns {boolean} `true` if given pair is accepted.
  */
 cssSupports = function () {
   // return window.CSS && window.CSS.supports || ((propName, propValue) => {
@@ -485,7 +485,7 @@ function indexOfTasks(listener) {
 var AnimEvent = {
   /**
    * @param {function} listener - An event listener.
-   * @returns {(function|null)} - A wrapped event listener.
+   * @returns {(function|null)} A wrapped event listener.
    */
   add: function add(listener) {
     var task = void 0;
@@ -607,6 +607,7 @@ IS_TRIDENT = !!document.uniqueID,
  * @property {number} state - Current state.
  * @property {Object} options - Options.
  * @property {props} parentProps - props that is effected with current props.
+ * @property {{plainOverlay: boolean, option: boolean}} effectFinished - The effect was finished.
  */
 
 /** @type {Object.<_id: number, props>} */
@@ -736,6 +737,36 @@ function finishClosing(props) {
 }
 
 /**
+ * @param {props} props - `props` of instance.
+ * @param {string} effectKey - `plainOverlay' or 'option`
+ * @returns {void}
+ */
+function finishOpenEffect(props, effectKey) {
+  if (props.state !== STATE_OPENING) {
+    return;
+  }
+  props.effectFinished[effectKey] = true;
+  if (props.effectFinished.plainOverlay && (!props.options.openEffect || props.effectFinished.option)) {
+    finishOpening(props);
+  }
+}
+
+/**
+ * @param {props} props - `props` of instance.
+ * @param {string} effectKey - `plainOverlay' or 'option`
+ * @returns {void}
+ */
+function finishCloseEffect(props, effectKey) {
+  if (props.state !== STATE_CLOSING) {
+    return;
+  }
+  props.effectFinished[effectKey] = true;
+  if (props.effectFinished.plainOverlay && (!props.options.closeEffect || props.effectFinished.option)) {
+    finishClosing(props);
+  }
+}
+
+/**
  * Process after preparing data and adjusting style.
  * @param {props} props - `props` of instance.
  * @param {boolean} [force] - Skip effect.
@@ -777,12 +808,9 @@ function execOpening(props, force) {
     switchDraggable(parentProps); // [DRAG/]
   }
 
-  // When `force`, `props.state` is updated immediately in
-  //    plainOverlay.onShow -> finishOpening -> STATE_OPENED
-  if (!force) {
-    props.state = STATE_OPENING;
-    traceLog.push('state:' + STATE_TEXT[props.state]); // [DEBUG/]
-  }
+  props.state = STATE_OPENING;
+  traceLog.push('state:' + STATE_TEXT[props.state]); // [DEBUG/]
+  props.effectFinished.plainOverlay = props.effectFinished.option = false;
   props.plainOverlay.show(force);
   traceLog.push('_id:' + props._id, '</execOpening>'); // [DEBUG/]
 }
@@ -829,12 +857,10 @@ function execClosing(props, force, sync) {
     traceLog.push('parentProps.state:' + STATE_TEXT[props.parentProps.state]); // [DEBUG/]
   }
 
-  // Even when `force`, `props.state` is updated with "async" (if !sync),
-  // something might run before `props.state` is updated in
-  //    (setTimeout ->) plainOverlay.onHide -> finishClosing -> STATE_CLOSED
   props.state = STATE_CLOSING;
   traceLog.push('state:' + STATE_TEXT[props.state]); // [DEBUG/]
   switchDraggable(props); // [DRAG/]
+  props.effectFinished.plainOverlay = props.effectFinished.option = false;
   props.plainOverlay.hide(force, sync);
   traceLog.push('_id:' + props._id, '</execClosing>'); // [DEBUG/]
 }
@@ -1025,8 +1051,8 @@ function _setOptions(props, newOptions) {
   }
   // [/DRAG]
 
-  // Event listeners
-  ['onOpen', 'onClose', 'onBeforeOpen', 'onBeforeClose'].forEach(function (option) {
+  // effect functions and event listeners
+  ['openEffect', 'closeEffect', 'onOpen', 'onClose', 'onBeforeOpen', 'onBeforeClose'].forEach(function (option) {
     if (typeof newOptions[option] === 'function') {
       options[option] = newOptions[option];
     } else if (newOptions.hasOwnProperty(option) && newOptions[option] == null) {
@@ -1052,7 +1078,8 @@ var PlainModal = function () {
         dragHandle: void 0, // [DRAG/]
         overlayBlur: false
       },
-      state: STATE_CLOSED
+      state: STATE_CLOSED,
+      effectFinished: { plainOverlay: false, option: false }
     };
 
     Object.defineProperty(this, '_id', { value: ++insId });
@@ -1098,10 +1125,10 @@ var PlainModal = function () {
     props.plainOverlay = new _plainOverlay2.default({
       face: content,
       onShow: function onShow() {
-        finishOpening(props);
+        finishOpenEffect(props, 'plainOverlay');
       },
       onHide: function onHide() {
-        finishClosing(props);
+        finishCloseEffect(props, 'plainOverlay');
       }
     });
     var elmPlainOverlayBody = content.parentElement; // elmOverlayBody of PlainOverlay
@@ -1215,6 +1242,22 @@ var PlainModal = function () {
     }
     // [/DRAG]
 
+  }, {
+    key: 'openEffect',
+    get: function get() {
+      return insProps[this._id].options.openEffect;
+    },
+    set: function set(value) {
+      _setOptions(insProps[this._id], { openEffect: value });
+    }
+  }, {
+    key: 'closeEffect',
+    get: function get() {
+      return insProps[this._id].options.closeEffect;
+    },
+    set: function set(value) {
+      _setOptions(insProps[this._id], { closeEffect: value });
+    }
   }, {
     key: 'onOpen',
     get: function get() {
@@ -1386,8 +1429,7 @@ TOLERANCE = 0.5,
     IS_WEBKIT = !window.chrome && 'WebkitAppearance' in document.documentElement.style,
     // [DEBUG/]
 IS_BLINK = !!(window.chrome && window.chrome.webstore),
-    // [DEBUG/]
-IS_GECKO = 'MozAppearance' in document.documentElement.style,
+    IS_GECKO = 'MozAppearance' in document.documentElement.style,
     // [DEBUG/]
 
 isObject = function () {
@@ -1628,6 +1670,7 @@ function getDocClientWH(props) {
 window.getDocClientWH = getDocClientWH; // [DEBUG/]
 
 function restoreScroll(props, element) {
+  traceLog.push('<restoreScroll>', '_id:' + props._id, 'state:' + STATE_TEXT[props.state]); // [DEBUG/]
 
   function scrollElement(element, isDoc, left, top) {
     try {
@@ -1636,7 +1679,6 @@ function restoreScroll(props, element) {
     } catch (error) {/* Something might have been changed, and that can be ignored. */}
   }
 
-  console.log('restoreScroll START'); // [DEBUG/]
   if (element) {
     return props.savedElementsScroll.some(function (elementScroll) {
       if (elementScroll.element === element) {
@@ -1644,14 +1686,14 @@ function restoreScroll(props, element) {
         return true;
       }
       return false;
-    }) ? (console.log('restoreScroll DONE'), true) : ( // [DEBUG/]
-    console.log('restoreScroll Not in target'), false) // [DEBUG/]
+    }) ? (traceLog.push('DONE:ELEMENT', '_id:' + props._id, '</restoreScroll>'), true) : ( // [DEBUG/]
+    traceLog.push('NotInTarget', '_id:' + props._id, '</restoreScroll>'), false) // [DEBUG/]
     ;
   } else {
     props.savedElementsScroll.forEach(function (elementScroll) {
       scrollElement(elementScroll.element, elementScroll.isDoc, elementScroll.left, elementScroll.top);
     });
-    console.log('restoreScroll DONE (All savedElementsScroll)'); // [DEBUG/]
+    traceLog.push('DONE:ALL', '_id:' + props._id, '</restoreScroll>'); // [DEBUG/]
     return true;
   }
 }
@@ -1676,7 +1718,10 @@ function restoreAccKeys(props) {
 window.restoreAccKeys = restoreAccKeys; // [DEBUG/]
 
 function avoidFocus(props, element) {
-  console.log('avoidFocus START'); // [DEBUG/]
+  // [DEBUG]
+  traceLog.push('<avoidFocus>', '_id:' + props._id, 'state:' + STATE_TEXT[props.state]);
+  traceLog.push('element:' + (element === document ? 'document' : element.tagName || 'UNKNOWN') + ('' + (element.id ? '#' + element.id : '')));
+  // [/DEBUG]
   if (props.isDoc && element !== element.ownerDocument.body && !(props.elmOverlay.compareDocumentPosition(element) & Node.DOCUMENT_POSITION_CONTAINED_BY) || !props.isDoc && (element === props.elmTargetBody || props.elmTargetBody.compareDocumentPosition(element) & Node.DOCUMENT_POSITION_CONTAINED_BY)) {
     if (element.blur) {
       // Trident and Edge don't support SVG#blur
@@ -1684,10 +1729,10 @@ function avoidFocus(props, element) {
     } else {
       element.ownerDocument.body.focus();
     }
-    console.log('avoidFocus DONE'); // [DEBUG/]
+    traceLog.push('DONE', '_id:' + props._id, '</avoidFocus>'); // [DEBUG/]
     return true;
   }
-  console.log('avoidFocus Not in target'); // [DEBUG/]
+  traceLog.push('NotInTarget', '_id:' + props._id, '</avoidFocus>'); // [DEBUG/]
   return false;
 }
 
@@ -1742,19 +1787,39 @@ function nodeContainsSel(node, selection) {
 window.nodeContainsSel = nodeContainsSel; // [DEBUG/]
 
 function avoidSelect(props) {
-  console.log('avoidSelect START'); // [DEBUG/]
+  traceLog.push('<avoidSelect>', '_id:' + props._id, 'state:' + STATE_TEXT[props.state]); // [DEBUG/]
   var selection = ('getSelection' in window ? props.window : props.document).getSelection();
-  if (selection.rangeCount && (props.isDoc ? !nodeContainsSel(props.elmOverlayBody, selection) : selection.containsNode ? selection.containsNode(props.elmTargetBody, true) : selContainsNode(selection, props.elmTargetBody, true))) {
-    selection.removeAllRanges();
+  // [DEBUG]
+  if (selection.rangeCount) {
+    var start = selection.anchorNode,
+        end = selection.focusNode;
+    if (start && start.nodeType === Node.TEXT_NODE) {
+      start = start.parentNode;
+    }
+    if (end && end.nodeType === Node.TEXT_NODE) {
+      end = end.parentNode;
+    }
+    traceLog.push('start:' + (!start ? 'NONE' : start === document ? 'document' : start.tagName || 'UNKNOWN') + ('' + (start && start.id ? '#' + start.id : '')) + ('(' + selection.anchorOffset + ')') + (',end:' + (!end ? 'NONE' : end === document ? 'document' : end.tagName || 'UNKNOWN')) + ('' + (end && end.id ? '#' + end.id : '')) + ('(' + selection.focusOffset + ')') + (',isCollapsed:' + selection.isCollapsed));
+  } else {
+    traceLog.push('NoRange');
+  }
+  // [/DEBUG]
+  if (selection.rangeCount && (props.isDoc ? !nodeContainsSel(props.elmOverlayBody, selection) : selection.containsNode && (!IS_BLINK || !selection.isCollapsed) ? // Blink bug, fails with empty string.
+  selection.containsNode(props.elmTargetBody, true) : selContainsNode(selection, props.elmTargetBody, true))) {
+    try {
+      selection.removeAllRanges(); // Trident bug?, `Error:800a025e` comes sometime
+    } catch (error) {/* ignore */}
     props.document.body.focus();
     // Trident bug? It seems that `focus()` makes selection again.
     if (selection.rangeCount > 0) {
-      selection.removeAllRanges();
+      try {
+        selection.removeAllRanges(); // Trident bug?, `Error:800a025e` comes sometime
+      } catch (error) {/* ignore */}
     }
-    console.log('avoidSelect DONE'); // [DEBUG/]
+    traceLog.push('DONE', '_id:' + props._id, '</avoidSelect>'); // [DEBUG/]
     return true;
   }
-  console.log('avoidSelect NO selection'); // [DEBUG/]
+  traceLog.push('NoSelection', '_id:' + props._id, '</avoidSelect>'); // [DEBUG/]
   return false;
 }
 
@@ -1922,10 +1987,11 @@ function finishShowing(props) {
   }
 
   props.state = STATE_SHOWN;
+  traceLog.push('state:' + STATE_TEXT[props.state]); // [DEBUG/]
   if (props.options.onShow) {
     props.options.onShow.call(props.ins);
   }
-  traceLog.push('_id:' + props._id, 'state:' + STATE_TEXT[props.state], '</finishShowing>'); // [DEBUG/]
+  traceLog.push('_id:' + props._id, '</finishShowing>'); // [DEBUG/]
 }
 
 function finishHiding(props, sync) {
@@ -1940,32 +2006,51 @@ function finishHiding(props, sync) {
   props.savedStyleTargetBody = {};
 
   restoreAccKeys(props);
-  props.savedElementsAccKeys = null;
-
-  // props.state must be STATE_HIDDEN for below
-  props.state = STATE_HIDDEN;
+  props.savedElementsAccKeys = [];
 
   if (!sync && props.isDoc && props.activeElement) {
+    // props.state must be STATE_HIDDEN for avoiding focus.
+    var stateSave = props.state;
+    props.state = STATE_HIDDEN;
+    traceLog.push('[SAVE1]state:' + STATE_TEXT[props.state]); // [DEBUG/]
+    // the event is fired after function exited in some browsers (e.g. Trident).
+    traceLog.push('focusListener:REMOVE'); // [DEBUG/]
+    props.elmTargetBody.removeEventListener('focus', props.focusListener, true);
     props.activeElement.focus();
+    // Don't change props.state for calling `hide(force)` before `restoreAndFinish` (async-mode)
+    props.state = stateSave;
+    traceLog.push('[SAVE2]state:' + STATE_TEXT[props.state]); // [DEBUG/]
   }
   props.activeElement = null;
 
   // Since `focus()` might scroll, do this after `focus()` and reflow.
   function restoreAndFinish() {
+    traceLog.push('<finishHiding.restoreAndFinish>', '_id:' + props._id, 'state:' + STATE_TEXT[props.state]); // [DEBUG/]
+    props.timerRestoreAndFinish = null;
+    props.state = STATE_HIDDEN;
+    traceLog.push('state:' + STATE_TEXT[props.state]); // [DEBUG/]
+    traceLog.push('focusListener:ADD'); // [DEBUG/]
+    props.elmTargetBody.addEventListener('focus', props.focusListener, true);
     restoreScroll(props);
     props.savedElementsScroll = null;
 
     if (props.options.onHide) {
       props.options.onHide.call(props.ins);
     }
+    traceLog.push('_id:' + props._id, '</finishHiding.restoreAndFinish>'); // [DEBUG/]
   }
 
+  if (props.timerRestoreAndFinish) {
+    traceLog.push('ClearPrevTimer'); // [DEBUG/]
+    clearTimeout(props.timerRestoreAndFinish);
+    props.timerRestoreAndFinish = null;
+  }
   if (sync) {
     restoreAndFinish();
   } else {
-    setTimeout(restoreAndFinish, 0);
+    props.timerRestoreAndFinish = setTimeout(restoreAndFinish, 0);
   }
-  traceLog.push('_id:' + props._id, 'state:' + STATE_TEXT[props.state], '</finishHiding>'); // [DEBUG/]
+  traceLog.push('_id:' + props._id, '</finishHiding>'); // [DEBUG/]
 }
 
 /**
@@ -2035,6 +2120,7 @@ function _show(props, force) {
   }
 
   if (props.state === STATE_SHOWN || props.state === STATE_SHOWING && !force || props.state !== STATE_SHOWING && props.options.onBeforeShow && props.options.onBeforeShow.call(props.ins) === false) {
+    traceLog.push('CANCEL', '</show>'); // [DEBUG/]
     return;
   }
 
@@ -2075,12 +2161,12 @@ function _show(props, force) {
 
   elmOverlayClassList.toggle(STYLE_CLASS_FORCE, !!force);
   elmOverlayClassList.add(STYLE_CLASS_SHOW);
+  props.state = STATE_SHOWING;
+  traceLog.push('state:' + STATE_TEXT[props.state]); // [DEBUG/]
   if (force) {
     finishShowing(props);
-  } else {
-    props.state = STATE_SHOWING;
   }
-  traceLog.push('_id:' + props._id, 'state:' + STATE_TEXT[props.state], '</show>'); // [DEBUG/]
+  traceLog.push('_id:' + props._id, '</show>'); // [DEBUG/]
 }
 
 /**
@@ -2094,6 +2180,7 @@ function _hide(props, force, sync) {
   traceLog.push('force:' + !!force); // [DEBUG/]
   traceLog.push('sync:' + !!sync); // [DEBUG/]
   if (props.state === STATE_HIDDEN || props.state === STATE_HIDING && !force || props.state !== STATE_HIDING && props.options.onBeforeHide && props.options.onBeforeHide.call(props.ins) === false) {
+    traceLog.push('CANCEL', '</hide>'); // [DEBUG/]
     return;
   }
 
@@ -2105,15 +2192,26 @@ function _hide(props, force, sync) {
     props.filterElements = null;
   }
 
+  // In Gecko, hidden element can be activeElement.
+  var element = props.document.activeElement;
+  if (element && element !== element.ownerDocument.body && props.elmOverlay.compareDocumentPosition(element) & Node.DOCUMENT_POSITION_CONTAINED_BY) {
+    if (element.blur) {
+      // Trident and Edge don't support SVG#blur
+      element.blur();
+    } else {
+      element.ownerDocument.body.focus();
+    }
+  }
+
   var elmOverlayClassList = (0, _mClassList2.default)(props.elmOverlay);
   elmOverlayClassList.toggle(STYLE_CLASS_FORCE, !!force);
   elmOverlayClassList.remove(STYLE_CLASS_SHOW);
+  props.state = STATE_HIDING;
+  traceLog.push('state:' + STATE_TEXT[props.state]); // [DEBUG/]
   if (force) {
     finishHiding(props, sync);
-  } else {
-    props.state = STATE_HIDING;
   }
-  traceLog.push('_id:' + props._id, 'state:' + STATE_TEXT[props.state], '</hide>'); // [DEBUG/]
+  traceLog.push('_id:' + props._id, '</hide>'); // [DEBUG/]
 }
 
 /**
@@ -2315,20 +2413,34 @@ var PlainOverlay = function () {
     });
 
     (props.isDoc ? props.window : elmTargetBody).addEventListener('scroll', function (event) {
+      // [DEBUG]
+      traceLog.push('<scroll-event>', '_id:' + props._id, 'state:' + STATE_TEXT[props.state]);
+      traceLog.push('target:' + (event.target === document ? 'document' : event.target.tagName || 'UNKNOWN') + ('' + (event.target.id ? '#' + event.target.id : '')));
+      // [/DEBUG]
       var target = event.target;
       if (props.state !== STATE_HIDDEN && restoreScroll(props, props.isDoc && (target === props.window || target === props.document || target === props.elmTargetBody) ? props.elmTarget : target)) {
-        console.log('avoidScroll'); // [DEBUG/]
+        traceLog.push('AVOIDED'); // [DEBUG/]
         event.preventDefault();
         event.stopImmediatePropagation();
       }
+      traceLog.push('_id:' + props._id, '</scroll-event>'); // [DEBUG/]
     }, true);
 
-    elmTargetBody.addEventListener('focus', function (event) {
+    // props.state can't control the listener
+    // because the event is fired after flow function exited in some browsers (e.g. Trident).
+    props.focusListener = function (event) {
+      // [DEBUG]
+      traceLog.push('<focusListener>', '_id:' + props._id, 'state:' + STATE_TEXT[props.state]);
+      traceLog.push('target:' + (event.target === document ? 'document' : event.target.tagName || 'UNKNOWN') + ('' + (event.target.id ? '#' + event.target.id : '')));
+      // [/DEBUG]
       if (props.state !== STATE_HIDDEN && avoidFocus(props, event.target)) {
+        traceLog.push('AVOIDED'); // [DEBUG/]
         event.preventDefault();
         event.stopImmediatePropagation();
       }
-    }, true);
+      traceLog.push('_id:' + props._id, '</focusListener>'); // [DEBUG/]
+    };
+    elmTargetBody.addEventListener('focus', props.focusListener, true);
 
     (function (listener) {
       // simulation "text-select" event
@@ -2337,17 +2449,20 @@ var PlainOverlay = function () {
         props.window.addEventListener(type, listener, true);
       });
     })(function (event) {
+      traceLog.push('<text-select-event>', '_id:' + props._id, 'state:' + STATE_TEXT[props.state]); // [DEBUG/]
       if (props.state !== STATE_HIDDEN && avoidSelect(props)) {
+        traceLog.push('AVOIDED'); // [DEBUG/]
         event.preventDefault();
         event.stopImmediatePropagation();
       }
+      traceLog.push('_id:' + props._id, '</text-select-event>'); // [DEBUG/]
     });
 
     // Gecko bug, multiple calling (parallel) by `requestAnimationFrame`.
     props.resizing = false;
     props.window.addEventListener('resize', _animEvent2.default.add(function () {
       if (props.resizing) {
-        console.log('`resize` event listener is already running.'); // [DEBUG/]
+        console.warn('`resize` event listener is already running.'); // [DEBUG/]
         return;
       }
       props.resizing = true;
@@ -2590,8 +2705,6 @@ PlainOverlay.forceEvent = false;
   var fireEvent = function fireEvent(element) {
     traceLog.push('<fireEvent>', getIdLog(element));
     console.warn('[forceEvent] Fired: ' + FORCE_EVENT_TYPE);
-    console.log('[forceEvent] element:');
-    console.log(element);
     var event = void 0;
     if (element.timer) {
       clearTimeout(element.timer);
@@ -2610,11 +2723,9 @@ PlainOverlay.forceEvent = false;
   var initEvent = function initEvent(element, duration) {
     traceLog.push('<initEvent>', getIdLog(element), 'duration:' + duration);
     console.warn('[forceEvent] Trigger class: ' + TRIGGER_CLASS + ' / duration: ' + duration);
-    console.log('[forceEvent] element:');
-    console.log(element);
     if (element.timer) {
-      traceLog.push('clearPrevEvent');
-      console.warn('[forceEvent] clearPrevEvent');
+      traceLog.push('ClearPrevEvent');
+      console.warn('[forceEvent] ClearPrevEvent');
       clearTimeout(element.timer);
     }
     element.timer = setTimeout(function () {
@@ -2631,19 +2742,19 @@ PlainOverlay.forceEvent = false;
   _mClassList2.default.hookApply(function (list, element) {
     traceLog.push('<mClassList.hookApply>', 'list:' + list.join(','), getIdLog(element));
     if (!PlainOverlay.forceEvent) {
-      traceLog.push('PlainOverlay.forceEvent:false', 'cancel', '</mClassList.hookApply>');
+      traceLog.push('PlainOverlay.forceEvent:false', 'CANCEL', '</mClassList.hookApply>');
       return;
     }
 
     if (list.indexOf(FORCE_CLASS) !== -1) {
       traceLog.push('FORCE_CLASS:true');
       if (element.timer) {
-        traceLog.push('clearPrevEvent');
-        console.warn('[forceEvent] clearPrevEvent');
+        traceLog.push('ClearPrevEvent');
+        console.warn('[forceEvent] ClearPrevEvent');
         clearTimeout(element.timer);
         element.timer = null;
       }
-      traceLog.push('cancel', '</mClassList.hookApply>');
+      traceLog.push('CANCEL', '</mClassList.hookApply>');
       return;
     }
 
@@ -2654,7 +2765,7 @@ PlainOverlay.forceEvent = false;
         listHasTrigger = list.indexOf(TRIGGER_CLASS) !== -1;
 
     if (elementHasTrigger === listHasTrigger) {
-      traceLog.push('TriggerClassNotChanged', 'cancel', '</mClassList.hookApply>');
+      traceLog.push('TriggerClassNotChanged', 'CANCEL', '</mClassList.hookApply>');
       return;
     }
 
@@ -2797,7 +2908,7 @@ function hasChanged(a, b) {
 
 /**
  * @param {Element} element - A target element.
- * @returns {boolean} - `true` if connected element.
+ * @returns {boolean} `true` if connected element.
  */
 function isElement(element) {
   return !!(element && element.nodeType === Node.ELEMENT_NODE &&
@@ -2821,7 +2932,7 @@ window.isElement = isElement; // [DEBUG/]
 
 /**
  * @param {Object} bBox - A target object.
- * @returns {(BBox|null)} - A normalized `BBox`, or null if `bBox` is invalid.
+ * @returns {(BBox|null)} A normalized `BBox`, or null if `bBox` is invalid.
  */
 function validBBox(bBox) {
   if (!isObject(bBox)) {
@@ -2892,7 +3003,7 @@ function resolvePPValue(ppValue, baseOrigin, baseSize) {
 
 /**
  * @param {Object} bBox - A target object.
- * @returns {(PPBBox|null)} - A normalized `PPBBox`, or null if `bBox` is invalid.
+ * @returns {(PPBBox|null)} A normalized `PPBBox`, or null if `bBox` is invalid.
  */
 function validPPBBox(bBox) {
   if (!isObject(bBox)) {
@@ -2956,7 +3067,7 @@ window.resolvePPBBox = resolvePPBBox; // [DEBUG/]
 /**
  * @param {Element} element - A target element.
  * @param {?boolean} getPaddingBox - Get padding-box instead of border-box as bounding-box.
- * @returns {BBox} - A bounding-box of `element`.
+ * @returns {BBox} A bounding-box of `element`.
  */
 function getBBox(element, getPaddingBox) {
   var rect = element.getBoundingClientRect(),
@@ -2982,7 +3093,7 @@ window.getBBox = getBBox; // [DEBUG/]
  * Optimize an element for animation.
  * @param {Element} element - A target element.
  * @param {?boolean} gpuTrigger - Initialize for SVGElement if `true`.
- * @returns {Element} - A target element.
+ * @returns {Element} A target element.
  */
 function initAnim(element, gpuTrigger) {
   var style = element.style;
@@ -3027,7 +3138,7 @@ function setDraggingCursor(element) {
  * Move by `translate`.
  * @param {props} props - `props` of instance.
  * @param {{left: number, top: number}} position - New position.
- * @returns {boolean} - `true` if it was moved.
+ * @returns {boolean} `true` if it was moved.
  */
 function moveTranslate(props, position) {
   var elementBBox = props.elementBBox;
@@ -3044,7 +3155,7 @@ function moveTranslate(props, position) {
  * @param {props} props - `props` of instance.
  * @param {{left: number, top: number}} position - New position.
  * @param {function} [cbCheck] - Callback that is called with valid position, cancel moving if it returns `false`.
- * @returns {boolean} - `true` if it was moved.
+ * @returns {boolean} `true` if it was moved.
  */
 function move(props, position, cbCheck) {
   var elementBBox = props.elementBBox;
@@ -3418,7 +3529,7 @@ var PlainDraggable = function () {
 
   /**
    * @param {Object} options - New options.
-   * @returns {PlainDraggable} - Current instance itself.
+   * @returns {PlainDraggable} Current instance itself.
    */
 
 

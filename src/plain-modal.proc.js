@@ -1,4 +1,8 @@
 /*
+    DON'T MANUALLY EDIT THIS FILE
+*/
+
+/*
  * PlainModal
  * https://anseki.github.io/plain-modal/
  *
@@ -54,7 +58,7 @@ const
    * @property {number} state - Current state.
    * @property {Object} options - Options.
    * @property {props} parentProps - props that is effected with current props.
-   * @property {{plainOverlay: boolean, option: boolean}} effectFinished - The effect finished.
+   * @property {{plainOverlay: boolean, option: boolean}} effectFinished - The effect was finished.
    */
 
   /** @type {Object.<_id: number, props>} */
@@ -71,22 +75,7 @@ let insId = 0,
   openCloseEffectProps, // A `props` that is running the "open/close" effect now.
   closeByEscKey = true, closeByOverlay = true;
 
-// [DEBUG]
-window.insProps = insProps;
-window.shownProps = shownProps;
-// [/DEBUG]
 
-// [DEBUG]
-const traceLog = [];
-const STATE_TEXT = {};
-STATE_TEXT[STATE_CLOSED] = 'STATE_CLOSED';
-STATE_TEXT[STATE_OPENING] = 'STATE_OPENING';
-STATE_TEXT[STATE_OPENED] = 'STATE_OPENED';
-STATE_TEXT[STATE_CLOSING] = 'STATE_CLOSING';
-STATE_TEXT[STATE_INACTIVATING] = 'STATE_INACTIVATING';
-STATE_TEXT[STATE_INACTIVATED] = 'STATE_INACTIVATED';
-STATE_TEXT[STATE_ACTIVATING] = 'STATE_ACTIVATING';
-// [/DEBUG]
 
 function forceReflow(target) {
   // Trident and Blink bug (reflow like `offsetWidth` can't update)
@@ -111,70 +100,32 @@ function isElement(element) {
 
 // [DRAG]
 function switchDraggable(props) {
-  // [DEBUG]
-  traceLog.push('<switchDraggable>', `_id:${props._id}`, `state:${STATE_TEXT[props.state]}`);
-  // [/DEBUG]
   if (props.plainDraggable) {
-    // [DEBUG]
-    traceLog.push(
-      `plainDraggable.disabled:${!(props.options.dragHandle && props.state === STATE_OPENED)}`);
-    // [/DEBUG]
     props.plainDraggable.disabled = !(props.options.dragHandle && props.state === STATE_OPENED);
-    // [DEBUG]
-  } else {
-    traceLog.push('plainDraggable:NONE');
-    // [/DEBUG]
   }
-  traceLog.push('</switchDraggable>'); // [DEBUG/]
 }
 // [/DRAG]
 
 function finishOpening(props) {
-  // [DEBUG]
-  traceLog.push('<finishOpening>', `_id:${props._id}`, `state:${STATE_TEXT[props.state]}`);
-  // [/DEBUG]
   openCloseEffectProps = null;
   props.state = STATE_OPENED;
-  traceLog.push(`state:${STATE_TEXT[props.state]}`); // [DEBUG/]
   switchDraggable(props); // [DRAG/]
   if (props.parentProps) {
-    // [DEBUG]
-    traceLog.push(`parentProps._id:${props.parentProps._id}`,
-      `parentProps.state:${STATE_TEXT[props.parentProps.state]}`);
-    // [/DEBUG]
     props.parentProps.state = STATE_INACTIVATED;
-    traceLog.push(`parentProps.state:${STATE_TEXT[props.parentProps.state]}`); // [DEBUG/]
   }
   if (props.options.onOpen) { props.options.onOpen.call(props.ins); }
-  traceLog.push('</finishOpening>'); // [DEBUG/]
 }
 
 function finishClosing(props) {
-  // [DEBUG]
-  traceLog.push('<finishClosing>', `_id:${props._id}`, `state:${STATE_TEXT[props.state]}`);
-  if (shownProps[shownProps.length - 1] !== props) { throw new Error('`shownProps` is broken.'); }
-  // [/DEBUG]
   shownProps.pop();
-  // [DEBUG]
-  traceLog.push(
-    `shownProps:${shownProps.length ? shownProps.map(props => props._id).join(',') : 'NONE'}`);
-  // [/DEBUG]
   openCloseEffectProps = null;
   props.state = STATE_CLOSED;
-  traceLog.push(`state:${STATE_TEXT[props.state]}`); // [DEBUG/]
   if (props.parentProps) {
-    // [DEBUG]
-    traceLog.push(`parentProps._id:${props.parentProps._id}`,
-      `parentProps.state:${STATE_TEXT[props.parentProps.state]}`);
-    // [/DEBUG]
     props.parentProps.state = STATE_OPENED;
-    traceLog.push(`parentProps.state:${STATE_TEXT[props.parentProps.state]}`); // [DEBUG/]
     switchDraggable(props.parentProps); // [DRAG/]
-    traceLog.push(`parentProps(UNLINK):${props.parentProps._id}`); // [DEBUG/]
     props.parentProps = null;
   }
   if (props.options.onClose) { props.options.onClose.call(props.ins); }
-  traceLog.push('</finishClosing>'); // [DEBUG/]
 }
 
 /**
@@ -212,15 +163,7 @@ function finishCloseEffect(props, effectKey) {
  * @returns {void}
  */
 function execOpening(props, force) {
-  // [DEBUG]
-  traceLog.push('<execOpening>', `_id:${props._id}`, `state:${STATE_TEXT[props.state]}`);
-  traceLog.push(`force:${!!force}`);
-  // [/DEBUG]
   if (props.parentProps) { // inactivate parentProps
-    // [DEBUG]
-    traceLog.push(`parentProps._id:${props.parentProps._id}`,
-      `parentProps.state:${STATE_TEXT[props.parentProps.state]}`);
-    // [/DEBUG]
     /*
       Cases:
         - STATE_OPENED or STATE_ACTIVATING, regardless of force
@@ -230,31 +173,18 @@ function execOpening(props, force) {
     if (parentProps.state === STATE_OPENED) {
       elmOverlay.style[CSSPrefix.getName('transitionDuration')] =
         props.options.duration === DURATION ? '' : `${props.options.duration}ms`;
-      // [DEBUG]
-      traceLog.push('elmOverlay.duration:' +
-        (props.options.duration === DURATION ? '' : `${props.options.duration}ms`));
-      // [/DEBUG]
     }
     const elmOverlayClassList = mClassList(elmOverlay);
     elmOverlayClassList.toggle(STYLE_CLASS_OVERLAY_FORCE, !!force);
     elmOverlayClassList.add(STYLE_CLASS_OVERLAY_HIDE);
-    // [DEBUG]
-    traceLog.push(
-      `elmOverlay.CLASS_FORCE:${elmOverlayClassList.contains(STYLE_CLASS_OVERLAY_FORCE)}`);
-    traceLog.push(
-      `elmOverlay.CLASS_HIDE:${elmOverlayClassList.contains(STYLE_CLASS_OVERLAY_HIDE)}`);
-    // [/DEBUG]
     // Update `state` regardless of force, for switchDraggable.
     parentProps.state = STATE_INACTIVATING;
-    traceLog.push(`parentProps.state:${STATE_TEXT[props.parentProps.state]}`); // [DEBUG/]
     switchDraggable(parentProps); // [DRAG/]
   }
 
   props.state = STATE_OPENING;
-  traceLog.push(`state:${STATE_TEXT[props.state]}`); // [DEBUG/]
   props.effectFinished.plainOverlay = props.effectFinished.option = false;
   props.plainOverlay.show(force);
-  traceLog.push(`_id:${props._id}`, '</execOpening>'); // [DEBUG/]
 }
 
 /**
@@ -265,15 +195,7 @@ function execOpening(props, force) {
  * @returns {void}
  */
 function execClosing(props, force, sync) {
-  // [DEBUG]
-  traceLog.push('<execClosing>', `_id:${props._id}`, `state:${STATE_TEXT[props.state]}`);
-  traceLog.push(`force:${!!force}`, `sync:${!!sync}`);
-  // [/DEBUG]
   if (props.parentProps) { // activate parentProps
-    // [DEBUG]
-    traceLog.push(`parentProps._id:${props.parentProps._id}`,
-      `parentProps.state:${STATE_TEXT[props.parentProps.state]}`);
-    // [/DEBUG]
     /*
       Cases:
         - STATE_INACTIVATED or STATE_INACTIVATING, regardless of `force`
@@ -283,31 +205,18 @@ function execClosing(props, force, sync) {
     if (parentProps.state === STATE_INACTIVATED) {
       elmOverlay.style[CSSPrefix.getName('transitionDuration')] =
         props.options.duration === DURATION ? '' : `${props.options.duration}ms`;
-      // [DEBUG]
-      traceLog.push('elmOverlay.duration:' +
-        (props.options.duration === DURATION ? '' : `${props.options.duration}ms`));
-      // [/DEBUG]
     }
     const elmOverlayClassList = mClassList(elmOverlay);
     elmOverlayClassList.toggle(STYLE_CLASS_OVERLAY_FORCE, !!force);
     elmOverlayClassList.remove(STYLE_CLASS_OVERLAY_HIDE);
-    // [DEBUG]
-    traceLog.push(
-      `elmOverlay.CLASS_FORCE:${elmOverlayClassList.contains(STYLE_CLASS_OVERLAY_FORCE)}`);
-    traceLog.push(
-      `elmOverlay.CLASS_HIDE:${elmOverlayClassList.contains(STYLE_CLASS_OVERLAY_HIDE)}`);
-    // [/DEBUG]
     // same condition as props
     parentProps.state = STATE_ACTIVATING;
-    traceLog.push(`parentProps.state:${STATE_TEXT[props.parentProps.state]}`); // [DEBUG/]
   }
 
   props.state = STATE_CLOSING;
-  traceLog.push(`state:${STATE_TEXT[props.state]}`); // [DEBUG/]
   switchDraggable(props); // [DRAG/]
   props.effectFinished.plainOverlay = props.effectFinished.option = false;
   props.plainOverlay.hide(force, sync);
-  traceLog.push(`_id:${props._id}`, '</execClosing>'); // [DEBUG/]
 }
 
 /**
@@ -316,15 +225,11 @@ function execClosing(props, force, sync) {
  * @returns {void}
  */
 function fixOpenClose(props) {
-  // [DEBUG]
-  traceLog.push('<fixOpenClose>', `_id:${props._id}`, `state:${STATE_TEXT[props.state]}`);
-  // [/DEBUG]
   if (props.state === STATE_OPENING) {
     execOpening(props, true);
   } else if (props.state === STATE_CLOSING) {
     execClosing(props, true, true);
   }
-  traceLog.push(`_id:${props._id}`, '</fixOpenClose>'); // [DEBUG/]
 }
 
 /**
@@ -333,13 +238,11 @@ function fixOpenClose(props) {
  * @returns {void}
  */
 function open(props, force) {
-  traceLog.push('<open>', `_id:${props._id}`, `state:${STATE_TEXT[props.state]}`); // [DEBUG/]
   if (props.state !== STATE_CLOSED &&
         props.state !== STATE_CLOSING && props.state !== STATE_OPENING ||
       props.state === STATE_OPENING && !force ||
       props.state !== STATE_OPENING &&
         props.options.onBeforeOpen && props.options.onBeforeOpen.call(props.ins) === false) {
-    traceLog.push('CANCEL', '</open>'); // [DEBUG/]
     return false;
   }
   /*
@@ -348,37 +251,19 @@ function open(props, force) {
       - STATE_OPENING and `force`
   */
 
-  // [DEBUG]
-  traceLog.push(`openCloseEffectProps:${openCloseEffectProps ? openCloseEffectProps._id : 'NONE'}`);
-  // [/DEBUG]
   if (props.state === STATE_CLOSED) {
     if (openCloseEffectProps) { fixOpenClose(openCloseEffectProps); }
     openCloseEffectProps = props;
 
     if (shownProps.length) {
-      // [DEBUG]
-      if (shownProps.indexOf(props) !== -1) { throw new Error('`shownProps` is broken.'); }
-      // [/DEBUG]
       props.parentProps = shownProps[shownProps.length - 1];
-      traceLog.push(`parentProps(LINK):${props.parentProps._id}`); // [DEBUG/]
     }
     shownProps.push(props);
-    // [DEBUG]
-    traceLog.push(
-      `shownProps:${shownProps.length ? shownProps.map(props => props._id).join(',') : 'NONE'}`);
-    // [/DEBUG]
 
     mClassList(props.elmOverlay).add(STYLE_CLASS_OVERLAY_FORCE).remove(STYLE_CLASS_OVERLAY_HIDE);
-    // [DEBUG]
-    traceLog.push(
-      `elmOverlay.CLASS_FORCE:${mClassList(props.elmOverlay).contains(STYLE_CLASS_OVERLAY_FORCE)}`);
-    traceLog.push(
-      `elmOverlay.CLASS_HIDE:${mClassList(props.elmOverlay).contains(STYLE_CLASS_OVERLAY_HIDE)}`);
-    // [/DEBUG]
   }
 
   execOpening(props, force);
-  traceLog.push(`_id:${props._id}`, '</open>'); // [DEBUG/]
   return true;
 }
 
@@ -388,12 +273,10 @@ function open(props, force) {
  * @returns {void}
  */
 function close(props, force) {
-  traceLog.push('<close>', `_id:${props._id}`, `state:${STATE_TEXT[props.state]}`); // [DEBUG/]
   if (props.state === STATE_CLOSED ||
       props.state === STATE_CLOSING && !force ||
       props.state !== STATE_CLOSING &&
         props.options.onBeforeClose && props.options.onBeforeClose.call(props.ins) === false) {
-    traceLog.push('CANCEL', '</close>'); // [DEBUG/]
     return false;
   }
   /*
@@ -402,9 +285,6 @@ function close(props, force) {
       - STATE_CLOSING and `force`
   */
 
-  // [DEBUG]
-  traceLog.push(`openCloseEffectProps:${openCloseEffectProps ? openCloseEffectProps._id : 'NONE'}`);
-  // [/DEBUG]
   if (openCloseEffectProps && openCloseEffectProps !== props) {
     fixOpenClose(openCloseEffectProps);
     openCloseEffectProps = null;
@@ -415,18 +295,8 @@ function close(props, force) {
       - STATE_CLOSING and `force`
   */
   if (props.state === STATE_INACTIVATED) { // -> STATE_OPENED
-    // [DEBUG]
-    const i = shownProps.indexOf(props);
-    if (i === -1 || i === shownProps.length - 1) { throw new Error('`shownProps` is broken.'); }
-    traceLog.push(
-      `shownProps:${shownProps.length ? shownProps.map(props => props._id).join(',') : 'NONE'}`);
-    // [/DEBUG]
     let topProps;
     while ((topProps = shownProps[shownProps.length - 1]) !== props) {
-      // [DEBUG]
-      if (topProps.state !== STATE_OPENED) { throw new Error('`shownProps` is broken.'); }
-      traceLog.push(`topProps._id:${topProps._id}`, `topProps.state:${STATE_TEXT[topProps.state]}`);
-      // [/DEBUG]
       execClosing(topProps, true, true);
     }
   }
@@ -437,12 +307,10 @@ function close(props, force) {
   */
 
   if (props.state === STATE_OPENED) {
-    if (openCloseEffectProps) { throw new Error('`openCloseEffectProps` is broken.'); } // [DEBUG/]
     openCloseEffectProps = props;
   }
 
   execClosing(props, force);
-  traceLog.push(`_id:${props._id}`, '</close>'); // [DEBUG/]
   return true;
 }
 
@@ -553,7 +421,6 @@ class PlainModal {
         if (closeByEscKey &&
             ((key = event.key.toLowerCase()) === 'escape' || key === 'esc') &&
             (topProps = shownProps.length && shownProps[shownProps.length - 1]) &&
-            (traceLog.push('<keydown/>', 'CLOSE', `_id:${topProps._id}`), true) && // [DEBUG/]
             close(topProps)) {
           event.preventDefault();
           event.stopImmediatePropagation(); // preventDefault stops other listeners, maybe.
@@ -566,8 +433,8 @@ class PlainModal {
     // Overlay
     props.plainOverlay = new PlainOverlay({
       face: content,
-      onShow: () => { finishOpenEffect(props, 'plainOverlay'); },
-      onHide: () => { finishCloseEffect(props, 'plainOverlay'); }
+      onShow: function() { finishOpenEffect(props, 'plainOverlay'); },
+      onHide: function() { finishCloseEffect(props, 'plainOverlay'); }
     });
     const elmPlainOverlayBody = content.parentElement; // elmOverlayBody of PlainOverlay
     mClassList(elmPlainOverlayBody.parentElement).add(STYLE_CLASS); // elmOverlay of PlainOverlay
@@ -579,16 +446,12 @@ class PlainModal {
     // for closeByOverlay
     elmOverlay.addEventListener('click', function(event) {
       if (event.target === elmOverlay && closeByOverlay) {
-        traceLog.push('<overlayClick/>', 'CLOSE', `_id:${props._id}`); // [DEBUG/]
         close(props);
       }
     }, true);
 
     // Prepare removable event listeners for each instance.
     props.handleClose = () => { close(props); };
-    // Callback functions for additional effects
-    props.openEffectDone = () => { finishOpenEffect(props, 'option'); };
-    props.closeEffectDone = () => { finishCloseEffect(props, 'option'); };
 
     setOptions(props, options);
   }
@@ -686,10 +549,5 @@ class PlainModal {
 PlainModal.limit = true;
 [DRAG/] */
 
-// [DEBUG]
-PlainModal.traceLog = traceLog;
-PlainModal.STATE_TEXT = STATE_TEXT;
-PlainModal.PlainOverlay = PlainOverlay; // to access to PlainOverlay.forceEvent
-// [/DEBUG]
 
 export default PlainModal;
