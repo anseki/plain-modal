@@ -66,18 +66,17 @@ describe('closeByEscKey', function() {
       modal2.onOpen = modal2.onClose = modal2.onBeforeOpen = modal2.onBeforeClose =
       modal3.onOpen = modal3.onClose = modal3.onBeforeOpen = modal3.onBeforeClose = null;
 
-    var cbChangeDone, timer1;
+    var timer1;
     utils.makeState(allModals,
       [PlainModal.STATE_OPENED, PlainModal.STATE_CLOSED],
       function() {
-        if (cbChangeDone) { return; }
         modal1.close(true);
         modal2.close(true);
         modal3.close(true);
         timer1 = setTimeout(function() {
           modal1.open(true);
         }, 10);
-        cbChangeDone = true;
+        return true;
       },
       function() {
         clearTimeout(timer1);
@@ -136,18 +135,17 @@ describe('closeByEscKey', function() {
       modal2.onOpen = modal2.onClose = modal2.onBeforeOpen = modal2.onBeforeClose =
       modal3.onOpen = modal3.onClose = modal3.onBeforeOpen = modal3.onBeforeClose = null;
 
-    var cbChangeDone, timer1;
+    var timer1;
     utils.makeState(allModals,
       [PlainModal.STATE_OPENED, PlainModal.STATE_CLOSED],
       function() {
-        if (cbChangeDone) { return; }
         modal1.close(true);
         modal2.close(true);
         modal3.close(true);
         timer1 = setTimeout(function() {
           modal1.open(true);
         }, 10);
-        cbChangeDone = true;
+        return true;
       },
       function() {
         clearTimeout(timer1);
@@ -180,15 +178,13 @@ describe('closeByEscKey', function() {
       modal2.onOpen = modal2.onClose = modal2.onBeforeOpen = modal2.onBeforeClose =
       modal3.onOpen = modal3.onClose = modal3.onBeforeOpen = modal3.onBeforeClose = null;
 
-    var cbChangeDone;
     utils.makeState(allModals,
       PlainModal.STATE_CLOSED,
       function() {
-        if (cbChangeDone) { return; }
         modal1.close(true);
         modal2.close(true);
         modal3.close(true);
-        cbChangeDone = true;
+        return true;
       },
       function() {
 
@@ -218,18 +214,17 @@ describe('closeByEscKey', function() {
       modal2.onOpen = modal2.onClose = modal2.onBeforeOpen = modal2.onBeforeClose =
       modal3.onOpen = modal3.onClose = modal3.onBeforeOpen = modal3.onBeforeClose = null;
 
-    var cbChangeDone, timer1;
+    var timer1;
     utils.makeState(allModals,
       [PlainModal.STATE_OPENING, PlainModal.STATE_CLOSED],
       function() {
-        if (cbChangeDone) { return; }
         modal1.close(true);
         modal2.close(true);
         modal3.close(true);
         timer1 = setTimeout(function() {
           modal1.open();
         }, 10);
-        cbChangeDone = true;
+        return true;
       },
       function() {
         clearTimeout(timer1);
@@ -288,11 +283,10 @@ describe('closeByEscKey', function() {
       modal2.onOpen = modal2.onClose = modal2.onBeforeOpen = modal2.onBeforeClose =
       modal3.onOpen = modal3.onClose = modal3.onBeforeOpen = modal3.onBeforeClose = null;
 
-    var cbChangeDone, timer1;
+    var timer1;
     utils.makeState(allModals,
       [PlainModal.STATE_CLOSING, PlainModal.STATE_CLOSED],
       function() {
-        if (cbChangeDone) { return; }
         modal1.close(true);
         modal2.close(true);
         modal3.close(true);
@@ -302,7 +296,7 @@ describe('closeByEscKey', function() {
             modal1.close();
           }, 10);
         }, 10);
-        cbChangeDone = true;
+        return true;
       },
       function() {
         clearTimeout(timer1);
@@ -339,18 +333,17 @@ describe('closeByEscKey', function() {
       modal2.onOpen = modal2.onClose = modal2.onBeforeOpen = modal2.onBeforeClose =
       modal3.onOpen = modal3.onClose = modal3.onBeforeOpen = modal3.onBeforeClose = null;
 
-    var cbChangeDone, timer1, timer2, timer3;
+    var timer1, timer2, timer3;
     utils.makeState(allModals,
       [PlainModal.STATE_INACTIVATED, PlainModal.STATE_INACTIVATED, PlainModal.STATE_OPENED],
       function() {
-        if (cbChangeDone) { return; }
         modal1.close(true);
         modal2.close(true);
         modal3.close(true);
         timer1 = setTimeout(function() { modal1.open(true); }, 10);
         timer2 = setTimeout(function() { modal2.open(true); }, 10);
         timer3 = setTimeout(function() { modal3.open(true); }, 10);
-        cbChangeDone = true;
+        return true;
       },
       function() {
         clearTimeout(timer1);
@@ -474,18 +467,17 @@ describe('closeByEscKey', function() {
       modal2.onOpen = modal2.onClose = modal2.onBeforeOpen = modal2.onBeforeClose =
       modal3.onOpen = modal3.onClose = modal3.onBeforeOpen = modal3.onBeforeClose = null;
 
-    var cbChangeDone, timer1, timer2;
+    var timer1, timer2;
     utils.makeState(allModals,
       [PlainModal.STATE_OPENED, PlainModal.STATE_CLOSED, PlainModal.STATE_INACTIVATED],
       function() {
-        if (cbChangeDone) { return; }
         modal1.close(true);
         modal2.close(true);
         modal3.close(true);
         // 3, 1
         timer1 = setTimeout(function() { modal3.open(true); }, 10);
         timer2 = setTimeout(function() { modal1.open(true); }, 10);
-        cbChangeDone = true;
+        return true;
       },
       function() {
         clearTimeout(timer1);

@@ -55,7 +55,7 @@ const
    * @property {number} state - Current state.
    * @property {Object} options - Options.
    * @property {props} parentProps - props that is effected with current props.
-   * @property {{plainOverlay: boolean, option: boolean}} effectFinished - The effect was finished.
+   * @property {{plainOverlay: boolean, option: boolean}} effectFinished - The effect finished.
    */
 
   /** @type {Object.<_id: number, props>} */
@@ -387,7 +387,7 @@ class PlainModal {
       if (IS_TRIDENT || IS_EDGE) { forceReflow(sheet); } // Trident bug
 
       // for closeByEscKey
-      window.addEventListener('keydown', function(event) {
+      window.addEventListener('keydown', event => {
         let key, topProps;
         if (closeByEscKey &&
             ((key = event.key.toLowerCase()) === 'escape' || key === 'esc') &&
@@ -404,8 +404,8 @@ class PlainModal {
     // Overlay
     props.plainOverlay = new PlainOverlay({
       face: content,
-      onShow: function() { finishOpenEffect(props, 'plainOverlay'); },
-      onHide: function() { finishCloseEffect(props, 'plainOverlay'); }
+      onShow: () => { finishOpenEffect(props, 'plainOverlay'); },
+      onHide: () => { finishCloseEffect(props, 'plainOverlay'); }
     });
     const elmPlainOverlayBody = content.parentElement; // elmOverlayBody of PlainOverlay
     mClassList(elmPlainOverlayBody.parentElement).add(STYLE_CLASS); // elmOverlay of PlainOverlay
@@ -415,7 +415,7 @@ class PlainModal {
       props.elmOverlay = elmPlainOverlayBody.appendChild(document.createElement('div'));
     elmOverlay.className = STYLE_CLASS_OVERLAY;
     // for closeByOverlay
-    elmOverlay.addEventListener('click', function(event) {
+    elmOverlay.addEventListener('click', event => {
       if (event.target === elmOverlay && closeByOverlay) {
         close(props);
       }
@@ -423,6 +423,9 @@ class PlainModal {
 
     // Prepare removable event listeners for each instance.
     props.handleClose = () => { close(props); };
+    // Callback functions for additional effects
+    props.openEffectDone = () => { finishOpenEffect(props, 'option'); };
+    props.closeEffectDone = () => { finishCloseEffect(props, 'option'); };
 
     setOptions(props, options);
   }

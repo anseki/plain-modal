@@ -807,12 +807,11 @@ describe('descendant', function() {
       modal4.onOpen = modal4.onClose = modal4.onBeforeOpen = modal4.onBeforeClose =
       modal5.onOpen = modal5.onClose = modal5.onBeforeOpen = modal5.onBeforeClose = null;
 
-    var cbChangeDone, timer1, timer2, timer3;
+    var timer1, timer2, timer3;
     utils.makeState(allModals,
       [PlainModal.STATE_INACTIVATED, PlainModal.STATE_INACTIVATED, PlainModal.STATE_OPENED,
         PlainModal.STATE_CLOSED, PlainModal.STATE_CLOSED],
       function() {
-        if (cbChangeDone) { return; }
         modal1.close(true);
         modal2.close(true);
         modal3.close(true);
@@ -821,7 +820,7 @@ describe('descendant', function() {
         timer1 = setTimeout(function() { modal1.open(true); }, 10);
         timer2 = setTimeout(function() { modal2.open(true); }, 10);
         timer3 = setTimeout(function() { modal3.open(true); }, 10);
-        cbChangeDone = true;
+        return true;
       },
       function() {
         clearTimeout(timer1);
@@ -903,12 +902,11 @@ describe('descendant', function() {
       modal4.onOpen = modal4.onClose = modal4.onBeforeOpen = modal4.onBeforeClose =
       modal5.onOpen = modal5.onClose = modal5.onBeforeOpen = modal5.onBeforeClose = null;
 
-    var cbChangeDone, timer1, timer2, timer3, timer4, timer5;
+    var timer1, timer2, timer3, timer4, timer5;
     utils.makeState(allModals,
       [PlainModal.STATE_INACTIVATED, PlainModal.STATE_INACTIVATED, PlainModal.STATE_INACTIVATED,
         PlainModal.STATE_INACTIVATED, PlainModal.STATE_OPENED],
       function() {
-        if (cbChangeDone) { return; }
         modal1.close(true);
         modal2.close(true);
         modal3.close(true);
@@ -919,7 +917,7 @@ describe('descendant', function() {
         timer3 = setTimeout(function() { modal3.open(true); }, 10);
         timer4 = setTimeout(function() { modal4.open(true); }, 10);
         timer5 = setTimeout(function() { modal5.open(true); }, 10);
-        cbChangeDone = true;
+        return true;
       },
       function() {
         clearTimeout(timer1);
@@ -1052,12 +1050,11 @@ describe('descendant', function() {
       modal4.onOpen = modal4.onClose = modal4.onBeforeOpen = modal4.onBeforeClose =
       modal5.onOpen = modal5.onClose = modal5.onBeforeOpen = modal5.onBeforeClose = null;
 
-    var cbChangeDone, timer1, timer2, timer3, timer4, timer5;
+    var timer1, timer2, timer3, timer4, timer5;
     utils.makeState(allModals,
       [PlainModal.STATE_INACTIVATED, PlainModal.STATE_INACTIVATED, PlainModal.STATE_INACTIVATED,
         PlainModal.STATE_OPENED, PlainModal.STATE_INACTIVATED],
       function() {
-        if (cbChangeDone) { return; }
         modal1.close(true);
         modal2.close(true);
         modal3.close(true);
@@ -1069,7 +1066,7 @@ describe('descendant', function() {
         timer3 = setTimeout(function() { modal5.open(true); }, 10);
         timer4 = setTimeout(function() { modal1.open(true); }, 10);
         timer5 = setTimeout(function() { modal4.open(true); }, 10);
-        cbChangeDone = true;
+        return true;
       },
       function() {
         clearTimeout(timer1);

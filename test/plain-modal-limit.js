@@ -464,7 +464,7 @@ IS_TRIDENT = !!document.uniqueID,
  * @property {number} state - Current state.
  * @property {Object} options - Options.
  * @property {props} parentProps - props that is effected with current props.
- * @property {{plainOverlay: boolean, option: boolean}} effectFinished - The effect was finished.
+ * @property {{plainOverlay: boolean, option: boolean}} effectFinished - The effect finished.
  */
 
 /** @type {Object.<_id: number, props>} */
@@ -967,6 +967,13 @@ var PlainModal = function () {
     // Prepare removable event listeners for each instance.
     props.handleClose = function () {
       _close(props);
+    };
+    // Callback functions for additional effects
+    props.openEffectDone = function () {
+      finishOpenEffect(props, 'option');
+    };
+    props.closeEffectDone = function () {
+      finishCloseEffect(props, 'option');
     };
 
     _setOptions(props, options);
