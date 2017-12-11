@@ -51,7 +51,7 @@ var utils = (function() {
     if (!Array.isArray(states)) { states = [states]; }
     var statesLen = states.length;
     if (statesLen < modalsLen) { // Repeat last value
-      var lastValue = states[states.length - 1];
+      var lastValue = states[statesLen - 1];
       for (var i = statesLen; i < modalsLen; i++) {
         states[i] = lastValue;
       }
