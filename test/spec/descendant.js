@@ -136,6 +136,11 @@ describe('descendant', function() {
                 '_id:' + modal._id, '</open>',
                 // DONE: open
 
+                '<finishOpenEffect>', '_id:' + modal._id, 'state:STATE_OPENING',
+                'effectKey:plainOverlay',
+                'effectFinished.plainOverlay:true',
+                'effectFinished.option:false', 'openEffect:NO',
+
                 '<finishOpening>', '_id:' + modal._id, 'state:STATE_OPENING',
                 'state:STATE_OPENED',
 
@@ -144,6 +149,8 @@ describe('descendant', function() {
                 '</switchDraggable>',
 
                 '</finishOpening>',
+
+                '_id:' + modal._id, '</finishOpenEffect>',
 
                 // onOpen -> close()
 
@@ -165,10 +172,17 @@ describe('descendant', function() {
                 '_id:' + modal._id, '</close>',
                 // DONE: close
 
+                '<finishCloseEffect>', '_id:' + modal._id, 'state:STATE_CLOSING',
+                'effectKey:plainOverlay',
+                'effectFinished.plainOverlay:true',
+                'effectFinished.option:false', 'closeEffect:NO',
+
                 '<finishClosing>', '_id:' + modal._id, 'state:STATE_CLOSING',
                 'shownProps:NONE',
                 'state:STATE_CLOSED',
-                '</finishClosing>'
+                '</finishClosing>',
+
+                '_id:' + modal._id, '</finishCloseEffect>'
               );
               return log;
             }, []));
@@ -260,6 +274,11 @@ describe('descendant', function() {
               '_id:' + modal2._id, '</open>',
               // DONE: open
 
+              '<finishOpenEffect>', '_id:' + modal2._id, 'state:STATE_OPENING',
+              'effectKey:plainOverlay',
+              'effectFinished.plainOverlay:true',
+              'effectFinished.option:false', 'openEffect:NO',
+
               '<finishOpening>', '_id:' + modal2._id, 'state:STATE_OPENING',
               'state:STATE_OPENED',
 
@@ -271,6 +290,8 @@ describe('descendant', function() {
               'parentProps.state:STATE_INACTIVATED',
 
               '</finishOpening>',
+
+              '_id:' + modal2._id, '</finishOpenEffect>',
 
               // 3 START: open
               '<open>', '_id:' + modal3._id, 'state:STATE_CLOSED',
@@ -299,6 +320,11 @@ describe('descendant', function() {
               '_id:' + modal3._id, '</open>',
               // DONE: open
 
+              '<finishOpenEffect>', '_id:' + modal3._id, 'state:STATE_OPENING',
+              'effectKey:plainOverlay',
+              'effectFinished.plainOverlay:true',
+              'effectFinished.option:false', 'openEffect:NO',
+
               '<finishOpening>', '_id:' + modal3._id, 'state:STATE_OPENING',
               'state:STATE_OPENED',
 
@@ -309,7 +335,9 @@ describe('descendant', function() {
               'parentProps._id:' + modal2._id, 'parentProps.state:STATE_INACTIVATING',
               'parentProps.state:STATE_INACTIVATED',
 
-              '</finishOpening>'
+              '</finishOpening>',
+
+              '_id:' + modal3._id, '</finishOpenEffect>'
             ]);
 
             done();
@@ -398,6 +426,11 @@ describe('descendant', function() {
               '_id:' + modal2._id, '</open>',
               // DONE: open
 
+              '<finishOpenEffect>', '_id:' + modal2._id, 'state:STATE_OPENING',
+              'effectKey:plainOverlay',
+              'effectFinished.plainOverlay:true',
+              'effectFinished.option:false', 'openEffect:NO',
+
               '<finishOpening>', '_id:' + modal2._id, 'state:STATE_OPENING',
               'state:STATE_OPENED',
 
@@ -409,6 +442,8 @@ describe('descendant', function() {
               'parentProps.state:STATE_INACTIVATED',
 
               '</finishOpening>',
+
+              '_id:' + modal2._id, '</finishOpenEffect>',
 
               // 5 START: open
               '<open>', '_id:' + modal5._id, 'state:STATE_CLOSED',
@@ -437,6 +472,11 @@ describe('descendant', function() {
               '_id:' + modal5._id, '</open>',
               // DONE: open
 
+              '<finishOpenEffect>', '_id:' + modal5._id, 'state:STATE_OPENING',
+              'effectKey:plainOverlay',
+              'effectFinished.plainOverlay:true',
+              'effectFinished.option:false', 'openEffect:NO',
+
               '<finishOpening>', '_id:' + modal5._id, 'state:STATE_OPENING',
               'state:STATE_OPENED',
 
@@ -447,7 +487,9 @@ describe('descendant', function() {
               'parentProps._id:' + modal2._id, 'parentProps.state:STATE_INACTIVATING',
               'parentProps.state:STATE_INACTIVATED',
 
-              '</finishOpening>'
+              '</finishOpening>',
+
+              '_id:' + modal5._id, '</finishOpenEffect>'
             ]);
 
             done();
@@ -530,6 +572,11 @@ describe('descendant', function() {
               'state:STATE_OPENING',
               // PlainOverlay.show()
 
+              '<finishOpenEffect>', '_id:' + modal1._id, 'state:STATE_OPENING',
+              'effectKey:plainOverlay',
+              'effectFinished.plainOverlay:true',
+              'effectFinished.option:false', 'openEffect:NO',
+
               '<finishOpening>', '_id:' + modal1._id, 'state:STATE_OPENING',
               'state:STATE_OPENED',
 
@@ -538,6 +585,8 @@ describe('descendant', function() {
               '</switchDraggable>',
 
               '</finishOpening>',
+
+              '_id:' + modal1._id, '</finishOpenEffect>',
 
               '_id:' + modal1._id, '</execOpening>',
 
@@ -589,6 +638,11 @@ describe('descendant', function() {
               'state:STATE_OPENING',
               // PlainOverlay.show()
 
+              '<finishOpenEffect>', '_id:' + modal2._id, 'state:STATE_OPENING',
+              'effectKey:plainOverlay',
+              'effectFinished.plainOverlay:true',
+              'effectFinished.option:false', 'openEffect:NO',
+
               '<finishOpening>', '_id:' + modal2._id, 'state:STATE_OPENING',
               'state:STATE_OPENED',
 
@@ -600,6 +654,8 @@ describe('descendant', function() {
               'parentProps.state:STATE_INACTIVATED',
 
               '</finishOpening>',
+
+              '_id:' + modal2._id, '</finishOpenEffect>',
 
               '_id:' + modal2._id, '</execOpening>',
 
@@ -630,6 +686,11 @@ describe('descendant', function() {
               '_id:' + modal3._id, '</open>',
               // DONE: open
 
+              '<finishOpenEffect>', '_id:' + modal3._id, 'state:STATE_OPENING',
+              'effectKey:plainOverlay',
+              'effectFinished.plainOverlay:true',
+              'effectFinished.option:false', 'openEffect:NO',
+
               '<finishOpening>', '_id:' + modal3._id, 'state:STATE_OPENING',
               'state:STATE_OPENED',
 
@@ -640,7 +701,9 @@ describe('descendant', function() {
               'parentProps._id:' + modal2._id, 'parentProps.state:STATE_INACTIVATING',
               'parentProps.state:STATE_INACTIVATED',
 
-              '</finishOpening>'
+              '</finishOpening>',
+
+              '_id:' + modal3._id, '</finishOpenEffect>'
             ]);
 
             done();
@@ -734,6 +797,11 @@ describe('descendant', function() {
 
               // PlainOverlay.hide()
 
+              '<finishCloseEffect>', '_id:' + modal2._id, 'state:STATE_CLOSING',
+              'effectKey:plainOverlay',
+              'effectFinished.plainOverlay:true',
+              'effectFinished.option:false', 'closeEffect:NO',
+
               '<finishClosing>', '_id:' + modal2._id, 'state:STATE_CLOSING',
               'shownProps:' + modal1._id,
               'state:STATE_CLOSED',
@@ -748,6 +816,8 @@ describe('descendant', function() {
               'parentProps(UNLINK):' + modal1._id,
 
               '</finishClosing>',
+
+              '_id:' + modal2._id, '</finishCloseEffect>',
 
               '_id:' + modal2._id, '</execClosing>',
 
@@ -778,6 +848,11 @@ describe('descendant', function() {
               '_id:' + modal3._id, '</open>',
               // DONE: open
 
+              '<finishOpenEffect>', '_id:' + modal3._id, 'state:STATE_OPENING',
+              'effectKey:plainOverlay',
+              'effectFinished.plainOverlay:true',
+              'effectFinished.option:false', 'openEffect:NO',
+
               '<finishOpening>', '_id:' + modal3._id, 'state:STATE_OPENING',
               'state:STATE_OPENED',
 
@@ -788,7 +863,9 @@ describe('descendant', function() {
               'parentProps._id:' + modal1._id, 'parentProps.state:STATE_INACTIVATING',
               'parentProps.state:STATE_INACTIVATED',
 
-              '</finishOpening>'
+              '</finishOpening>',
+
+              '_id:' + modal3._id, '</finishOpenEffect>'
             ]);
 
             done();
@@ -869,6 +946,11 @@ describe('descendant', function() {
               '_id:' + modal3._id, '</close>',
               // DONE: close
 
+              '<finishCloseEffect>', '_id:' + modal3._id, 'state:STATE_CLOSING',
+              'effectKey:plainOverlay',
+              'effectFinished.plainOverlay:true',
+              'effectFinished.option:false', 'closeEffect:NO',
+
               '<finishClosing>', '_id:' + modal3._id, 'state:STATE_CLOSING',
               'shownProps:' + modal1._id + ',' + modal2._id,
               'state:STATE_CLOSED',
@@ -882,7 +964,9 @@ describe('descendant', function() {
 
               'parentProps(UNLINK):' + modal2._id,
 
-              '</finishClosing>'
+              '</finishClosing>',
+
+              '_id:' + modal3._id, '</finishCloseEffect>'
             ]);
 
             done();
@@ -977,6 +1061,11 @@ describe('descendant', function() {
 
                 // PlainOverlay.hide()
 
+                '<finishCloseEffect>', '_id:' + modal._id, 'state:STATE_CLOSING',
+                'effectKey:plainOverlay',
+                'effectFinished.plainOverlay:true',
+                'effectFinished.option:false', 'closeEffect:NO',
+
                 '<finishClosing>', '_id:' + modal._id, 'state:STATE_CLOSING',
                 'shownProps:' + shownPropsId,
                 'state:STATE_CLOSED',
@@ -991,6 +1080,8 @@ describe('descendant', function() {
                 'parentProps(UNLINK):' + parentProps._id,
 
                 '</finishClosing>',
+
+                '_id:' + modal._id, '</finishCloseEffect>',
 
                 '_id:' + modal._id, '</execClosing>'
                 // DONE: Close others - loop
@@ -1017,6 +1108,11 @@ describe('descendant', function() {
               '_id:' + modal3._id, '</close>',
               // DONE: close
 
+              '<finishCloseEffect>', '_id:' + modal3._id, 'state:STATE_CLOSING',
+              'effectKey:plainOverlay',
+              'effectFinished.plainOverlay:true',
+              'effectFinished.option:false', 'closeEffect:NO',
+
               '<finishClosing>', '_id:' + modal3._id, 'state:STATE_CLOSING',
               'shownProps:' + modal1._id + ',' + modal2._id,
               'state:STATE_CLOSED',
@@ -1030,7 +1126,9 @@ describe('descendant', function() {
 
               'parentProps(UNLINK):' + modal2._id,
 
-              '</finishClosing>'
+              '</finishClosing>',
+
+              '_id:' + modal3._id, '</finishCloseEffect>'
             ));
 
             done();
@@ -1128,6 +1226,11 @@ describe('descendant', function() {
 
                 // PlainOverlay.hide()
 
+                '<finishCloseEffect>', '_id:' + modal._id, 'state:STATE_CLOSING',
+                'effectKey:plainOverlay',
+                'effectFinished.plainOverlay:true',
+                'effectFinished.option:false', 'closeEffect:NO',
+
                 '<finishClosing>', '_id:' + modal._id, 'state:STATE_CLOSING',
                 'shownProps:' + shownPropsId,
                 'state:STATE_CLOSED',
@@ -1142,6 +1245,8 @@ describe('descendant', function() {
                 'parentProps(UNLINK):' + parentProps._id,
 
                 '</finishClosing>',
+
+                '_id:' + modal._id, '</finishCloseEffect>',
 
                 '_id:' + modal._id, '</execClosing>'
                 // DONE: Close others - loop
@@ -1168,6 +1273,11 @@ describe('descendant', function() {
               '_id:' + modal5._id, '</close>',
               // DONE: close
 
+              '<finishCloseEffect>', '_id:' + modal5._id, 'state:STATE_CLOSING',
+              'effectKey:plainOverlay',
+              'effectFinished.plainOverlay:true',
+              'effectFinished.option:false', 'closeEffect:NO',
+
               '<finishClosing>', '_id:' + modal5._id, 'state:STATE_CLOSING',
               'shownProps:' + modal2._id + ',' + modal3._id,
               'state:STATE_CLOSED',
@@ -1181,7 +1291,9 @@ describe('descendant', function() {
 
               'parentProps(UNLINK):' + modal3._id,
 
-              '</finishClosing>'
+              '</finishClosing>',
+
+              '_id:' + modal5._id, '</finishCloseEffect>'
             ));
 
             done();

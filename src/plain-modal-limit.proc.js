@@ -172,6 +172,14 @@ function execOpening(props, force) {
   props.state = STATE_OPENING;
   props.effectFinished.plainOverlay = props.effectFinished.option = false;
   props.plainOverlay.show(force);
+  if (props.options.openEffect) {
+    if (force) {
+      props.options.openEffect.call(props.ins);
+      props.openEffectDone();
+    } else {
+      props.options.openEffect.call(props.ins, props.openEffectDone);
+    }
+  }
 }
 
 /**
@@ -203,6 +211,14 @@ function execClosing(props, force, sync) {
   props.state = STATE_CLOSING;
   props.effectFinished.plainOverlay = props.effectFinished.option = false;
   props.plainOverlay.hide(force, sync);
+  if (props.options.closeEffect) {
+    if (force) {
+      props.options.closeEffect.call(props.ins);
+      props.closeEffectDone();
+    } else {
+      props.options.closeEffect.call(props.ins, props.closeEffectDone);
+    }
+  }
 }
 
 /**

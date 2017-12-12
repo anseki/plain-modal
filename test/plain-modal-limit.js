@@ -578,13 +578,23 @@ function finishClosing(props) {
  * @returns {void}
  */
 function finishOpenEffect(props, effectKey) {
+  // [DEBUG]
+  traceLog.push('<finishOpenEffect>', '_id:' + props._id, 'state:' + STATE_TEXT[props.state]);
+  traceLog.push('effectKey:' + effectKey);
+  // [/DEBUG]
   if (props.state !== STATE_OPENING) {
     return;
   }
   props.effectFinished[effectKey] = true;
+  // [DEBUG]
+  traceLog.push('effectFinished.plainOverlay:' + props.effectFinished.plainOverlay);
+  traceLog.push('effectFinished.option:' + props.effectFinished.option);
+  traceLog.push('openEffect:' + (props.options.openEffect ? 'YES' : 'NO'));
+  // [/DEBUG]
   if (props.effectFinished.plainOverlay && (!props.options.openEffect || props.effectFinished.option)) {
     finishOpening(props);
   }
+  traceLog.push('_id:' + props._id, '</finishOpenEffect>'); // [DEBUG/]
 }
 
 /**
@@ -593,13 +603,23 @@ function finishOpenEffect(props, effectKey) {
  * @returns {void}
  */
 function finishCloseEffect(props, effectKey) {
+  // [DEBUG]
+  traceLog.push('<finishCloseEffect>', '_id:' + props._id, 'state:' + STATE_TEXT[props.state]);
+  traceLog.push('effectKey:' + effectKey);
+  // [/DEBUG]
   if (props.state !== STATE_CLOSING) {
     return;
   }
   props.effectFinished[effectKey] = true;
+  // [DEBUG]
+  traceLog.push('effectFinished.plainOverlay:' + props.effectFinished.plainOverlay);
+  traceLog.push('effectFinished.option:' + props.effectFinished.option);
+  traceLog.push('closeEffect:' + (props.options.closeEffect ? 'YES' : 'NO'));
+  // [/DEBUG]
   if (props.effectFinished.plainOverlay && (!props.options.closeEffect || props.effectFinished.option)) {
     finishClosing(props);
   }
+  traceLog.push('_id:' + props._id, '</finishCloseEffect>'); // [DEBUG/]
 }
 
 /**
@@ -647,6 +667,14 @@ function execOpening(props, force) {
   traceLog.push('state:' + STATE_TEXT[props.state]); // [DEBUG/]
   props.effectFinished.plainOverlay = props.effectFinished.option = false;
   props.plainOverlay.show(force);
+  if (props.options.openEffect) {
+    if (force) {
+      props.options.openEffect.call(props.ins);
+      props.openEffectDone();
+    } else {
+      props.options.openEffect.call(props.ins, props.openEffectDone);
+    }
+  }
   traceLog.push('_id:' + props._id, '</execOpening>'); // [DEBUG/]
 }
 
@@ -696,6 +724,14 @@ function execClosing(props, force, sync) {
   traceLog.push('state:' + STATE_TEXT[props.state]); // [DEBUG/]
   props.effectFinished.plainOverlay = props.effectFinished.option = false;
   props.plainOverlay.hide(force, sync);
+  if (props.options.closeEffect) {
+    if (force) {
+      props.options.closeEffect.call(props.ins);
+      props.closeEffectDone();
+    } else {
+      props.options.closeEffect.call(props.ins, props.closeEffectDone);
+    }
+  }
   traceLog.push('_id:' + props._id, '</execClosing>'); // [DEBUG/]
 }
 

@@ -130,6 +130,11 @@ describe('flow', function() {
               '_id:' + modal._id, '</open>',
               // DONE: open
 
+              '<finishOpenEffect>', '_id:' + modal._id, 'state:STATE_OPENING',
+              'effectKey:plainOverlay',
+              'effectFinished.plainOverlay:true',
+              'effectFinished.option:false', 'openEffect:NO',
+
               '<finishOpening>', '_id:' + modal._id, 'state:STATE_OPENING',
               'state:STATE_OPENED',
 
@@ -138,6 +143,8 @@ describe('flow', function() {
               '</switchDraggable>',
 
               '</finishOpening>',
+
+              '_id:' + modal._id, '</finishOpenEffect>',
 
               // onOpen -> close()
 
@@ -159,10 +166,17 @@ describe('flow', function() {
               '_id:' + modal._id, '</close>',
               // DONE: close
 
+              '<finishCloseEffect>', '_id:' + modal._id, 'state:STATE_CLOSING',
+              'effectKey:plainOverlay',
+              'effectFinished.plainOverlay:true',
+              'effectFinished.option:false', 'closeEffect:NO',
+
               '<finishClosing>', '_id:' + modal._id, 'state:STATE_CLOSING',
               'shownProps:NONE',
               'state:STATE_CLOSED',
-              '</finishClosing>'
+              '</finishClosing>',
+
+              '_id:' + modal._id, '</finishCloseEffect>'
             ]);
 
             done();
@@ -247,6 +261,11 @@ describe('flow', function() {
               '_id:' + modal._id, '</open>',
               // DONE: open
 
+              '<finishOpenEffect>', '_id:' + modal._id, 'state:STATE_OPENING',
+              'effectKey:plainOverlay',
+              'effectFinished.plainOverlay:true',
+              'effectFinished.option:false', 'openEffect:NO',
+
               '<finishOpening>', '_id:' + modal._id, 'state:STATE_OPENING',
               'state:STATE_OPENED',
 
@@ -254,7 +273,9 @@ describe('flow', function() {
               'plainDraggable.disabled:false',
               '</switchDraggable>',
 
-              '</finishOpening>'
+              '</finishOpening>',
+
+              '_id:' + modal._id, '</finishOpenEffect>'
             ]);
 
             done();
@@ -357,6 +378,11 @@ describe('flow', function() {
               'state:STATE_OPENING',
               // PlainOverlay.show()
 
+              '<finishOpenEffect>', '_id:' + modal._id, 'state:STATE_OPENING',
+              'effectKey:plainOverlay',
+              'effectFinished.plainOverlay:true',
+              'effectFinished.option:false', 'openEffect:NO',
+
               '<finishOpening>', '_id:' + modal._id, 'state:STATE_OPENING',
               'state:STATE_OPENED',
 
@@ -365,6 +391,8 @@ describe('flow', function() {
               '</switchDraggable>',
 
               '</finishOpening>',
+
+              '_id:' + modal._id, '</finishOpenEffect>',
 
               '_id:' + modal._id, '</execOpening>',
 
@@ -404,6 +432,11 @@ describe('flow', function() {
               'state:STATE_OPENING',
               // PlainOverlay.show()
 
+              '<finishOpenEffect>', '_id:' + modal._id, 'state:STATE_OPENING',
+              'effectKey:plainOverlay',
+              'effectFinished.plainOverlay:true',
+              'effectFinished.option:false', 'openEffect:NO',
+
               '<finishOpening>', '_id:' + modal._id, 'state:STATE_OPENING',
               'state:STATE_OPENED',
 
@@ -412,6 +445,8 @@ describe('flow', function() {
               '</switchDraggable>',
 
               '</finishOpening>',
+
+              '_id:' + modal._id, '</finishOpenEffect>',
 
               '_id:' + modal._id, '</execOpening>',
 
@@ -473,6 +508,11 @@ describe('flow', function() {
               'state:STATE_OPENING',
               // PlainOverlay.show()
 
+              '<finishOpenEffect>', '_id:' + modal._id, 'state:STATE_OPENING',
+              'effectKey:plainOverlay',
+              'effectFinished.plainOverlay:true',
+              'effectFinished.option:false', 'openEffect:NO',
+
               '<finishOpening>', '_id:' + modal._id, 'state:STATE_OPENING',
               'state:STATE_OPENED',
 
@@ -481,6 +521,8 @@ describe('flow', function() {
               '</switchDraggable>',
 
               '</finishOpening>',
+
+              '_id:' + modal._id, '</finishOpenEffect>',
 
               '_id:' + modal._id, '</execOpening>',
 
@@ -617,10 +659,17 @@ describe('flow', function() {
               '_id:' + modal._id, '</close>',
               // DONE: close
 
+              '<finishCloseEffect>', '_id:' + modal._id, 'state:STATE_CLOSING',
+              'effectKey:plainOverlay',
+              'effectFinished.plainOverlay:true',
+              'effectFinished.option:false', 'closeEffect:NO',
+
               '<finishClosing>', '_id:' + modal._id, 'state:STATE_CLOSING',
               'shownProps:NONE',
               'state:STATE_CLOSED',
-              '</finishClosing>'
+              '</finishClosing>',
+
+              '_id:' + modal._id, '</finishCloseEffect>'
             ]);
 
             done();
@@ -691,6 +740,11 @@ describe('flow', function() {
               'state:STATE_OPENING',
               // PlainOverlay.show()
 
+              '<finishOpenEffect>', '_id:' + modalCh._id, 'state:STATE_OPENING',
+              'effectKey:plainOverlay',
+              'effectFinished.plainOverlay:true',
+              'effectFinished.option:false', 'openEffect:NO',
+
               '<finishOpening>', '_id:' + modalCh._id, 'state:STATE_OPENING',
               'state:STATE_OPENED',
 
@@ -702,6 +756,8 @@ describe('flow', function() {
               'parentProps.state:STATE_INACTIVATED',
 
               '</finishOpening>',
+
+              '_id:' + modalCh._id, '</finishOpenEffect>',
 
               '_id:' + modalCh._id, '</execOpening>',
 
@@ -728,6 +784,11 @@ describe('flow', function() {
 
               // PlainOverlay.hide()
 
+              '<finishCloseEffect>', '_id:' + modalCh._id, 'state:STATE_CLOSING',
+              'effectKey:plainOverlay',
+              'effectFinished.plainOverlay:true',
+              'effectFinished.option:false', 'closeEffect:NO',
+
               '<finishClosing>', '_id:' + modalCh._id, 'state:STATE_CLOSING',
               'shownProps:' + modal._id,
               'state:STATE_CLOSED',
@@ -742,6 +803,8 @@ describe('flow', function() {
               'parentProps(UNLINK):' + modal._id,
 
               '</finishClosing>',
+
+              '_id:' + modalCh._id, '</finishCloseEffect>',
 
               '_id:' + modalCh._id, '</execClosing>',
               // DONE: Close others - loop
@@ -760,10 +823,17 @@ describe('flow', function() {
               '_id:' + modal._id, '</close>',
               // DONE: close
 
+              '<finishCloseEffect>', '_id:' + modal._id, 'state:STATE_CLOSING',
+              'effectKey:plainOverlay',
+              'effectFinished.plainOverlay:true',
+              'effectFinished.option:false', 'closeEffect:NO',
+
               '<finishClosing>', '_id:' + modal._id, 'state:STATE_CLOSING',
               'shownProps:NONE',
               'state:STATE_CLOSED',
-              '</finishClosing>'
+              '</finishClosing>',
+
+              '_id:' + modal._id, '</finishCloseEffect>'
             ]);
 
             done();
@@ -813,6 +883,11 @@ describe('flow', function() {
 
               // PlainOverlay.hide()
 
+              '<finishCloseEffect>', '_id:' + modalCh._id, 'state:STATE_CLOSING',
+              'effectKey:plainOverlay',
+              'effectFinished.plainOverlay:true',
+              'effectFinished.option:false', 'closeEffect:NO',
+
               '<finishClosing>', '_id:' + modalCh._id, 'state:STATE_CLOSING',
               'shownProps:' + modal._id,
               'state:STATE_CLOSED',
@@ -827,6 +902,8 @@ describe('flow', function() {
               'parentProps(UNLINK):' + modal._id,
 
               '</finishClosing>',
+
+              '_id:' + modalCh._id, '</finishCloseEffect>',
 
               '_id:' + modalCh._id, '</execClosing>',
               // DONE: Close others - loop
@@ -845,10 +922,17 @@ describe('flow', function() {
               '_id:' + modal._id, '</close>',
               // DONE: close
 
+              '<finishCloseEffect>', '_id:' + modal._id, 'state:STATE_CLOSING',
+              'effectKey:plainOverlay',
+              'effectFinished.plainOverlay:true',
+              'effectFinished.option:false', 'closeEffect:NO',
+
               '<finishClosing>', '_id:' + modal._id, 'state:STATE_CLOSING',
               'shownProps:NONE',
               'state:STATE_CLOSED',
-              '</finishClosing>'
+              '</finishClosing>',
+
+              '_id:' + modal._id, '</finishCloseEffect>'
             ]);
 
             done();
@@ -895,6 +979,11 @@ describe('flow', function() {
 
               // PlainOverlay.hide()
 
+              '<finishCloseEffect>', '_id:' + modalCh._id, 'state:STATE_CLOSING',
+              'effectKey:plainOverlay',
+              'effectFinished.plainOverlay:true',
+              'effectFinished.option:false', 'closeEffect:NO',
+
               '<finishClosing>', '_id:' + modalCh._id, 'state:STATE_CLOSING',
               'shownProps:' + modal._id,
               'state:STATE_CLOSED',
@@ -909,6 +998,8 @@ describe('flow', function() {
               'parentProps(UNLINK):' + modal._id,
 
               '</finishClosing>',
+
+              '_id:' + modalCh._id, '</finishCloseEffect>',
 
               '_id:' + modalCh._id, '</execClosing>',
 
@@ -929,10 +1020,17 @@ describe('flow', function() {
               '_id:' + modal._id, '</close>',
               // DONE: close
 
+              '<finishCloseEffect>', '_id:' + modal._id, 'state:STATE_CLOSING',
+              'effectKey:plainOverlay',
+              'effectFinished.plainOverlay:true',
+              'effectFinished.option:false', 'closeEffect:NO',
+
               '<finishClosing>', '_id:' + modal._id, 'state:STATE_CLOSING',
               'shownProps:NONE',
               'state:STATE_CLOSED',
-              '</finishClosing>'
+              '</finishClosing>',
+
+              '_id:' + modal._id, '</finishCloseEffect>'
             ]);
 
             done();
@@ -998,10 +1096,17 @@ describe('flow', function() {
               '_id:' + modal._id, '</close>',
               // DONE: close
 
+              '<finishCloseEffect>', '_id:' + modal._id, 'state:STATE_CLOSING',
+              'effectKey:plainOverlay',
+              'effectFinished.plainOverlay:true',
+              'effectFinished.option:false', 'closeEffect:NO',
+
               '<finishClosing>', '_id:' + modal._id, 'state:STATE_CLOSING',
               'shownProps:NONE',
               'state:STATE_CLOSED',
-              '</finishClosing>'
+              '</finishClosing>',
+
+              '_id:' + modal._id, '</finishCloseEffect>'
             ]);
 
             done();
@@ -1045,10 +1150,17 @@ describe('flow', function() {
               '_id:' + modal._id, '</close>',
               // DONE: close
 
+              '<finishCloseEffect>', '_id:' + modal._id, 'state:STATE_CLOSING',
+              'effectKey:plainOverlay',
+              'effectFinished.plainOverlay:true',
+              'effectFinished.option:false', 'closeEffect:NO',
+
               '<finishClosing>', '_id:' + modal._id, 'state:STATE_CLOSING',
               'shownProps:NONE',
               'state:STATE_CLOSED',
-              '</finishClosing>'
+              '</finishClosing>',
+
+              '_id:' + modal._id, '</finishCloseEffect>'
             ]);
 
             done();
@@ -1092,10 +1204,17 @@ describe('flow', function() {
               '_id:' + modal._id, '</close>',
               // DONE: close
 
+              '<finishCloseEffect>', '_id:' + modal._id, 'state:STATE_CLOSING',
+              'effectKey:plainOverlay',
+              'effectFinished.plainOverlay:true',
+              'effectFinished.option:false', 'closeEffect:NO',
+
               '<finishClosing>', '_id:' + modal._id, 'state:STATE_CLOSING',
               'shownProps:NONE',
               'state:STATE_CLOSED',
-              '</finishClosing>'
+              '</finishClosing>',
+
+              '_id:' + modal._id, '</finishCloseEffect>'
             ]);
 
             done();
@@ -1142,6 +1261,11 @@ describe('flow', function() {
               'state:STATE_OPENING',
               // PlainOverlay.show()
 
+              '<finishOpenEffect>', '_id:' + modalCh._id, 'state:STATE_OPENING',
+              'effectKey:plainOverlay',
+              'effectFinished.plainOverlay:true',
+              'effectFinished.option:false', 'openEffect:NO',
+
               '<finishOpening>', '_id:' + modalCh._id, 'state:STATE_OPENING',
               'state:STATE_OPENED',
 
@@ -1153,6 +1277,8 @@ describe('flow', function() {
               'parentProps.state:STATE_INACTIVATED',
 
               '</finishOpening>',
+
+              '_id:' + modalCh._id, '</finishOpenEffect>',
 
               '_id:' + modalCh._id, '</execOpening>',
 
@@ -1179,6 +1305,11 @@ describe('flow', function() {
 
               // PlainOverlay.hide()
 
+              '<finishCloseEffect>', '_id:' + modalCh._id, 'state:STATE_CLOSING',
+              'effectKey:plainOverlay',
+              'effectFinished.plainOverlay:true',
+              'effectFinished.option:false', 'closeEffect:NO',
+
               '<finishClosing>', '_id:' + modalCh._id, 'state:STATE_CLOSING',
               'shownProps:' + modal._id,
               'state:STATE_CLOSED',
@@ -1193,6 +1324,8 @@ describe('flow', function() {
               'parentProps(UNLINK):' + modal._id,
 
               '</finishClosing>',
+
+              '_id:' + modalCh._id, '</finishCloseEffect>',
 
               '_id:' + modalCh._id, '</execClosing>',
               // DONE: Close others - loop
@@ -1211,10 +1344,17 @@ describe('flow', function() {
               '_id:' + modal._id, '</close>',
               // DONE: close
 
+              '<finishCloseEffect>', '_id:' + modal._id, 'state:STATE_CLOSING',
+              'effectKey:plainOverlay',
+              'effectFinished.plainOverlay:true',
+              'effectFinished.option:false', 'closeEffect:NO',
+
               '<finishClosing>', '_id:' + modal._id, 'state:STATE_CLOSING',
               'shownProps:NONE',
               'state:STATE_CLOSED',
-              '</finishClosing>'
+              '</finishClosing>',
+
+              '_id:' + modal._id, '</finishCloseEffect>'
             ]);
 
             done();
@@ -1264,6 +1404,11 @@ describe('flow', function() {
 
               // PlainOverlay.hide()
 
+              '<finishCloseEffect>', '_id:' + modalCh._id, 'state:STATE_CLOSING',
+              'effectKey:plainOverlay',
+              'effectFinished.plainOverlay:true',
+              'effectFinished.option:false', 'closeEffect:NO',
+
               '<finishClosing>', '_id:' + modalCh._id, 'state:STATE_CLOSING',
               'shownProps:' + modal._id,
               'state:STATE_CLOSED',
@@ -1278,6 +1423,8 @@ describe('flow', function() {
               'parentProps(UNLINK):' + modal._id,
 
               '</finishClosing>',
+
+              '_id:' + modalCh._id, '</finishCloseEffect>',
 
               '_id:' + modalCh._id, '</execClosing>',
               // DONE: Close others - loop
@@ -1296,10 +1443,17 @@ describe('flow', function() {
               '_id:' + modal._id, '</close>',
               // DONE: close
 
+              '<finishCloseEffect>', '_id:' + modal._id, 'state:STATE_CLOSING',
+              'effectKey:plainOverlay',
+              'effectFinished.plainOverlay:true',
+              'effectFinished.option:false', 'closeEffect:NO',
+
               '<finishClosing>', '_id:' + modal._id, 'state:STATE_CLOSING',
               'shownProps:NONE',
               'state:STATE_CLOSED',
-              '</finishClosing>'
+              '</finishClosing>',
+
+              '_id:' + modal._id, '</finishCloseEffect>'
             ]);
 
             done();
@@ -1346,6 +1500,11 @@ describe('flow', function() {
 
               // PlainOverlay.hide()
 
+              '<finishCloseEffect>', '_id:' + modalCh._id, 'state:STATE_CLOSING',
+              'effectKey:plainOverlay',
+              'effectFinished.plainOverlay:true',
+              'effectFinished.option:false', 'closeEffect:NO',
+
               '<finishClosing>', '_id:' + modalCh._id, 'state:STATE_CLOSING',
               'shownProps:' + modal._id,
               'state:STATE_CLOSED',
@@ -1360,6 +1519,8 @@ describe('flow', function() {
               'parentProps(UNLINK):' + modal._id,
 
               '</finishClosing>',
+
+              '_id:' + modalCh._id, '</finishCloseEffect>',
 
               '_id:' + modalCh._id, '</execClosing>',
 
@@ -1380,10 +1541,17 @@ describe('flow', function() {
               '_id:' + modal._id, '</close>',
               // DONE: close
 
+              '<finishCloseEffect>', '_id:' + modal._id, 'state:STATE_CLOSING',
+              'effectKey:plainOverlay',
+              'effectFinished.plainOverlay:true',
+              'effectFinished.option:false', 'closeEffect:NO',
+
               '<finishClosing>', '_id:' + modal._id, 'state:STATE_CLOSING',
               'shownProps:NONE',
               'state:STATE_CLOSED',
-              '</finishClosing>'
+              '</finishClosing>',
+
+              '_id:' + modal._id, '</finishCloseEffect>'
             ]);
 
             done();

@@ -101,10 +101,17 @@ describe('closeByOverlay', function() {
               '_id:' + modal1._id, '</close>',
               // DONE: close
 
+              '<finishCloseEffect>', '_id:' + modal1._id, 'state:STATE_CLOSING',
+              'effectKey:plainOverlay',
+              'effectFinished.plainOverlay:true',
+              'effectFinished.option:false', 'closeEffect:NO',
+
               '<finishClosing>', '_id:' + modal1._id, 'state:STATE_CLOSING',
               'shownProps:NONE',
               'state:STATE_CLOSED',
-              '</finishClosing>'
+              '</finishClosing>',
+
+              '_id:' + modal1._id, '</finishCloseEffect>'
             ]);
 
             done();
@@ -243,10 +250,17 @@ describe('closeByOverlay', function() {
               '_id:' + modal1._id, '</close>',
               // DONE: close
 
+              '<finishCloseEffect>', '_id:' + modal1._id, 'state:STATE_CLOSING',
+              'effectKey:plainOverlay',
+              'effectFinished.plainOverlay:true',
+              'effectFinished.option:false', 'closeEffect:NO',
+
               '<finishClosing>', '_id:' + modal1._id, 'state:STATE_CLOSING',
               'shownProps:NONE',
               'state:STATE_CLOSED',
-              '</finishClosing>'
+              '</finishClosing>',
+
+              '_id:' + modal1._id, '</finishCloseEffect>'
             ]);
 
             done();
@@ -370,6 +384,11 @@ describe('closeByOverlay', function() {
               '_id:' + modal3._id, '</close>',
               // DONE: close
 
+              '<finishCloseEffect>', '_id:' + modal3._id, 'state:STATE_CLOSING',
+              'effectKey:plainOverlay',
+              'effectFinished.plainOverlay:true',
+              'effectFinished.option:false', 'closeEffect:NO',
+
               '<finishClosing>', '_id:' + modal3._id, 'state:STATE_CLOSING',
               'shownProps:' + modal1._id + ',' + modal2._id,
               'state:STATE_CLOSED',
@@ -384,6 +403,8 @@ describe('closeByOverlay', function() {
               'parentProps(UNLINK):' + modal2._id,
 
               '</finishClosing>',
+
+              '_id:' + modal3._id, '</finishCloseEffect>',
 
               '<overlayClick/>', 'CLOSE', '_id:' + modal2._id,
 
@@ -410,6 +431,11 @@ describe('closeByOverlay', function() {
               '_id:' + modal2._id, '</close>',
               // DONE: close
 
+              '<finishCloseEffect>', '_id:' + modal2._id, 'state:STATE_CLOSING',
+              'effectKey:plainOverlay',
+              'effectFinished.plainOverlay:true',
+              'effectFinished.option:false', 'closeEffect:NO',
+
               '<finishClosing>', '_id:' + modal2._id, 'state:STATE_CLOSING',
               'shownProps:' + modal1._id,
               'state:STATE_CLOSED',
@@ -423,7 +449,9 @@ describe('closeByOverlay', function() {
 
               'parentProps(UNLINK):' + modal1._id,
 
-              '</finishClosing>'
+              '</finishClosing>',
+
+              '_id:' + modal2._id, '</finishCloseEffect>'
             ]);
 
             done();
@@ -533,6 +561,11 @@ describe('closeByOverlay', function() {
                   '_id:' + modal1._id, '</close>',
                   // DONE: close
 
+                  '<finishCloseEffect>', '_id:' + modal1._id, 'state:STATE_CLOSING',
+                  'effectKey:plainOverlay',
+                  'effectFinished.plainOverlay:true',
+                  'effectFinished.option:false', 'closeEffect:NO',
+
                   '<finishClosing>', '_id:' + modal1._id, 'state:STATE_CLOSING',
                   'shownProps:' + modal3._id,
                   'state:STATE_CLOSED',
@@ -547,6 +580,8 @@ describe('closeByOverlay', function() {
                   'parentProps(UNLINK):' + modal3._id,
 
                   '</finishClosing>',
+
+                  '_id:' + modal1._id, '</finishCloseEffect>',
 
                   '<overlayClick/>', 'CLOSE', '_id:' + modal3._id,
 
@@ -568,10 +603,17 @@ describe('closeByOverlay', function() {
                   '_id:' + modal3._id, '</close>',
                   // DONE: close
 
+                  '<finishCloseEffect>', '_id:' + modal3._id, 'state:STATE_CLOSING',
+                  'effectKey:plainOverlay',
+                  'effectFinished.plainOverlay:true',
+                  'effectFinished.option:false', 'closeEffect:NO',
+
                   '<finishClosing>', '_id:' + modal3._id, 'state:STATE_CLOSING',
                   'shownProps:NONE',
                   'state:STATE_CLOSED',
-                  '</finishClosing>'
+                  '</finishClosing>',
+
+                  '_id:' + modal3._id, '</finishCloseEffect>'
                 ]);
 
                 done();

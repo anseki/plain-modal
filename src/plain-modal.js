@@ -183,12 +183,22 @@ function finishClosing(props) {
  * @returns {void}
  */
 function finishOpenEffect(props, effectKey) {
+  // [DEBUG]
+  traceLog.push('<finishOpenEffect>', `_id:${props._id}`, `state:${STATE_TEXT[props.state]}`);
+  traceLog.push(`effectKey:${effectKey}`);
+  // [/DEBUG]
   if (props.state !== STATE_OPENING) { return; }
   props.effectFinished[effectKey] = true;
+  // [DEBUG]
+  traceLog.push(`effectFinished.plainOverlay:${props.effectFinished.plainOverlay}`);
+  traceLog.push(`effectFinished.option:${props.effectFinished.option}`);
+  traceLog.push(`openEffect:${props.options.openEffect ? 'YES' : 'NO'}`);
+  // [/DEBUG]
   if (props.effectFinished.plainOverlay &&
       (!props.options.openEffect || props.effectFinished.option)) {
     finishOpening(props);
   }
+  traceLog.push(`_id:${props._id}`, '</finishOpenEffect>'); // [DEBUG/]
 }
 
 /**
@@ -197,12 +207,22 @@ function finishOpenEffect(props, effectKey) {
  * @returns {void}
  */
 function finishCloseEffect(props, effectKey) {
+  // [DEBUG]
+  traceLog.push('<finishCloseEffect>', `_id:${props._id}`, `state:${STATE_TEXT[props.state]}`);
+  traceLog.push(`effectKey:${effectKey}`);
+  // [/DEBUG]
   if (props.state !== STATE_CLOSING) { return; }
   props.effectFinished[effectKey] = true;
+  // [DEBUG]
+  traceLog.push(`effectFinished.plainOverlay:${props.effectFinished.plainOverlay}`);
+  traceLog.push(`effectFinished.option:${props.effectFinished.option}`);
+  traceLog.push(`closeEffect:${props.options.closeEffect ? 'YES' : 'NO'}`);
+  // [/DEBUG]
   if (props.effectFinished.plainOverlay &&
       (!props.options.closeEffect || props.effectFinished.option)) {
     finishClosing(props);
   }
+  traceLog.push(`_id:${props._id}`, '</finishCloseEffect>'); // [DEBUG/]
 }
 
 /**
