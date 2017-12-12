@@ -254,6 +254,14 @@ function execOpening(props, force) {
   traceLog.push(`state:${STATE_TEXT[props.state]}`); // [DEBUG/]
   props.effectFinished.plainOverlay = props.effectFinished.option = false;
   props.plainOverlay.show(force);
+  if (props.options.openEffect) {
+    if (force) {
+      props.options.openEffect.call(props.ins);
+      props.openEffectDone();
+    } else {
+      props.options.openEffect.call(props.ins, props.openEffectDone);
+    }
+  }
   traceLog.push(`_id:${props._id}`, '</execOpening>'); // [DEBUG/]
 }
 
@@ -307,6 +315,14 @@ function execClosing(props, force, sync) {
   switchDraggable(props); // [DRAG/]
   props.effectFinished.plainOverlay = props.effectFinished.option = false;
   props.plainOverlay.hide(force, sync);
+  if (props.options.closeEffect) {
+    if (force) {
+      props.options.closeEffect.call(props.ins);
+      props.closeEffectDone();
+    } else {
+      props.options.closeEffect.call(props.ins, props.closeEffectDone);
+    }
+  }
   traceLog.push(`_id:${props._id}`, '</execClosing>'); // [DEBUG/]
 }
 
