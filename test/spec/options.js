@@ -256,6 +256,116 @@ describe('options', function() {
     });
   });
 
+  describe('openEffect', function() {
+    var modal;
+    function fnc1() {}
+    function fnc2() {}
+
+    beforeAll(function(done) {
+      modal = new PlainModal(document.getElementById('elm1'));
+      done();
+    });
+
+    it('default', function(done) {
+      expect(typeof modal.openEffect).toBe('undefined');
+
+      done();
+    });
+
+    it('Update - function', function(done) {
+      modal.openEffect = fnc1;
+      expect(modal.openEffect).toBe(fnc1);
+
+      done();
+    });
+
+    it('Update - another function', function(done) {
+      modal.openEffect = fnc2;
+      expect(modal.openEffect).toBe(fnc2);
+
+      done();
+    });
+
+    it('Update - default', function(done) {
+      modal.openEffect = null;
+      expect(typeof modal.openEffect).toBe('undefined');
+
+      done();
+    });
+
+    it('Update - Invalid value -> ignored', function(done) {
+      modal.openEffect = fnc1;
+      expect(modal.openEffect).toBe(fnc1);
+
+      modal.openEffect = 5;
+      expect(modal.openEffect).toBe(fnc1);
+
+      done();
+    });
+
+    it('Update another option -> ignored', function(done) {
+      modal.duration = 5;
+      expect(modal.openEffect).toBe(fnc1);
+
+      done();
+    });
+  });
+
+  describe('closeEffect', function() {
+    var modal;
+    function fnc1() {}
+    function fnc2() {}
+
+    beforeAll(function(done) {
+      modal = new PlainModal(document.getElementById('elm1'));
+      done();
+    });
+
+    it('default', function(done) {
+      expect(typeof modal.closeEffect).toBe('undefined');
+
+      done();
+    });
+
+    it('Update - function', function(done) {
+      modal.closeEffect = fnc1;
+      expect(modal.closeEffect).toBe(fnc1);
+
+      done();
+    });
+
+    it('Update - another function', function(done) {
+      modal.closeEffect = fnc2;
+      expect(modal.closeEffect).toBe(fnc2);
+
+      done();
+    });
+
+    it('Update - default', function(done) {
+      modal.closeEffect = null;
+      expect(typeof modal.closeEffect).toBe('undefined');
+
+      done();
+    });
+
+    it('Update - Invalid value -> ignored', function(done) {
+      modal.closeEffect = fnc1;
+      expect(modal.closeEffect).toBe(fnc1);
+
+      modal.closeEffect = 5;
+      expect(modal.closeEffect).toBe(fnc1);
+
+      done();
+    });
+
+    it('Update another option -> ignored', function(done) {
+      modal.duration = 5;
+      expect(modal.closeEffect).toBe(fnc1);
+
+      done();
+    });
+  });
+
   describe('onOpen', function() {
     var modal;
     function fnc1() {}
