@@ -101,7 +101,9 @@ function isElement(element) {
 // [DRAG]
 function switchDraggable(props) {
   if (props.plainDraggable) {
-    props.plainDraggable.disabled = !(props.options.dragHandle && props.state === STATE_OPENED);
+    const disabled = !(props.options.dragHandle && props.state === STATE_OPENED);
+    props.plainDraggable.disabled = disabled;
+    if (!disabled) { props.plainDraggable.position(); }
   }
 }
 // [/DRAG]
