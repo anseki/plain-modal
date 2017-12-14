@@ -36,7 +36,7 @@ modal.open();
 ```
 
 Now, new modal window is opened.  
-You will see that the modal window has no style except for `background-color` to improve the visibility of the example. Therefore you can free style it. In other words, you have to do that for the visual design you want.
+You will see that the modal window has no style except for `background-color` to improve the visibility of this example. Therefore you can free style it. In other words, you have to do that for the visual design you want.
 
 For options and more details, refer to the following.
 
@@ -115,6 +115,8 @@ A number determining how long (milliseconds) the effect (fade-in/out) animation 
 Applies a Gaussian blur to the web page while the overlay is shown. Note that the current browser might not support it.  
 It is not applied if `false` is specified.
 
+For example:
+
 ```js
 modal.overlayBlur = 3;
 ```
@@ -126,6 +128,12 @@ modal.overlayBlur = 3;
 
 To make the modal window be draggable, specify a part element of the `content` element (or the `content` element itself) that receives mouse operations. A user seizes and drags this element to move the modal window.  
 The `content` element itself can be specified, and all of the modal window can be seized and dragged.
+
+For example:
+
+```js
+modal.dragHandle = document.getElementById('title-bar');
+```
 
 ### <a name="options-openeffect-closeeffect"></a>`openEffect`, `closeEffect`
 
@@ -143,25 +151,42 @@ In the functions, `this` refers to the current PlainModal instance.
 For example:
 
 ```js
-modal.openEffect = function(done) {
-  if (done) { // It is running asynchronously.
-    // Show animation 3 sec.
-    startAnim();
-    setTimeout(function() {
-      stopAnim();
-      elmModal.style.display = 'block';
-      done(); // Tell the finished to PlainModal.
-    }, 3000);
+var content = document.getElementById('modal-content'),
+  modal = new PlainModal(content, {
+    openEffect: function(done) {
+      if (done) { // It is running asynchronously.
+        startOpenAnim(); // Show animation 3 sec.
+        setTimeout(function() {
+          stopOpenAnim();
+          content.style.display = 'block';
+          done(); // Tell the finished to PlainModal.
+        }, 3000);
 
-  } else { // It is running synchronously.
-    // Finish it immediately.
-    elmModal.style.display = 'block';
-  }
-};
+      } else { // It is running synchronously.
+        stopOpenAnim(); // It might be called when it is already running.
+        content.style.display = 'block'; // Finish it immediately.
+      }
+    },
+
+    closeEffect: function(done) {
+      if (done) { // It is running asynchronously.
+        startCloseAnim(); // Show animation 1 sec.
+        setTimeout(function() {
+          stopCloseAnim();
+          content.style.display = 'none';
+          done(); // Tell the finished to PlainModal.
+        }, 1000);
+
+      } else { // It is running synchronously.
+        stopCloseAnim(); // It might be called when it is already running.
+        content.style.display = 'none'; // Finish it immediately.
+      }
+    }
+  });
 ```
 
 You might want to use CSS animation such as [CSS Transitions](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Transitions/Using_CSS_transitions) for the effect, and you might want to use DOM events such as [`transitionend`](https://developer.mozilla.org/en-US/docs/Web/Events/transitionend) event to get the finishing the effect.  
-Note that you should add an event listener only once because the DOM event system allows adding multiple listeners for an event.
+Note that you should add an event listener only once because the DOM events allow adding multiple listeners for an event.
 
 For example:
 
@@ -176,21 +201,34 @@ For example:
 }
 
 .force {
-  transition-property: none;
+  transition-property: none; /* Disable the animation */
 }
 ```
 
 ```js
-var added;
-modal.openEffect = function(done) {
-  if (!added) { // A flag to avoid multiple adding.
-    elmModal.addEventListener('transitionend', done, false); // Only once
-    added = true;
-  }
-  elmModal.classList.toggle('force', !done); // Switch by async/sync.
-  elmModal.classList.add('opened');
-};
+var added,
+  content = document.getElementById('modal-content'),
+  modal = new PlainModal(content, {
+    openEffect: function(done) {
+      if (!added) { // A flag to avoid multiple adding.
+        content.addEventListener('transitionend', done, false); // Only once
+        added = true;
+      }
+
+      mClassList(content).toggle('force', !done); // Switch by async/sync.
+      mClassList(content).add('opened');
+    },
+
+    closeEffect: function(done) {
+      // addEventListener must have executed already.
+      mClassList(content).toggle('force', !done); // Switch by async/sync.
+      mClassList(content).remove('opened');
+    }
+    // You will probably collect openEffect and closeEffect into single function.
+  });
 ```
+
+For cross-browser compatibility, the example above uses [mClassList](https://github.com/anseki/m-class-list) shim instead of `classList`.
 
 ### <a name="options-onopen-onclose-onbeforeopen-onbeforeclose"></a>`onOpen`, `onClose`, `onBeforeOpen`, `onBeforeClose`
 
@@ -240,6 +278,8 @@ It is one of the following static constant values:
 - `PlainModal.STATE_INACTIVATING` (`4`): An inactivating effect of the modal window is running.
 - `PlainModal.STATE_INACTIVATED` (`5`): The modal window is being inactivating fully.
 - `PlainModal.STATE_ACTIVATING` (`6`): An activating effect of the modal window is running.
+
+A modal window is inactivated and activated by a child modal window. For details, see "[Child and Descendants](#child-and-descendants)".
 
 For example:
 
@@ -296,3 +336,35 @@ If you want, set `PlainModal.closeByEscKey = false` to disable this behavior.
 
 By default, when the user clicks an overlay, the current active modal window is closed.  
 If you want, set `PlainModal.closeByOverlay = false` to disable this behavior.
+
+## Style of overlay
+
+If you want to change style of the overlay, you can define style rules with `.plainmodal .plainmodal-overlay` selector in your style-sheet.  
+Note that some properties that affect the layout (e.g. `width`, `border`, etc.) might not work or those might break the overlay.
+
+For example, CSS rule-definition for whity overlay:
+
+```css
+.plainmodal .plainmodal-overlay {
+  background-color: rgba(255, 255, 255, 0.6);
+}
+```
+
+For example, for background image:
+
+```css
+.plainmodal .plainmodal-overlay {
+  background-image : url(bg.png);
+}
+```
+
+## See Also
+
+These are used by PlainModal inside.
+
+- [PlainOverlay](https://anseki.github.io/plain-overlay/) : The simple library for customizable overlay which covers all or part of a web page.
+- [PlainDraggable](https://anseki.github.io/plain-draggable/) : The simple and high performance library to allow HTML/SVG element to be dragged.
+
+---
+
+Thanks for images: [The Pattern Library](http://thepatternlibrary.com/)
