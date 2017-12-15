@@ -1171,6 +1171,10 @@ var PlainModal = function () {
         finishCloseEffect(props, 'plainOverlay');
       }
     });
+    // The `content` is now contained into PlainOverlay, and update `display`.
+    if (window.getComputedStyle(content, '').display === 'none') {
+      content.style.display = 'block';
+    }
     var elmPlainOverlayBody = content.parentElement; // elmOverlayBody of PlainOverlay
     (0, _mClassList2.default)(elmPlainOverlayBody.parentElement).add(STYLE_CLASS); // elmOverlay of PlainOverlay
 

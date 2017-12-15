@@ -607,6 +607,10 @@ class PlainModal {
       onShow: () => { finishOpenEffect(props, 'plainOverlay'); },
       onHide: () => { finishCloseEffect(props, 'plainOverlay'); }
     });
+    // The `content` is now contained into PlainOverlay, and update `display`.
+    if (window.getComputedStyle(content, '').display === 'none') {
+      content.style.display = 'block';
+    }
     const elmPlainOverlayBody = content.parentElement; // elmOverlayBody of PlainOverlay
     mClassList(elmPlainOverlayBody.parentElement).add(STYLE_CLASS); // elmOverlay of PlainOverlay
 
