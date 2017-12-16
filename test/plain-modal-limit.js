@@ -583,6 +583,7 @@ function finishOpenEffect(props, effectKey) {
   traceLog.push('effectKey:' + effectKey);
   // [/DEBUG]
   if (props.state !== STATE_OPENING) {
+    traceLog.push('CANCEL', '</finishOpenEffect>'); // [DEBUG/]
     return;
   }
   props.effectFinished[effectKey] = true;
@@ -608,6 +609,7 @@ function finishCloseEffect(props, effectKey) {
   traceLog.push('effectKey:' + effectKey);
   // [/DEBUG]
   if (props.state !== STATE_CLOSING) {
+    traceLog.push('CANCEL', '</finishCloseEffect>'); // [DEBUG/]
     return;
   }
   props.effectFinished[effectKey] = true;
@@ -670,7 +672,7 @@ function execOpening(props, force) {
   if (props.options.openEffect) {
     if (force) {
       props.options.openEffect.call(props.ins);
-      props.openEffectDone();
+      finishOpenEffect(props, 'option');
     } else {
       props.options.openEffect.call(props.ins, props.openEffectDone);
     }
@@ -727,7 +729,7 @@ function execClosing(props, force, sync) {
   if (props.options.closeEffect) {
     if (force) {
       props.options.closeEffect.call(props.ins);
-      props.closeEffectDone();
+      finishCloseEffect(props, 'option');
     } else {
       props.options.closeEffect.call(props.ins, props.closeEffectDone);
     }
@@ -1008,12 +1010,20 @@ var PlainModal = function () {
     props.handleClose = function () {
       _close(props);
     };
-    // Callback functions for additional effects
+    // Callback functions for additional effects, prepare these to allow to be used as listener.
     props.openEffectDone = function () {
       finishOpenEffect(props, 'option');
     };
     props.closeEffectDone = function () {
       finishCloseEffect(props, 'option');
+    };
+    props.effectDone = function () {
+      traceLog.push('<effectDone/>', '_id:' + props._id, 'state:' + STATE_TEXT[props.state]); // [DEBUG/]
+      if (props.state === STATE_OPENING) {
+        finishOpenEffect(props, 'option');
+      } else if (props.state === STATE_CLOSING) {
+        finishCloseEffect(props, 'option');
+      }
     };
 
     _setOptions(props, options);
@@ -1110,6 +1120,11 @@ var PlainModal = function () {
     },
     set: function set(value) {
       _setOptions(insProps[this._id], { closeEffect: value });
+    }
+  }, {
+    key: 'effectDone',
+    get: function get() {
+      return insProps[this._id].effectDone;
     }
   }, {
     key: 'onOpen',
