@@ -279,7 +279,7 @@ function execOpening(props, force) {
   if (props.options.openEffect) {
     if (force) {
       props.options.openEffect.call(props.ins);
-      props.openEffectDone();
+      finishOpenEffect(props, 'option');
     } else {
       props.options.openEffect.call(props.ins, props.openEffectDone);
     }
@@ -340,7 +340,7 @@ function execClosing(props, force, sync) {
   if (props.options.closeEffect) {
     if (force) {
       props.options.closeEffect.call(props.ins);
-      props.closeEffectDone();
+      finishCloseEffect(props, 'option');
     } else {
       props.options.closeEffect.call(props.ins, props.closeEffectDone);
     }
@@ -628,9 +628,16 @@ class PlainModal {
 
     // Prepare removable event listeners for each instance.
     props.handleClose = () => { close(props); };
-    // Callback functions for additional effects
+    // Callback functions for additional effects, prepare these to allow to be used as listener.
     props.openEffectDone = () => { finishOpenEffect(props, 'option'); };
     props.closeEffectDone = () => { finishCloseEffect(props, 'option'); };
+    props.effectDone = () => {
+      if (props.state === STATE_OPENING) {
+        finishOpenEffect(props, 'option');
+      } else if (props.state === STATE_CLOSING) {
+        finishCloseEffect(props, 'option');
+      }
+    };
 
     setOptions(props, options);
   }
@@ -673,9 +680,7 @@ class PlainModal {
     return this;
   }
 
-  get state() {
-    return insProps[this._id].state;
-  }
+  get state() { return insProps[this._id].state; }
 
   get closeButton() { return insProps[this._id].options.closeButton; }
   set closeButton(value) { setOptions(insProps[this._id], {closeButton: value}); }
@@ -696,6 +701,8 @@ class PlainModal {
 
   get closeEffect() { return insProps[this._id].options.closeEffect; }
   set closeEffect(value) { setOptions(insProps[this._id], {closeEffect: value}); }
+
+  get effectDone() { return insProps[this._id].effectDone; }
 
   get onOpen() { return insProps[this._id].options.onOpen; }
   set onOpen(value) { setOptions(insProps[this._id], {onOpen: value}); }
