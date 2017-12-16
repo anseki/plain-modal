@@ -638,6 +638,7 @@ class PlainModal {
     props.openEffectDone = () => { finishOpenEffect(props, 'option'); };
     props.closeEffectDone = () => { finishCloseEffect(props, 'option'); };
     props.effectDone = () => {
+      traceLog.push('<effectDone/>', `_id:${props._id}`, `state:${STATE_TEXT[props.state]}`); // [DEBUG/]
       if (props.state === STATE_OPENING) {
         finishOpenEffect(props, 'option');
       } else if (props.state === STATE_CLOSING) {
