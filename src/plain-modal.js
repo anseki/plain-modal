@@ -189,7 +189,10 @@ function finishOpenEffect(props, effectKey) {
   traceLog.push('<finishOpenEffect>', `_id:${props._id}`, `state:${STATE_TEXT[props.state]}`);
   traceLog.push(`effectKey:${effectKey}`);
   // [/DEBUG]
-  if (props.state !== STATE_OPENING) { return; }
+  if (props.state !== STATE_OPENING) {
+    traceLog.push('CANCEL', '</finishOpenEffect>'); // [DEBUG/]
+    return;
+  }
   props.effectFinished[effectKey] = true;
   // [DEBUG]
   traceLog.push(`effectFinished.plainOverlay:${props.effectFinished.plainOverlay}`);
@@ -213,7 +216,10 @@ function finishCloseEffect(props, effectKey) {
   traceLog.push('<finishCloseEffect>', `_id:${props._id}`, `state:${STATE_TEXT[props.state]}`);
   traceLog.push(`effectKey:${effectKey}`);
   // [/DEBUG]
-  if (props.state !== STATE_CLOSING) { return; }
+  if (props.state !== STATE_CLOSING) {
+    traceLog.push('CANCEL', '</finishCloseEffect>'); // [DEBUG/]
+    return;
+  }
   props.effectFinished[effectKey] = true;
   // [DEBUG]
   traceLog.push(`effectFinished.plainOverlay:${props.effectFinished.plainOverlay}`);
