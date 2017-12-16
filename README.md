@@ -46,7 +46,9 @@ For options and more details, refer to the following.
 modal = new PlainModal(content[, options])
 ```
 
-The `content` argument is an element that is shown as a modal window.
+The `content` argument is an element that is shown as a modal window.  
+The modal window is initially closed. That is, the `content` element of the constructed PlainModal is being hidden.  
+To hide the `content` element until the web page is ready, you can apply `display: none` to the `content` element before the constructing PlainModal. PlainModal updates the `display` if it is `none`.
 
 The `options` argument is an Object that can have properties as [options](#options). You can also change the options by [`setOptions`](#setoptions) or [`open`](#open) methods or [properties](#properties) of the PlainModal instance.
 
