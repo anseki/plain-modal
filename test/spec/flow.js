@@ -46,13 +46,10 @@ describe('flow', function() {
         }, 10);
       };
       cbChangeFncs[PlainModal.STATE_CLOSING] = function(modal) {
-        modal.close(true);
-        modalCh.close(true);
+        // Already closed
+        modal.open(true);
         timer = setTimeout(function() {
-          modal.open(true);
-          timer = setTimeout(function() {
-            modal.close();
-          }, 10);
+          modal.close();
         }, 10);
       };
       cbChangeFncs[PlainModal.STATE_INACTIVATING] = function(modal) {
@@ -238,52 +235,60 @@ describe('flow', function() {
   it('STATE_CLOSING -> open()', function(done) {
     modal.onOpen = modal.onClose = modal.onBeforeOpen = modal.onBeforeClose = null;
 
-    utils.makeState(modal, PlainModal.STATE_CLOSING,
-      cbChangeFncs[PlainModal.STATE_CLOSING],
+    // First, close it without catching STATE_CLOSING
+    utils.makeState([modal, modalCh], PlainModal.STATE_CLOSED,
+      cbChangeFncs[PlainModal.STATE_CLOSED],
       function() {
-        clearTimeout(timer);
 
-        expect(modal.state).toBe(PlainModal.STATE_CLOSING);
+        utils.makeState(modal, PlainModal.STATE_CLOSING,
+          cbChangeFncs[PlainModal.STATE_CLOSING],
+          function() {
+            clearTimeout(timer);
 
-        modal.onOpen = function() {
-          setTimeout(function() {
-            expect(traceLog).toEqual([
-              // START: open
-              '<open>', '_id:' + modal._id, 'state:STATE_CLOSING',
-              'openCloseEffectProps:' + modal._id,
+            expect(modal.state).toBe(PlainModal.STATE_CLOSING);
 
-              '<execOpening>', '_id:' + modal._id, 'state:STATE_CLOSING',
-              'force:false',
-              'state:STATE_OPENING',
-              // PlainOverlay.show()
-              '_id:' + modal._id, '</execOpening>',
+            modal.onOpen = function() {
+              setTimeout(function() {
+                expect(traceLog).toEqual([
+                  // START: open
+                  '<open>', '_id:' + modal._id, 'state:STATE_CLOSING',
+                  'openCloseEffectProps:' + modal._id,
 
-              '_id:' + modal._id, '</open>',
-              // DONE: open
+                  '<execOpening>', '_id:' + modal._id, 'state:STATE_CLOSING',
+                  'force:false',
+                  'state:STATE_OPENING',
+                  // PlainOverlay.show()
+                  '_id:' + modal._id, '</execOpening>',
 
-              '<finishOpenEffect>', '_id:' + modal._id, 'state:STATE_OPENING',
-              'effectKey:plainOverlay',
-              'effectFinished.plainOverlay:true',
-              'effectFinished.option:false', 'openEffect:NO',
+                  '_id:' + modal._id, '</open>',
+                  // DONE: open
 
-              '<finishOpening>', '_id:' + modal._id, 'state:STATE_OPENING',
-              'state:STATE_OPENED',
+                  '<finishOpenEffect>', '_id:' + modal._id, 'state:STATE_OPENING',
+                  'effectKey:plainOverlay',
+                  'effectFinished.plainOverlay:true',
+                  'effectFinished.option:false', 'openEffect:NO',
 
-              '<switchDraggable>', '_id:' + modal._id, 'state:STATE_OPENED',
-              'plainDraggable.disabled:false',
-              '</switchDraggable>',
+                  '<finishOpening>', '_id:' + modal._id, 'state:STATE_OPENING',
+                  'state:STATE_OPENED',
 
-              '</finishOpening>',
+                  '<switchDraggable>', '_id:' + modal._id, 'state:STATE_OPENED',
+                  'plainDraggable.disabled:false',
+                  '</switchDraggable>',
 
-              '_id:' + modal._id, '</finishOpenEffect>'
-            ]);
+                  '</finishOpening>',
 
-            done();
-          }, 0);
-        };
+                  '_id:' + modal._id, '</finishOpenEffect>'
+                ]);
 
-        traceLog.length = 0;
-        modal.open();
+                done();
+              }, 0);
+            };
+
+            traceLog.length = 0;
+            modal.open();
+          }
+        );
+
       }
     );
   });
@@ -489,53 +494,61 @@ describe('flow', function() {
   it('STATE_CLOSING -> open(force)', function(done) {
     modal.onOpen = modal.onClose = modal.onBeforeOpen = modal.onBeforeClose = null;
 
-    utils.makeState(modal, PlainModal.STATE_CLOSING,
-      cbChangeFncs[PlainModal.STATE_CLOSING],
+    // First, close it without catching STATE_CLOSING
+    utils.makeState([modal, modalCh], PlainModal.STATE_CLOSED,
+      cbChangeFncs[PlainModal.STATE_CLOSED],
       function() {
-        clearTimeout(timer);
 
-        expect(modal.state).toBe(PlainModal.STATE_CLOSING);
+        utils.makeState(modal, PlainModal.STATE_CLOSING,
+          cbChangeFncs[PlainModal.STATE_CLOSING],
+          function() {
+            clearTimeout(timer);
 
-        modal.onOpen = function() {
-          setTimeout(function() {
-            expect(traceLog).toEqual([
-              // START: open
-              '<open>', '_id:' + modal._id, 'state:STATE_CLOSING',
-              'openCloseEffectProps:' + modal._id,
+            expect(modal.state).toBe(PlainModal.STATE_CLOSING);
 
-              '<execOpening>', '_id:' + modal._id, 'state:STATE_CLOSING',
-              'force:true',
-              'state:STATE_OPENING',
-              // PlainOverlay.show()
+            modal.onOpen = function() {
+              setTimeout(function() {
+                expect(traceLog).toEqual([
+                  // START: open
+                  '<open>', '_id:' + modal._id, 'state:STATE_CLOSING',
+                  'openCloseEffectProps:' + modal._id,
 
-              '<finishOpenEffect>', '_id:' + modal._id, 'state:STATE_OPENING',
-              'effectKey:plainOverlay',
-              'effectFinished.plainOverlay:true',
-              'effectFinished.option:false', 'openEffect:NO',
+                  '<execOpening>', '_id:' + modal._id, 'state:STATE_CLOSING',
+                  'force:true',
+                  'state:STATE_OPENING',
+                  // PlainOverlay.show()
 
-              '<finishOpening>', '_id:' + modal._id, 'state:STATE_OPENING',
-              'state:STATE_OPENED',
+                  '<finishOpenEffect>', '_id:' + modal._id, 'state:STATE_OPENING',
+                  'effectKey:plainOverlay',
+                  'effectFinished.plainOverlay:true',
+                  'effectFinished.option:false', 'openEffect:NO',
 
-              '<switchDraggable>', '_id:' + modal._id, 'state:STATE_OPENED',
-              'plainDraggable.disabled:false',
-              '</switchDraggable>',
+                  '<finishOpening>', '_id:' + modal._id, 'state:STATE_OPENING',
+                  'state:STATE_OPENED',
 
-              '</finishOpening>',
+                  '<switchDraggable>', '_id:' + modal._id, 'state:STATE_OPENED',
+                  'plainDraggable.disabled:false',
+                  '</switchDraggable>',
 
-              '_id:' + modal._id, '</finishOpenEffect>',
+                  '</finishOpening>',
 
-              '_id:' + modal._id, '</execOpening>',
+                  '_id:' + modal._id, '</finishOpenEffect>',
 
-              '_id:' + modal._id, '</open>',
-              // DONE: open
-            ]);
+                  '_id:' + modal._id, '</execOpening>',
 
-            done();
-          }, 0);
-        };
+                  '_id:' + modal._id, '</open>',
+                  // DONE: open
+                ]);
 
-        traceLog.length = 0;
-        modal.open(true);
+                done();
+              }, 0);
+            };
+
+            traceLog.length = 0;
+            modal.open(true);
+          }
+        );
+
       }
     );
   });
@@ -687,21 +700,29 @@ describe('flow', function() {
   it('STATE_CLOSING -> close()', function(done) { // -> CANCEL
     modal.onOpen = modal.onClose = modal.onBeforeOpen = modal.onBeforeClose = null;
 
-    utils.makeState(modal, PlainModal.STATE_CLOSING,
-      cbChangeFncs[PlainModal.STATE_CLOSING],
+    // First, close it without catching STATE_CLOSING
+    utils.makeState([modal, modalCh], PlainModal.STATE_CLOSED,
+      cbChangeFncs[PlainModal.STATE_CLOSED],
       function() {
-        clearTimeout(timer);
 
-        expect(modal.state).toBe(PlainModal.STATE_CLOSING);
+        utils.makeState(modal, PlainModal.STATE_CLOSING,
+          cbChangeFncs[PlainModal.STATE_CLOSING],
+          function() {
+            clearTimeout(timer);
 
-        traceLog.length = 0;
-        modal.close();
+            expect(modal.state).toBe(PlainModal.STATE_CLOSING);
 
-        expect(traceLog).toEqual([
-          '<close>', '_id:' + modal._id, 'state:STATE_CLOSING', 'CANCEL', '</close>'
-        ]);
+            traceLog.length = 0;
+            modal.close();
 
-        done();
+            expect(traceLog).toEqual([
+              '<close>', '_id:' + modal._id, 'state:STATE_CLOSING', 'CANCEL', '</close>'
+            ]);
+
+            done();
+          }
+        );
+
       }
     );
   });
@@ -1176,53 +1197,61 @@ describe('flow', function() {
   it('STATE_CLOSING -> close(force)', function(done) {
     modal.onOpen = modal.onClose = modal.onBeforeOpen = modal.onBeforeClose = null;
 
-    utils.makeState(modal, PlainModal.STATE_CLOSING,
-      cbChangeFncs[PlainModal.STATE_CLOSING],
+    // First, close it without catching STATE_CLOSING
+    utils.makeState([modal, modalCh], PlainModal.STATE_CLOSED,
+      cbChangeFncs[PlainModal.STATE_CLOSED],
       function() {
-        clearTimeout(timer);
 
-        expect(modal.state).toBe(PlainModal.STATE_CLOSING);
+        utils.makeState(modal, PlainModal.STATE_CLOSING,
+          cbChangeFncs[PlainModal.STATE_CLOSING],
+          function() {
+            clearTimeout(timer);
 
-        modal.onClose = function() {
-          setTimeout(function() {
-            expect(traceLog).toEqual([
-              // START: close
-              '<close>', '_id:' + modal._id, 'state:STATE_CLOSING',
-              'openCloseEffectProps:' + modal._id,
+            expect(modal.state).toBe(PlainModal.STATE_CLOSING);
 
-              '<execClosing>', '_id:' + modal._id, 'state:STATE_CLOSING',
-              'force:true', 'sync:false',
-              'state:STATE_CLOSING',
+            modal.onClose = function() {
+              setTimeout(function() {
+                expect(traceLog).toEqual([
+                  // START: close
+                  '<close>', '_id:' + modal._id, 'state:STATE_CLOSING',
+                  'openCloseEffectProps:' + modal._id,
 
-              '<switchDraggable>', '_id:' + modal._id, 'state:STATE_CLOSING',
-              'plainDraggable.disabled:true',
-              '</switchDraggable>',
+                  '<execClosing>', '_id:' + modal._id, 'state:STATE_CLOSING',
+                  'force:true', 'sync:false',
+                  'state:STATE_CLOSING',
 
-              // PlainOverlay.hide()
-              '_id:' + modal._id, '</execClosing>',
+                  '<switchDraggable>', '_id:' + modal._id, 'state:STATE_CLOSING',
+                  'plainDraggable.disabled:true',
+                  '</switchDraggable>',
 
-              '_id:' + modal._id, '</close>',
-              // DONE: close
+                  // PlainOverlay.hide()
+                  '_id:' + modal._id, '</execClosing>',
 
-              '<finishCloseEffect>', '_id:' + modal._id, 'state:STATE_CLOSING',
-              'effectKey:plainOverlay',
-              'effectFinished.plainOverlay:true',
-              'effectFinished.option:false', 'closeEffect:NO',
+                  '_id:' + modal._id, '</close>',
+                  // DONE: close
 
-              '<finishClosing>', '_id:' + modal._id, 'state:STATE_CLOSING',
-              'shownProps:NONE',
-              'state:STATE_CLOSED',
-              '</finishClosing>',
+                  '<finishCloseEffect>', '_id:' + modal._id, 'state:STATE_CLOSING',
+                  'effectKey:plainOverlay',
+                  'effectFinished.plainOverlay:true',
+                  'effectFinished.option:false', 'closeEffect:NO',
 
-              '_id:' + modal._id, '</finishCloseEffect>'
-            ]);
+                  '<finishClosing>', '_id:' + modal._id, 'state:STATE_CLOSING',
+                  'shownProps:NONE',
+                  'state:STATE_CLOSED',
+                  '</finishClosing>',
 
-            done();
-          }, 0);
-        };
+                  '_id:' + modal._id, '</finishCloseEffect>'
+                ]);
 
-        traceLog.length = 0;
-        modal.close(true);
+                done();
+              }, 0);
+            };
+
+            traceLog.length = 0;
+            modal.close(true);
+          }
+        );
+
       }
     );
   });
