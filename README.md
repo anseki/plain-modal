@@ -188,13 +188,14 @@ var content = document.getElementById('modal-content'),
 ```
 
 You might want to use CSS animation such as [CSS Transitions](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Transitions/Using_CSS_transitions) for the effect, and you might want to use DOM events such as [`transitionend`](https://developer.mozilla.org/en-US/docs/Web/Events/transitionend) event to get the finishing the effect.  
-Note that you should add an event listener only once because the DOM events allow adding multiple listeners for an event.
+Note that you should add an event listener only once because the DOM events allow adding multiple listeners for an event. If you will use `addEventListener` in the `openEffect` or `closeEffect` function, you need something like a flag to avoid multiple adding.  
+Or, you can get the callback function via `effectDone` property instead of `done` argument. This is useful for using effects with DOM events. You can get it at outer of the `openEffect` and `closeEffect` functions also. And it is a property, not a method, therefore you can pass it to `addEventListener` directly without wrapping by a function. And also, it can be used for both the `openEffect` and `closeEffect` functions.
 
 For example:
 
 ```css
 #modal {
-  margin-top: -600px; /* Default position: outside of view */
+  margin-top: -600px; /* Default position: out of view */
   transition: margin-top 1s;
 }
 
@@ -208,29 +209,36 @@ For example:
 ```
 
 ```js
-var added,
-  content = document.getElementById('modal-content'),
+var content = document.getElementById('modal-content'),
   modal = new PlainModal(content, {
     openEffect: function(done) {
-      if (!added) { // A flag to avoid multiple adding.
-        content.addEventListener('transitionend', done, false); // Only once
-        added = true;
-      }
-
       mClassList(content).toggle('force', !done); // Switch by async/sync.
       mClassList(content).add('opened');
     },
-
     closeEffect: function(done) {
-      // addEventListener must have executed already.
       mClassList(content).toggle('force', !done); // Switch by async/sync.
       mClassList(content).remove('opened');
     }
-    // You will probably collect openEffect and closeEffect into single function.
+    // You will probably collect 2 functions into single function with `state` and `toggle`.
   });
+content.addEventListener('transitionend', modal.effectDone, true); // Only once
 ```
 
-For cross-browser compatibility, the example above uses [mClassList](https://github.com/anseki/m-class-list) shim instead of `classList`.
+(For cross-browser compatibility, the example above uses [mClassList](https://github.com/anseki/m-class-list) shim instead of `classList`.)
+
+If you will use other transitions also to do something, you might write a listener like:
+
+```js
+(function(listener) { // For cross-browser compatibility
+  ['transitionend', 'webkitTransitionEnd', 'oTransitionEnd', 'otransitionend'].forEach(function(type) {
+    content.addEventListener(type, listener, true);
+  });
+})(function(event) {
+  if (event.target === content && event.propertyName === 'margin-top') {
+    modal.effectDone();
+  }
+});
+```
 
 ### <a name="options-onopen-onclose-onbeforeopen-onbeforeclose"></a>`onOpen`, `onClose`, `onBeforeOpen`, `onBeforeClose`
 
@@ -313,6 +321,13 @@ Get or set [`dragHandle`](#options-draghandle) option.
 ### `openEffect`, `closeEffect`
 
 Get or set [`openEffect`, `closeEffect`](#options-openeffect-closeeffect) options.
+
+### `effectDone`
+
+*Type:* function  
+*Read-only*
+
+See [`openEffect`, `closeEffect`](#options-openeffect-closeeffect) options.
 
 ### `onOpen`, `onClose`, `onBeforeOpen`, `onBeforeClose`
 
