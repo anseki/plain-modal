@@ -12,12 +12,12 @@ describe('dragHandle', function() {
       PlainModal = window.PlainModal;
       insProps = window.insProps;
       traceLog = PlainModal.traceLog;
-      pageDone = done;
 
       modal = new PlainModal(document.getElementById('elm1'));
       handle1 = document.getElementById('handle11');
       handle2 = document.getElementById('handle12');
 
+      pageDone = done;
       beforeDone();
     });
   });

@@ -13,7 +13,6 @@ describe('flow', function() {
       utils = window.utils;
       PlainModal = window.PlainModal;
       traceLog = PlainModal.traceLog;
-      pageDone = done;
 
       modal = new PlainModal(document.getElementById('elm1'), {
         dragHandle: document.getElementById('handle11'),
@@ -86,6 +85,7 @@ describe('flow', function() {
         }, 10);
       };
 
+      pageDone = done;
       beforeDone();
     });
   });

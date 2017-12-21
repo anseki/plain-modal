@@ -9,8 +9,8 @@ describe('display', function() {
       window = pageWindow;
       document = pageDocument;
       PlainModal = window.PlainModal;
-      pageDone = done;
 
+      pageDone = done;
       beforeDone();
     });
   });

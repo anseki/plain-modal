@@ -23,12 +23,12 @@ describe('closeButton', function() {
       document = pageDocument;
       PlainModal = window.PlainModal;
       traceLog = PlainModal.traceLog;
-      pageDone = done;
 
       modal = new PlainModal(document.getElementById('elm1'));
       button1 = document.getElementById('button11');
       button2 = document.getElementById('button12');
 
+      pageDone = done;
       beforeDone();
     });
   });

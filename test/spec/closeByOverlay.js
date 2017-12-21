@@ -30,7 +30,6 @@ describe('closeByOverlay', function() {
       PlainModal = window.PlainModal;
       traceLog = PlainModal.traceLog;
       shownProps = window.shownProps;
-      pageDone = done;
 
       modal1 = new PlainModal(document.getElementById('elm1'), {duration: 50});
       modal2 = new PlainModal(document.getElementById('elm2'), {duration: 50});
@@ -39,6 +38,7 @@ describe('closeByOverlay', function() {
 
       PlainModal.PlainOverlay.forceEvent = true; // for hidden view
 
+      pageDone = done;
       beforeDone();
     });
   });

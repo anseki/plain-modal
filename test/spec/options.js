@@ -10,8 +10,8 @@ describe('options', function() {
       document = pageDocument;
       PlainModal = window.PlainModal;
       insProps = window.insProps;
-      pageDone = done;
 
+      pageDone = done;
       beforeDone();
     });
   });

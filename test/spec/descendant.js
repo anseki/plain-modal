@@ -15,7 +15,6 @@ describe('descendant', function() {
       PlainModal = window.PlainModal;
       traceLog = PlainModal.traceLog;
       shownProps = window.shownProps;
-      pageDone = done;
 
       modal1 = new PlainModal(document.getElementById('elm1'), {
         dragHandle: document.getElementById('handle11'),
@@ -32,6 +31,7 @@ describe('descendant', function() {
 
       PlainModal.PlainOverlay.forceEvent = true; // for hidden view
 
+      pageDone = done;
       beforeDone();
     });
   });

@@ -55,7 +55,6 @@ describe('openEffect, closeEffect', function() {
       utils = window.utils;
       PlainModal = window.PlainModal;
       traceLog = PlainModal.traceLog;
-      pageDone = done;
 
       modal1 = new PlainModal(document.getElementById('elm1'), {duration: 80});
       modal2 = new PlainModal(document.getElementById('elm2'), {duration: 80});
@@ -64,6 +63,7 @@ describe('openEffect, closeEffect', function() {
 
       PlainModal.PlainOverlay.forceEvent = true; // for hidden view
 
+      pageDone = done;
       beforeDone();
     });
   });
