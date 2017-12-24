@@ -23,6 +23,7 @@ const
       'cssprefix',
       'anim-event',
       'm-class-list',
+      'timed-transition',
       ['plain-overlay', {EDITION: 'limit', SYNC: 'yes'}],
       ['plain-draggable', {EDITION: 'limit'}]
     ].reduce((rules, packageName) => {
