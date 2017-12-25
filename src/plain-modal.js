@@ -745,7 +745,6 @@ PlainModal.limit = true;
 // [DEBUG]
 PlainModal.traceLog = traceLog;
 PlainModal.STATE_TEXT = STATE_TEXT;
-PlainModal.PlainOverlay = PlainOverlay; // to access to PlainOverlay.forceEvent
 // [/DEBUG]
 
 export default PlainModal;
