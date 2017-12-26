@@ -29,8 +29,6 @@ describe('descendant', function() {
       modal5 = new PlainModal(document.getElementById('elm5'), {duration: 105});
       allModals = [modal1, modal2, modal3, modal4, modal5];
 
-      PlainModal.PlainOverlay.forceEvent = true; // for hidden view
-
       pageDone = done;
       beforeDone();
     });

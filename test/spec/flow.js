@@ -23,8 +23,6 @@ describe('flow', function() {
         duration: 150
       });
 
-      PlainModal.PlainOverlay.forceEvent = true; // for hidden view
-
       // Init cbChange of utils.makeState (1st, close(true) to reset)
       cbChangeFncs[PlainModal.STATE_CLOSED] = function(modal) {
         modal.close(true);

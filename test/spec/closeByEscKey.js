@@ -39,8 +39,6 @@ describe('closeByEscKey', function() {
       modal3 = new PlainModal(document.getElementById('elm3'), {duration: 50});
       allModals = [modal1, modal2, modal3];
 
-      PlainModal.PlainOverlay.forceEvent = true; // for hidden view
-
       window.addEventListener('keydown', function(event) {
         var key;
         if ((key = event.key.toLowerCase()) === 'escape' || key === 'esc') {
