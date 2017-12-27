@@ -431,8 +431,9 @@ class PlainModal {
     if (window.getComputedStyle(content, '').display === 'none') {
       content.style.display = 'block';
     }
-    const elmPlainOverlayBody = content.parentElement; // elmOverlayBody of PlainOverlay
-    mClassList(elmPlainOverlayBody.parentElement).add(STYLE_CLASS); // elmOverlay of PlainOverlay
+    // Trident can not get parent of SVG by parentElement.
+    const elmPlainOverlayBody = content.parentNode; // elmOverlayBody of PlainOverlay
+    mClassList(elmPlainOverlayBody.parentNode).add(STYLE_CLASS); // elmOverlay of PlainOverlay
 
     // elmOverlay (own overlay)
     const elmOverlay =

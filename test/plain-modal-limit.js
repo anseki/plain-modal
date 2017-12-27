@@ -983,8 +983,9 @@ var PlainModal = function () {
     if (window.getComputedStyle(content, '').display === 'none') {
       content.style.display = 'block';
     }
-    var elmPlainOverlayBody = content.parentElement; // elmOverlayBody of PlainOverlay
-    (0, _mClassList2.default)(elmPlainOverlayBody.parentElement).add(STYLE_CLASS); // elmOverlay of PlainOverlay
+    // Trident can not get parent of SVG by parentElement.
+    var elmPlainOverlayBody = content.parentNode; // elmOverlayBody of PlainOverlay
+    (0, _mClassList2.default)(elmPlainOverlayBody.parentNode).add(STYLE_CLASS); // elmOverlay of PlainOverlay
 
     // elmOverlay (own overlay)
     var elmOverlay = props.elmOverlay = elmPlainOverlayBody.appendChild(document.createElement('div'));
