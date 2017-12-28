@@ -816,11 +816,13 @@ function execOpening(props, force) {
     // [/DEBUG]
     // Update `state` regardless of force, for switchDraggable.
     parentProps.state = STATE_INACTIVATING;
+    parentProps.plainOverlay.blockingDisabled = true;
     traceLog.push('parentProps.state:' + STATE_TEXT[props.parentProps.state]); // [DEBUG/]
     switchDraggable(parentProps); // [DRAG/]
   }
 
   props.state = STATE_OPENING;
+  props.plainOverlay.blockingDisabled = false;
   traceLog.push('state:' + STATE_TEXT[props.state]); // [DEBUG/]
   props.effectFinished.plainOverlay = props.effectFinished.option = false;
   props.plainOverlay.show(force);
@@ -874,6 +876,7 @@ function execClosing(props, force, sync) {
     // [/DEBUG]
     // same condition as props
     parentProps.state = STATE_ACTIVATING;
+    parentProps.plainOverlay.blockingDisabled = false;
     traceLog.push('parentProps.state:' + STATE_TEXT[props.parentProps.state]); // [DEBUG/]
   }
 
@@ -1414,6 +1417,8 @@ PlainModal.insProps = insProps;
 PlainModal.traceLog = traceLog;
 PlainModal.shownProps = shownProps;
 PlainModal.STATE_TEXT = STATE_TEXT;
+PlainModal.IS_TRIDENT = IS_TRIDENT;
+PlainModal.IS_EDGE = IS_EDGE;
 window.PlainOverlay = _plainOverlay2.default;
 // [/DEBUG]
 
@@ -2397,7 +2402,8 @@ var PlainOverlay = function () {
       },
       state: STATE_HIDDEN,
       savedStyleTarget: {},
-      savedStyleTargetBody: {}
+      savedStyleTargetBody: {},
+      blockingDisabled: false
     };
 
     Object.defineProperty(this, '_id', { value: ++insId });
@@ -2478,7 +2484,7 @@ var PlainOverlay = function () {
       traceLog.push('target:' + (event.target === document ? 'document' : event.target.tagName || 'UNKNOWN') + ('' + (event.target.id ? '#' + event.target.id : '')));
       // [/DEBUG]
       var target = event.target;
-      if (props.state !== STATE_HIDDEN && restoreScroll(props, props.isDoc && (target === props.window || target === props.document || target === props.elmTargetBody) ? props.elmTarget : target)) {
+      if (props.state !== STATE_HIDDEN && !props.blockingDisabled && restoreScroll(props, props.isDoc && (target === props.window || target === props.document || target === props.elmTargetBody) ? props.elmTarget : target)) {
         traceLog.push('AVOIDED'); // [DEBUG/]
         event.preventDefault();
         event.stopImmediatePropagation();
@@ -2493,7 +2499,7 @@ var PlainOverlay = function () {
       traceLog.push('<focusListener>', '_id:' + props._id, 'state:' + STATE_TEXT[props.state]);
       traceLog.push('target:' + (event.target === document ? 'document' : event.target.tagName || 'UNKNOWN') + ('' + (event.target.id ? '#' + event.target.id : '')));
       // [/DEBUG]
-      if (props.state !== STATE_HIDDEN && avoidFocus(props, event.target)) {
+      if (props.state !== STATE_HIDDEN && !props.blockingDisabled && avoidFocus(props, event.target)) {
         traceLog.push('AVOIDED'); // [DEBUG/]
         event.preventDefault();
         event.stopImmediatePropagation();
@@ -2510,7 +2516,7 @@ var PlainOverlay = function () {
       });
     })(function (event) {
       traceLog.push('<text-select-event>', '_id:' + props._id, 'state:' + STATE_TEXT[props.state]); // [DEBUG/]
-      if (props.state !== STATE_HIDDEN && avoidSelect(props)) {
+      if (props.state !== STATE_HIDDEN && !props.blockingDisabled && avoidSelect(props)) {
         traceLog.push('AVOIDED'); // [DEBUG/]
         event.preventDefault();
         event.stopImmediatePropagation();
@@ -2655,6 +2661,16 @@ var PlainOverlay = function () {
     key: 'style',
     get: function get() {
       return insProps[this._id].elmOverlay.style;
+    }
+  }, {
+    key: 'blockingDisabled',
+    get: function get() {
+      return insProps[this._id].blockingDisabled;
+    },
+    set: function set(value) {
+      if (typeof value === 'boolean') {
+        insProps[this._id].blockingDisabled = value;
+      }
     }
   }, {
     key: 'face',

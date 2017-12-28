@@ -170,9 +170,11 @@ function execOpening(props, force) {
     elmOverlayClassList.add(STYLE_CLASS_OVERLAY_HIDE);
     // Update `state` regardless of force, for switchDraggable.
     parentProps.state = STATE_INACTIVATING;
+    parentProps.plainOverlay.blockingDisabled = true;
   }
 
   props.state = STATE_OPENING;
+  props.plainOverlay.blockingDisabled = false;
   props.effectFinished.plainOverlay = props.effectFinished.option = false;
   props.plainOverlay.show(force);
   if (props.options.openEffect) {
@@ -209,6 +211,7 @@ function execClosing(props, force, sync) {
     elmOverlayClassList.remove(STYLE_CLASS_OVERLAY_HIDE);
     // same condition as props
     parentProps.state = STATE_ACTIVATING;
+    parentProps.plainOverlay.blockingDisabled = false;
   }
 
   props.state = STATE_CLOSING;

@@ -269,11 +269,13 @@ function execOpening(props, force) {
     // [/DEBUG]
     // Update `state` regardless of force, for switchDraggable.
     parentProps.state = STATE_INACTIVATING;
+    parentProps.plainOverlay.blockingDisabled = true;
     traceLog.push(`parentProps.state:${STATE_TEXT[props.parentProps.state]}`); // [DEBUG/]
     switchDraggable(parentProps); // [DRAG/]
   }
 
   props.state = STATE_OPENING;
+  props.plainOverlay.blockingDisabled = false;
   traceLog.push(`state:${STATE_TEXT[props.state]}`); // [DEBUG/]
   props.effectFinished.plainOverlay = props.effectFinished.option = false;
   props.plainOverlay.show(force);
@@ -330,6 +332,7 @@ function execClosing(props, force, sync) {
     // [/DEBUG]
     // same condition as props
     parentProps.state = STATE_ACTIVATING;
+    parentProps.plainOverlay.blockingDisabled = false;
     traceLog.push(`parentProps.state:${STATE_TEXT[props.parentProps.state]}`); // [DEBUG/]
   }
 
@@ -743,6 +746,8 @@ PlainModal.insProps = insProps;
 PlainModal.traceLog = traceLog;
 PlainModal.shownProps = shownProps;
 PlainModal.STATE_TEXT = STATE_TEXT;
+PlainModal.IS_TRIDENT = IS_TRIDENT;
+PlainModal.IS_EDGE = IS_EDGE;
 window.PlainOverlay = PlainOverlay;
 // [/DEBUG]
 
