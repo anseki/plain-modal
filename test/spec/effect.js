@@ -379,7 +379,7 @@ describe('openEffect, closeEffect', function() {
         expect(modal1.state).toBe(PlainModal.STATE_INACTIVATED);
         expect(modal2.state).toBe(PlainModal.STATE_INACTIVATED);
         expect(modal3.state).toBe(PlainModal.STATE_OPENED);
-        expect(window.shownProps.map(function(props) { return props.ins; }))
+        expect(PlainModal.shownProps.map(function(props) { return props.ins; }))
           .toEqual([modal1, modal2, modal3]);
 
         modal1.openEffect = getEffectCb(modal1._id, 'open', 120);
@@ -400,7 +400,7 @@ describe('openEffect, closeEffect', function() {
             expect(modal1.state).toBe(PlainModal.STATE_OPENED);
             expect(modal2.state).toBe(PlainModal.STATE_CLOSED);
             expect(modal3.state).toBe(PlainModal.STATE_CLOSED);
-            expect(window.shownProps.map(function(props) { return props.ins; }))
+            expect(PlainModal.shownProps.map(function(props) { return props.ins; }))
               .toEqual([modal1]);
 
             expect(traceLog).toEqual([
@@ -708,7 +708,7 @@ describe('openEffect, closeEffect', function() {
         expect(modal1.state).toBe(PlainModal.STATE_INACTIVATED);
         expect(modal2.state).toBe(PlainModal.STATE_INACTIVATED);
         expect(modal3.state).toBe(PlainModal.STATE_OPENED);
-        expect(window.shownProps.map(function(props) { return props.ins; }))
+        expect(PlainModal.shownProps.map(function(props) { return props.ins; }))
           .toEqual([modal1, modal2, modal3]);
 
         modal1.openEffect = getEffectCbWithProp(modal1, 'open', 120);
@@ -729,7 +729,7 @@ describe('openEffect, closeEffect', function() {
             expect(modal1.state).toBe(PlainModal.STATE_OPENED);
             expect(modal2.state).toBe(PlainModal.STATE_CLOSED);
             expect(modal3.state).toBe(PlainModal.STATE_CLOSED);
-            expect(window.shownProps.map(function(props) { return props.ins; }))
+            expect(PlainModal.shownProps.map(function(props) { return props.ins; }))
               .toEqual([modal1]);
 
             expect(traceLog).toEqual([

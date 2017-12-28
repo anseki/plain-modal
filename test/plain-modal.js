@@ -619,11 +619,6 @@ closeByEscKey = true,
     closeByOverlay = true;
 
 // [DEBUG]
-window.insProps = insProps;
-window.shownProps = shownProps;
-// [/DEBUG]
-
-// [DEBUG]
 var traceLog = [];
 var STATE_TEXT = {};
 STATE_TEXT[STATE_CLOSED] = 'STATE_CLOSED';
@@ -1415,8 +1410,11 @@ PlainModal.limit = true;
 // [DEBUG]
 
 
+PlainModal.insProps = insProps;
 PlainModal.traceLog = traceLog;
+PlainModal.shownProps = shownProps;
 PlainModal.STATE_TEXT = STATE_TEXT;
+window.PlainOverlay = _plainOverlay2.default;
 // [/DEBUG]
 
 exports.default = PlainModal;

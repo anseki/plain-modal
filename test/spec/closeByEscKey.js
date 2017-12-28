@@ -32,7 +32,7 @@ describe('closeByEscKey', function() {
       utils = window.utils;
       PlainModal = window.PlainModal;
       traceLog = PlainModal.traceLog;
-      shownProps = window.shownProps;
+      shownProps = PlainModal.shownProps;
 
       modal1 = new PlainModal(document.getElementById('elm1'), {duration: 50});
       modal2 = new PlainModal(document.getElementById('elm2'), {duration: 50});

@@ -10,7 +10,7 @@ describe('dragHandle', function() {
       window = pageWindow;
       document = pageDocument;
       PlainModal = window.PlainModal;
-      insProps = window.insProps;
+      insProps = PlainModal.insProps;
       traceLog = PlainModal.traceLog;
 
       modal = new PlainModal(document.getElementById('elm1'));

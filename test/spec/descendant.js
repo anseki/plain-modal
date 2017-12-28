@@ -14,7 +14,7 @@ describe('descendant', function() {
       utils = window.utils;
       PlainModal = window.PlainModal;
       traceLog = PlainModal.traceLog;
-      shownProps = window.shownProps;
+      shownProps = PlainModal.shownProps;
 
       modal1 = new PlainModal(document.getElementById('elm1'), {
         dragHandle: document.getElementById('handle11'),

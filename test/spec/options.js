@@ -9,7 +9,7 @@ describe('options', function() {
       window = pageWindow;
       document = pageDocument;
       PlainModal = window.PlainModal;
-      insProps = window.insProps;
+      insProps = PlainModal.insProps;
 
       pageDone = done;
       beforeDone();

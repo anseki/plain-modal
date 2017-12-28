@@ -72,11 +72,6 @@ let insId = 0,
   closeByEscKey = true, closeByOverlay = true;
 
 // [DEBUG]
-window.insProps = insProps;
-window.shownProps = shownProps;
-// [/DEBUG]
-
-// [DEBUG]
 const traceLog = [];
 const STATE_TEXT = {};
 STATE_TEXT[STATE_CLOSED] = 'STATE_CLOSED';
@@ -744,8 +739,11 @@ PlainModal.limit = true;
 [DRAG/] */
 
 // [DEBUG]
+PlainModal.insProps = insProps;
 PlainModal.traceLog = traceLog;
+PlainModal.shownProps = shownProps;
 PlainModal.STATE_TEXT = STATE_TEXT;
+window.PlainOverlay = PlainOverlay;
 // [/DEBUG]
 
 export default PlainModal;
