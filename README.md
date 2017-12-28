@@ -102,6 +102,19 @@ The `options` argument is an Object that can have properties as [options](#optio
 
 Bind [`close`](#close) method to specified element, and the modal window is closed when the user clicks the element.
 
+For example:
+
+```html
+<div id="modal-content" style="background-color: white;">
+  Hello, world!
+  <div><button id="close-button">CLOSE</button></div>
+</div>
+```
+
+```js
+modal.closeButton = document.getElementById('close-button');
+```
+
 ### <a name="options-duration"></a>`duration`
 
 *Type:* number  
@@ -146,7 +159,9 @@ By default, the modal window is opened and closed with the fade-in effect and fa
 
 Each effect is a function that is called when the modal window is opened and closed. The function do something to open/close the modal window. It usually starts an animation that the modal window appears or it vanishes. For example, it adds or removes a CSS class that specifies CSS Animation.
 
-The function may be passed `done` callback function. When the `done` is passed, the current opening or closing runs asynchronously, and the function must call the `done` when the effect finished. When the `done` is not passed, the current opening or closing runs synchronously, and the function must make the modal window appear or vanish immediately without effect. The opening or closing runs synchronously when [`open`](#open) method or [`close`](#close) method is called with `force` argument, or a child modal window is closed by closing parent modal window.
+The function may be passed `done` argument that is callback function.  
+When the `done` is passed, the current opening or closing runs asynchronously, and the function must call the `done` when the effect finished.  
+On the other hand, when the `done` is not passed, the current opening or closing runs synchronously, and the function must make the modal window appear or vanish immediately without effect. The opening or closing runs synchronously when [`open`](#open) method or [`close`](#close) method is called with `force` argument, or a child modal window is closed by closing parent modal window.
 
 In the functions, `this` refers to the current PlainModal instance.
 
@@ -157,7 +172,7 @@ var content = document.getElementById('modal-content'),
   modal = new PlainModal(content, {
     openEffect: function(done) {
       if (done) { // It is running asynchronously.
-        startOpenAnim(); // Show animation 3 sec.
+        startOpenAnim(); // Show your animation 3 sec.
         setTimeout(function() {
           stopOpenAnim();
           content.style.display = 'block';
@@ -172,7 +187,7 @@ var content = document.getElementById('modal-content'),
 
     closeEffect: function(done) {
       if (done) { // It is running asynchronously.
-        startCloseAnim(); // Show animation 1 sec.
+        startCloseAnim(); // Show your animation 1 sec.
         setTimeout(function() {
           stopCloseAnim();
           content.style.display = 'none';
@@ -187,14 +202,14 @@ var content = document.getElementById('modal-content'),
   });
 ```
 
-You might want to use CSS animation such as [CSS Transitions](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Transitions/Using_CSS_transitions) for the effect, and you might want to use DOM events such as [`transitionend`](https://developer.mozilla.org/en-US/docs/Web/Events/transitionend) event to get the finishing the effect.  
+You might want to use CSS animation such as [CSS Transitions](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Transitions/Using_CSS_transitions) for the effect, and you might want to use DOM events such as [`transitionend`](https://developer.mozilla.org/en-US/docs/Web/Events/transitionend) event to get the finishing the effect. (You should consider cross-browser compatibility when you use those. It will be described later.)  
 Note that you should add an event listener only once because the DOM events allow adding multiple listeners for an event. If you will use `addEventListener` in the `openEffect` or `closeEffect` function, you need something like a flag to avoid multiple adding.  
-Or, you can get the callback function via `effectDone` property instead of `done` argument. This is useful for using effects with DOM events. You can get it at outer of the `openEffect` and `closeEffect` functions also. And it is a property, not a method, therefore you can pass it to `addEventListener` directly without wrapping by a function. And also, it can be used for both the `openEffect` and `closeEffect` functions.
+Or, you can get the callback function via `effectDone` property instead of `done` argument. This is useful for using effects with DOM events. You can get it at outer of the `openEffect` and `closeEffect` functions also. And it is a property, not a method. Therefore you can pass it to `addEventListener` directly without wrapping by a function. And also, it can be used for both the `openEffect` and `closeEffect` functions.
 
 For example:
 
 ```css
-#modal {
+.modal {
   margin-top: -600px; /* Default position: out of view */
   transition: margin-top 1s;
 }
@@ -212,32 +227,37 @@ For example:
 var content = document.getElementById('modal-content'),
   modal = new PlainModal(content, {
     openEffect: function(done) {
-      mClassList(content).toggle('force', !done); // Switch by async/sync.
-      mClassList(content).add('opened');
+      content.classList.toggle('force', !done); // Switch by async/sync.
+      content.classList.add('opened');
     },
     closeEffect: function(done) {
-      mClassList(content).toggle('force', !done); // Switch by async/sync.
-      mClassList(content).remove('opened');
+      content.classList.toggle('force', !done); // Switch by async/sync.
+      content.classList.remove('opened');
     }
-    // You will probably collect 2 functions into single function with `state` and `toggle`.
+    // You will probably collect 2 functions into single function
+    // with `state` and `toggle`.
   });
-content.addEventListener('transitionend', modal.effectDone, true); // Only once
+
+// Tell the finished to PlainModal when the event is fired.
+content.addEventListener('transitionend', modal.effectDone, true); // Add only once.
 ```
 
-(For cross-browser compatibility, the example above uses [mClassList](https://github.com/anseki/m-class-list) shim instead of `classList`.)
+Note that you should consider cross-browser compatibility if you will use CSS Transitions or `element.classList`.  
+These may help you for cross-browser compatibility.
 
-If you will use other transitions also to do something, you might write a listener like:
+- [TimedTransition](https://github.com/anseki/timed-transition) for CSS Transitions
+- [mClassList](https://github.com/anseki/m-class-list) for `classList`
+- [CSSPrefix](https://github.com/anseki/cssprefix) for CSS properties
+
+In addition, if you will use other transitions also to do something, the listener will be code like:
 
 ```js
-(function(listener) { // For cross-browser compatibility
-  ['transitionend', 'webkitTransitionEnd', 'oTransitionEnd', 'otransitionend'].forEach(function(type) {
-    content.addEventListener(type, listener, true);
-  });
-})(function(event) {
+// `timedTransitionEnd` instead of `transitionend`, for cross-browser compatibility
+content.addEventListener('timedTransitionEnd', function(event) {
   if (event.target === content && event.propertyName === 'margin-top') {
     modal.effectDone();
   }
-});
+}, true);
 ```
 
 ### <a name="options-onopen-onclose-onbeforeopen-onbeforeclose"></a>`onOpen`, `onClose`, `onBeforeOpen`, `onBeforeClose`
