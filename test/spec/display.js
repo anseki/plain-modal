@@ -39,7 +39,7 @@ describe('display', function() {
     expect(span.style.display).toBe('');
     expect(window.getComputedStyle(div, '').display).toBe('block');
     // This should be `block` because it's flex-item. Trident bug
-    expect(window.getComputedStyle(span, '').display).toBe(window.IS_TRIDENT ? 'inline' : 'block');
+    expect(window.getComputedStyle(span, '').display).toBe(PlainModal.IS_TRIDENT ? 'inline' : 'block');
   });
 
   it('display by stylesheet', function() {
