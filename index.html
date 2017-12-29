@@ -1,1 +1,1022 @@
-My GitHub Page
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="description" content="The simple library for customizable modal window.">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="css/normalize.css">
+  <link rel="stylesheet" href="css/syntax.css">
+  <link rel="stylesheet" href="css/default.css">
+  <link rel="stylesheet" href="css/ex.css">
+  <script src="js/plain-modal.min.js"></script>
+  <script src="js/cssprefix.min.js"></script>
+  <script src="js/m-class-list.min.js"></script>
+  <script>mClassList.ignoreNative = true;</script>
+  <script src="js/timed-transition.min.js"></script>
+
+  <title>PlainModal</title>
+</head>
+<body>
+  <header>
+    <h1><a href="./">PlainModal</a></h1>
+    <ul id="gh"><li><a href="https://github.com/anseki/plain-modal/tarball/master">Download TAR.GZ</a></li><li><a href="https://github.com/anseki/plain-modal/zipball/master">Download ZIP</a></li><li><a href="https://github.com/anseki/plain-modal">View on GitHub</a></li></ul>
+  </header>
+  <main>
+
+<p><a href="https://www.npmjs.com/package/plain-modal"><img src="https://img.shields.io/npm/v/plain-modal.svg" alt="npm"></a> <a href="https://github.com/anseki/plain-modal/issues"><img src="https://img.shields.io/github/issues/anseki/plain-modal.svg" alt="GitHub issues"></a> <a href="package.json"><img src="https://img.shields.io/badge/dependencies-No%20dependency-brightgreen.svg" alt="dependencies"></a> <a href="LICENSE-MIT"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="license"></a></p>
+
+<p>The simple library for fully customizable modal window in a web page.</p>
+
+<!-- include "ex-010.html" -->
+<!-- ================ ex -->
+<div class="cols2">
+  <div class="col" style="text-align: right;">
+    <button id="ex-010-open1">OPEN</button>
+  </div>
+  <div class="col">
+    <p><strong>Click this button to open an example.</strong></p>
+  </div>
+</div>
+
+<div id="ex-010-content1">
+  <div id="ex-010-close1">
+    <svg version="1.1" viewBox="0 0 32 32" width="32" height="32">
+      <rect x="0" y="0" width="32" height="32" rx="4" ry="4" />
+      <path class="line" d="M6,6 L26,26 M26,6 L6,26" />
+    </svg>
+  </div>
+  <div id="ex-010-head">PlainModal</div>
+  <ul>
+    <li>You can move this modal window by mouse-dragging.</li>
+    <li>This modal window was designed with Responsive Web Design. Please resize your web browser window.</li>
+    <li>Scrolling anything on outside of this modal window is being blocked.</li>
+    <li>Focusing anything on outside of this modal window is being blocked.</li>
+    <li><button id="ex-010-open2">Open Child Modal Window</button></li>
+    <li>To close this modal window, click "X" button, click the outside of this modal window or press Escape key.</li>
+  </ul>
+</div>
+
+<div id="ex-010-content2">
+  <p>This is Child Modal Window.</p>
+  <button id="ex-010-close2">CLOSE</button>
+</div>
+
+<script>
+window.addEventListener('load', function() {
+  'use strict';
+
+  var content1 = document.getElementById('ex-010-content1'),
+    modal1 = new PlainModal(content1, {
+      closeButton: document.getElementById('ex-010-close1'),
+      dragHandle: content1,
+      overlayBlur: 2
+    }),
+    content2 = document.getElementById('ex-010-content2'),
+    modal2 = new PlainModal(content2, {
+      closeButton: document.getElementById('ex-010-close2'),
+      dragHandle: content2,
+      overlayBlur: 2
+    });
+
+  document.getElementById('ex-010-open1').addEventListener('click', function() {
+    modal1.open();
+  }, false);
+
+  document.getElementById('ex-010-open2').addEventListener('click', function() {
+    modal2.open();
+  }, false);
+
+});
+</script>
+<!-- ================ /ex -->
+<!-- /include "ex-010.html" -->
+
+<p>PlainModal has basic functions only, and it does nothing about visual style of the modal window. It means that you can free style it to perfect match for your web site or your app. It has no image files and no CSS files, it is just one small file only.</p>
+
+<!-- include "ex-020.html" -->
+<!-- ================ ex -->
+<div id="ex-020-table">
+  <div>
+    <button id="ex-020-open">OPEN</button>
+    <p>The style like <a href="http://getbootstrap.com/">Bootstrap</a></p>
+  </div>
+  <div>
+    <button id="ex-030-open">OPEN</button>
+    <p>The style like Windows Classic</p>
+  </div>
+  <div>
+    <button id="ex-040-open">OPEN</button>
+    <p>More...</p>
+  </div>
+</div>
+
+<div id="ex-020-content">
+  <div id="ex-020-head">
+    <div id="ex-020-close">&#215;</div>
+    <h4 id="ex-020-title">Modal title</h4>
+  </div>
+  <div id="ex-020-body">
+    <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+    <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+    <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+  </div>
+  <div id="ex-020-footer">
+    <button id="ex-020-cancel">CANCEL</button>
+    <button id="ex-020-primary">OK</button>
+  </div>
+</div>
+
+<script>
+window.addEventListener('load', function() {
+  'use strict';
+
+  var cssPropTransform = CSSPrefix.getName('transform'),
+    OPEN_TOP = 100, translateValue,
+    content = document.getElementById('ex-020-content'),
+    modal = new PlainModal(content, {
+      closeButton: document.getElementById('ex-020-close'),
+      duration: 600,
+      overlayBlur: 2
+    }),
+    transition = new TimedTransition(content, {
+      procToOn: function(force) {
+        mClassList(content).toggle('force', force);
+        content.style[cssPropTransform] = 'translateY(' + translateValue.open + 'px)';
+      },
+      procToOff: function(force) {
+        mClassList(content).toggle('force', force);
+        content.style[cssPropTransform] = 'translateY(' + translateValue.close + 'px)';
+      }
+    });
+
+  /**
+   * @returns  `translateY` value when each state.
+   */
+  function getTranslateValue() {
+    mClassList(content).add('force');
+    content.style[cssPropTransform] = 'none'; // To get default position
+    var rect = content.getBoundingClientRect();
+    return {open: OPEN_TOP - rect.top, close: -rect.top - rect.height - 50 /* clearance */};
+  }
+
+  modal.setOptions({
+    onBeforeOpen: function() {
+      if (modal.state === PlainModal.STATE_CLOSED) { translateValue = null; }
+    },
+    openEffect: function(done) {
+      if (translateValue) {
+        transition.on(!done);
+      } else { // Reset (window might have resized)
+        translateValue = getTranslateValue(); // It has to be shown (after onBeforeOpen).
+        if (done) {
+          // getTranslateValue already added `force`.
+          content.style[cssPropTransform] = 'translateY(' + translateValue.close + 'px)';
+          content.offsetWidth; /* force reflow */ // eslint-disable-line no-unused-expressions
+          transition.on();
+        } else {
+          transition.on(true);
+        }
+      }
+    },
+
+    onBeforeClose: function() {
+      if (modal.state === PlainModal.STATE_OPENED) { translateValue = null; }
+    },
+    closeEffect: function(done) {
+      if (translateValue) {
+        transition.off(!done);
+      } else { // Reset (window might have resized)
+        translateValue = getTranslateValue();
+        if (done) {
+          // getTranslateValue already added `force`.
+          content.style[cssPropTransform] = 'translateY(' + translateValue.open + 'px)';
+          content.offsetWidth; /* force reflow */ // eslint-disable-line no-unused-expressions
+          transition.off();
+        } else {
+          transition.off(true);
+        }
+      }
+    }
+  });
+
+  content.addEventListener('timedTransitionEnd', modal.effectDone, true);
+
+  // Other buttons
+  (function(fncClose) {
+    ['ex-020-cancel', 'ex-020-primary'].forEach(function(id) {
+      document.getElementById(id).addEventListener('click', fncClose, false);
+    });
+  })(function() { modal.close(); });
+
+  document.getElementById('ex-020-open').addEventListener('click', function() {
+    modal.open();
+  }, false);
+
+});
+</script>
+<!-- ================ /ex -->
+<!-- /include "ex-020.html" -->
+
+<!-- include "ex-030.html" -->
+<!-- ================ ex -->
+<div id="ex-030-content"><div id="ex-030-in">
+  <h4 id="ex-030-title">Modal title</h4>
+  <div id="ex-030-body">
+    <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+  </div>
+  <div id="ex-030-footer">
+    <button id="ex-030-primary"><span class="ex-030-btn-out"><span class="ex-030-btn-in">Yes</span></span></button>
+    <button id="ex-030-cancel"><span class="ex-030-btn-out"><span class="ex-030-btn-in">No</span></span></button>
+  </div>
+</div></div>
+
+<script>
+window.addEventListener('load', function() {
+  'use strict';
+
+  var content = document.getElementById('ex-030-content'),
+    modal = new PlainModal(content, {
+      closeButton: document.getElementById('ex-030-cancel'),
+      dragHandle: document.getElementById('ex-030-title')
+    });
+
+  // Customize style
+  content.parentNode.querySelector('.plainmodal-overlay').style.backgroundColor =
+    'rgba(136,136,136,0.1)';
+
+  // Other button
+  document.getElementById('ex-030-primary')
+    .addEventListener('click', function() { modal.close(); }, false);
+
+  document.getElementById('ex-030-open').addEventListener('click', function() {
+    modal.open();
+  }, false);
+
+});
+</script>
+<!-- ================ /ex -->
+<!-- /include "ex-030.html" -->
+
+<!-- include "ex-040.html" -->
+<!-- ================ ex -->
+<svg version="1.1" viewBox="0 0 400 300" id="ex-040-content">
+  <defs>
+    <path d="M400,121.533c0-20.092-15.616-37.266-37.697-44.263c0.402-2.535,0.628-5.117,0.628-7.744
+      c0-32.351-31.332-58.577-69.984-58.577c-19.546,0-37.212,6.713-49.911,17.527C232.199,11.589,209.944,0,184.232,0
+      c-26.311,0-49.008,12.131-59.549,29.661c-3.772-0.418-7.623-0.646-11.543-0.646c-44.764,0-81.052,28.187-81.052,62.956
+      c0,6.107,1.142,12.003,3.229,17.585C13.914,118.418,0,132.738,0,148.905c0,18.575,18.358,34.718,45.357,42.939
+      c-7.651,8.127-12.163,18.051-12.163,28.776c0,27.515,29.6,49.817,66.114,49.817c9.918,0,19.317-1.657,27.76-4.605
+      C133.521,285.41,158.351,300,188.021,300c34.573,0,62.6-19.805,62.6-44.234c0-1.057-0.07-2.103-0.173-3.14
+      c12.123,5.738,26.391,9.053,41.667,9.053c44.002,0,79.669-27.451,79.669-61.313c0-12.388-4.789-23.91-12.999-33.553
+      C382.707,160.594,400,142.677,400,121.533z" id="ex-040-base-path" />
+    <clipPath id="ex-040-clip"><use xlink:href="#ex-040-base-path" /></clipPath>
+  </defs>
+  <g clip-path="url(#ex-040-clip)">
+    <use xlink:href="#ex-040-base-path" stroke-dasharray="20.7432861328125,10" id="ex-040-bg" />
+    <path d="M-20,300 Q10,10 200,150 Q390,290 420,0" id="ex-040-bgline" />
+    <foreignObject x="60" y="50" width="280" height="200">
+      <span id="ex-040-close">Close</span>
+      <p>This stupid design is showing to you that it's the perfect customizability. You can do anything you want to those.</p>
+    </foreignObject>
+  </g>
+  <animateTransform xlink:href="#ex-040-clip"
+    attributeName="transform" type="translate" from="200,150" to="200,150" additive="sum"
+    begin="indefinite" id="ex-040-anim1" />
+  <animateTransform xlink:href="#ex-040-clip"
+    attributeName="transform" type="scale" from="0.1,0.1" to="1,1" additive="sum"
+    begin="indefinite" dur="1s" fill="freeze" id="ex-040-anim2" />
+  <animateTransform xlink:href="#ex-040-clip"
+    attributeName="transform" type="translate" from="-200,-150" to="-200,-150" additive="sum"
+    begin="indefinite" id="ex-040-anim3" />
+  <animate xlink:href="#ex-040-bgline"
+    attributeName="d"
+    values="M-40,300 Q10,10 200,150 Q390,290 440,0;
+      M-40,300 Q10,10 200,150 Q390,290 440,0;
+      M-40,300 Q-40,300 200,150 Q440,0 440,0;
+      M-40,300 Q-80,-50 200,-60 Q480,-80 440,300"
+    keyTimes="0;0.2;0.5;1"
+    begin="indefinite" dur="3s" fill="freeze" id="ex-040-anim4" />
+  <animate xlink:href="#ex-040-bg"
+    attributeName="stroke-dashoffset" from="0" to="-30.7432861328125"
+    begin="indefinite" dur="2s" repeatCount="indefinite" id="ex-040-anim5" />
+</svg>
+
+<script>
+window.addEventListener('load', function() {
+  'use strict';
+
+  // webkit doesn't support smil (begin="anim1.begin" etc.)
+  // Maybe, this doesn't work in Trident.
+  var SCALE_S = '0.1,0.1', SCALE_D = '1,1',
+    anim1 = document.getElementById('ex-040-anim1'),
+    anim2 = document.getElementById('ex-040-anim2'),
+    anim3 = document.getElementById('ex-040-anim3'),
+    anim4 = document.getElementById('ex-040-anim4'),
+    anim5 = document.getElementById('ex-040-anim5'),
+    content = document.getElementById('ex-040-content'),
+    modal = new PlainModal(content, {
+      closeButton: document.getElementById('ex-040-close'),
+      duration: 1000,
+      openEffect: function(done) {
+        try { // Abandon Trident and Edge...
+          content.setCurrentTime(0);
+          anim2.setAttribute('from', SCALE_S);
+          anim2.setAttribute('to', SCALE_D);
+          anim1.beginElement();
+          anim2.beginElement();
+          anim3.beginElement();
+          anim4.beginElement();
+          anim5.beginElementAt(0.8);
+        } catch (error) { /* ignore */ }
+
+        if (done) { setTimeout(done, 3000); }
+      },
+      closeEffect: function(done) {
+        try { // Abandon Trident and Edge...
+          anim2.setAttribute('from', SCALE_D);
+          anim2.setAttribute('to', SCALE_S);
+          anim1.beginElement();
+          anim2.beginElement();
+          anim3.beginElement();
+        } catch (error) { /* ignore */ }
+
+        setTimeout(function() {
+          try { // Abandon Trident and Edge...
+            anim1.endElement();
+            anim2.endElement();
+            anim3.endElement();
+            anim4.endElement();
+            anim5.endElement();
+          } catch (error) { /* ignore */ }
+          if (done) { done(); }
+        }, 1000);
+      }
+    });
+
+  document.getElementById('ex-040-open').addEventListener('click', function() {
+    modal.open();
+  }, false);
+
+});
+</script>
+<!-- ================ /ex -->
+<!-- /include "ex-040.html" -->
+
+<p><strong>Features:</strong></p>
+
+<ul>
+<li>Make a specified element become a modal window, and control the opening and closing it.</li>
+<li>Cover a web page with an overlay, and block scrolling, focusing and accessing anything under the overlay by a mouse or keys.</li>
+<li>No dependency.</li>
+<li>Single file.</li>
+<li>Modern browsers are supported. (If you want to support legacy browsers such as IE 9-, see <a href="https://anseki.github.io/jquery-plainmodal/">jQuery-plainModal</a>.)</li>
+</ul>
+
+<h2 id="usage">Usage</h2>
+
+<p>Load PlainModal into your web page.</p>
+<div class="highlight"><pre><code class="language-html" data-lang="html"><span class="nt">&lt;script </span><span class="na">src=</span><span class="s">&quot;plain-modal.min.js&quot;</span><span class="nt">&gt;&lt;/script&gt;</span>
+</code></pre></div>
+<p>This is simplest case:</p>
+<div class="highlight"><pre><code class="language-html" data-lang="html"><span class="nt">&lt;div</span> <span class="na">id=</span><span class="s">&quot;modal-content&quot;</span> <span class="na">style=</span><span class="s">&quot;background-color: white;&quot;</span><span class="nt">&gt;</span>
+  Hello, world!
+<span class="nt">&lt;/div&gt;</span>
+</code></pre></div><div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">var</span> <span class="nx">modal</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">PlainModal</span><span class="p">(</span><span class="nb">document</span><span class="p">.</span><span class="nx">getElementById</span><span class="p">(</span><span class="s1">&#39;modal-content&#39;</span><span class="p">));</span>
+<span class="nx">modal</span><span class="p">.</span><span class="nx">open</span><span class="p">();</span>
+</code></pre></div>
+<!-- include "ex-050.html" -->
+<!-- ================ ex -->
+<div class="cols2">
+  <div class="col" style="width: 0;">
+    <button id="ex-050-open">OPEN</button>
+  </div>
+  <div class="col" style="width: 100%;">
+    <p>To close this modal window, click the outside of this modal window or press Escape key.</p>
+  </div>
+</div>
+
+<div id="ex-050-content" style="background-color: white; display: none;">
+  Hello, world!
+</div>
+
+<script>
+window.addEventListener('load', function() {
+  'use strict';
+
+  var modal = new PlainModal(document.getElementById('ex-050-content'));
+
+  document.getElementById('ex-050-open').addEventListener('click', function() {
+    modal.open();
+  }, false);
+
+});
+</script>
+<!-- ================ /ex -->
+<!-- /include "ex-050.html" -->
+
+<p>Now, new modal window is opened.<br>You will see that the modal window has no style except for <code>background-color</code> to improve the visibility of this example. Therefore you can free style it. In other words, you have to do that for the visual design you want.</p>
+
+<p>For options and more details, refer to the following.</p>
+
+<h2 id="constructor">Constructor</h2>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">modal</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">PlainModal</span><span class="p">(</span><span class="nx">content</span><span class="p">[,</span> <span class="nx">options</span><span class="p">])</span>
+</code></pre></div>
+<p>The <code>content</code> argument is an element that is shown as a modal window.<br>The modal window is initially closed. That is, the <code>content</code> element of the constructed PlainModal is being hidden.<br>To hide the <code>content</code> element until the web page is ready, you can apply <code>display: none</code> to the <code>content</code> element before the constructing PlainModal. PlainModal updates the <code>display</code> if it is <code>none</code>.</p>
+
+<p>The <code>options</code> argument is an Object that can have properties as <a href="#options">options</a>. You can also change the options by <a href="#setoptions"><code>setOptions</code></a> or <a href="#open"><code>open</code></a> methods or <a href="#properties">properties</a> of the PlainModal instance.</p>
+
+<p>For example:</p>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="c1">// Construct new modal window, with `duration` option.</span>
+<span class="kd">var</span> <span class="nx">modal</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">PlainModal</span><span class="p">(</span><span class="nb">document</span><span class="p">.</span><span class="nx">getElementById</span><span class="p">(</span><span class="s1">&#39;modal-content&#39;</span><span class="p">),</span> <span class="p">{</span><span class="nx">duration</span><span class="o">:</span> <span class="mi">400</span><span class="p">});</span>
+</code></pre></div>
+<h2 id="methods">Methods</h2>
+
+<h3 id="open"><code>open</code></h3>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">self</span> <span class="o">=</span> <span class="nx">modal</span><span class="p">.</span><span class="nx">open</span><span class="p">([</span><span class="nx">force</span><span class="p">][,</span> <span class="nx">options</span><span class="p">])</span>
+</code></pre></div>
+<p>Open the modal window.<br>If <code>true</code> is specified for <code>force</code> argument, open it immediately without an effect. (As to the effect, see <a href="#options-duration"><code>duration</code></a> option.)<br>If <code>options</code> argument is specified, call <a href="#setoptions"><code>setOptions</code></a> method and open the modal window. It works the same as:</p>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">modal</span><span class="p">.</span><span class="nx">setOptions</span><span class="p">(</span><span class="nx">options</span><span class="p">).</span><span class="nx">open</span><span class="p">();</span>
+</code></pre></div>
+<h3 id="close"><code>close</code></h3>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">self</span> <span class="o">=</span> <span class="nx">modal</span><span class="p">.</span><span class="nx">close</span><span class="p">([</span><span class="nx">force</span><span class="p">])</span>
+</code></pre></div>
+<p>Close the modal window.<br>If <code>true</code> is specified for <code>force</code> argument, close it immediately without an effect. (As to the effect, see <a href="#options-duration"><code>duration</code></a> option.)</p>
+
+<h3 id="setoptions"><code>setOptions</code></h3>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">self</span> <span class="o">=</span> <span class="nx">modal</span><span class="p">.</span><span class="nx">setOptions</span><span class="p">(</span><span class="nx">options</span><span class="p">)</span>
+</code></pre></div>
+<p>Set one or more options.<br>The <code>options</code> argument is an Object that can have properties as <a href="#options">options</a>.</p>
+
+<h2 id="options">Options</h2>
+
+<h3 id="options-closebutton"><code>closeButton</code></h3>
+
+<p><em>Type:</em> Element or <code>undefined</code><br><em>Default:</em> <code>undefined</code></p>
+
+<p>Bind <a href="#close"><code>close</code></a> method to specified element, and the modal window is closed when the user clicks the element.</p>
+
+<p>For example:</p>
+<div class="highlight"><pre><code class="language-html" data-lang="html"><span class="nt">&lt;div</span> <span class="na">id=</span><span class="s">&quot;modal-content&quot;</span> <span class="na">style=</span><span class="s">&quot;background-color: white;&quot;</span><span class="nt">&gt;</span>
+  Hello, world!
+  <span class="nt">&lt;div&gt;&lt;button</span> <span class="na">id=</span><span class="s">&quot;close-button&quot;</span><span class="nt">&gt;</span>CLOSE<span class="nt">&lt;/button&gt;&lt;/div&gt;</span>
+<span class="nt">&lt;/div&gt;</span>
+</code></pre></div><div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">modal</span><span class="p">.</span><span class="nx">closeButton</span> <span class="o">=</span> <span class="nb">document</span><span class="p">.</span><span class="nx">getElementById</span><span class="p">(</span><span class="s1">&#39;close-button&#39;</span><span class="p">);</span>
+</code></pre></div>
+<!-- include "ex-060.html" -->
+<!-- ================ ex -->
+<div><button id="ex-060-open">OPEN</button></div>
+
+<div id="ex-060-content" style="background-color: white; display: none;">
+  Hello, world!
+  <div><button id="ex-060-close" style="min-width: 0;">CLOSE</button></div>
+</div>
+
+<script>
+window.addEventListener('load', function() {
+  'use strict';
+
+  var modal = new PlainModal(document.getElementById('ex-060-content'), {
+    closeButton: document.getElementById('ex-060-close')
+  });
+
+  document.getElementById('ex-060-open').addEventListener('click', function() {
+    modal.open();
+  }, false);
+
+});
+</script>
+<!-- ================ /ex -->
+<!-- /include "ex-060.html" -->
+
+<h3 id="options-duration"><code>duration</code></h3>
+
+<p><em>Type:</em> number<br><em>Default:</em> <code>200</code></p>
+
+<p>A number determining how long (milliseconds) the effect (fade-in/out) animation for opening and closing the modal window will run.</p>
+
+<h3 id="options-overlayblur"><code>overlayBlur</code></h3>
+
+<p><em>Type:</em> number or boolean<br><em>Default:</em> <code>false</code></p>
+
+<p>Applies a Gaussian blur to the web page while the overlay is shown. Note that the current browser might not support it.<br>It is not applied if <code>false</code> is specified.</p>
+
+<p>For example:</p>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">modal</span><span class="p">.</span><span class="nx">overlayBlur</span> <span class="o">=</span> <span class="mi">3</span><span class="p">;</span>
+</code></pre></div>
+<h3 id="options-draghandle"><code>dragHandle</code></h3>
+
+<p><em>Type:</em> Element or <code>undefined</code><br><em>Default:</em> <code>undefined</code></p>
+
+<p>To make the modal window be draggable, specify a part element of the <code>content</code> element (or the <code>content</code> element itself) that receives mouse operations. A user seizes and drags this element to move the modal window.<br>The <code>content</code> element itself can be specified, and all of the modal window can be seized and dragged.</p>
+
+<p>For example:</p>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">modal</span><span class="p">.</span><span class="nx">dragHandle</span> <span class="o">=</span> <span class="nb">document</span><span class="p">.</span><span class="nx">getElementById</span><span class="p">(</span><span class="s1">&#39;title-bar&#39;</span><span class="p">);</span>
+</code></pre></div>
+<!-- include "ex-070.html" -->
+<!-- ================ ex -->
+<div><button id="ex-070-open">OPEN</button></div>
+
+<div id="ex-070-content">
+  <div id="ex-070-title">Title Bar</div>
+  Hello, world!
+  <div><button id="ex-070-close">CLOSE</button></div>
+</div>
+
+<script>
+window.addEventListener('load', function() {
+  'use strict';
+
+  var modal = new PlainModal(document.getElementById('ex-070-content'), {
+    closeButton: document.getElementById('ex-070-close'),
+    dragHandle: document.getElementById('ex-070-title')
+  });
+
+  document.getElementById('ex-070-open').addEventListener('click', function() {
+    modal.open();
+  }, false);
+
+});
+</script>
+<!-- ================ /ex -->
+<!-- /include "ex-070.html" -->
+
+<h3 id="options-openeffect-closeeffect"><code>openEffect</code>, <code>closeEffect</code></h3>
+
+<p><em>Type:</em> function or <code>undefined</code><br><em>Default:</em> <code>undefined</code></p>
+
+<p>By default, the modal window is opened and closed with the fade-in effect and fade-out effect animation. You can specify additional effect for <code>openEffect</code> and <code>closeEffect</code> option. The default fade-in/out effect also still runs, specify <code>0</code> for <a href="#options-duration"><code>duration</code></a> option if you want to disable the default effect.</p>
+
+<p>Each effect is a function that is called when the modal window is opened and closed. The function do something to open/close the modal window. It usually starts an animation that the modal window appears or it vanishes. For example, it adds or removes a CSS class that specifies CSS Animation.</p>
+
+<p>The function may be passed <code>done</code> argument that is callback function.<br>When the <code>done</code> is passed, the current opening or closing runs asynchronously, and the function must call the <code>done</code> when the effect finished.<br>On the other hand, when the <code>done</code> is not passed, the current opening or closing runs synchronously, and the function must make the modal window appear or vanish immediately without effect. The opening or closing runs synchronously when <a href="#open"><code>open</code></a> method or <a href="#close"><code>close</code></a> method is called with <code>force</code> argument, or a child modal window is closed by closing parent modal window.</p>
+
+<p>In the functions, <code>this</code> refers to the current PlainModal instance.</p>
+
+<p>For example:</p>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">var</span> <span class="nx">content</span> <span class="o">=</span> <span class="nb">document</span><span class="p">.</span><span class="nx">getElementById</span><span class="p">(</span><span class="s1">&#39;modal-content&#39;</span><span class="p">),</span>
+  <span class="nx">modal</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">PlainModal</span><span class="p">(</span><span class="nx">content</span><span class="p">,</span> <span class="p">{</span>
+    <span class="nx">openEffect</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">done</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">if</span> <span class="p">(</span><span class="nx">done</span><span class="p">)</span> <span class="p">{</span> <span class="c1">// It is running asynchronously.</span>
+        <span class="nx">startOpenAnim</span><span class="p">();</span> <span class="c1">// Show your animation 3 sec.</span>
+        <span class="nx">setTimeout</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+          <span class="nx">stopOpenAnim</span><span class="p">();</span>
+          <span class="nx">content</span><span class="p">.</span><span class="nx">style</span><span class="p">.</span><span class="nx">display</span> <span class="o">=</span> <span class="s1">&#39;block&#39;</span><span class="p">;</span>
+          <span class="nx">done</span><span class="p">();</span> <span class="c1">// Tell the finished to PlainModal.</span>
+        <span class="p">},</span> <span class="mi">3000</span><span class="p">);</span>
+
+      <span class="p">}</span> <span class="k">else</span> <span class="p">{</span> <span class="c1">// It is running synchronously.</span>
+        <span class="nx">stopOpenAnim</span><span class="p">();</span> <span class="c1">// It might be called when it is already running.</span>
+        <span class="nx">content</span><span class="p">.</span><span class="nx">style</span><span class="p">.</span><span class="nx">display</span> <span class="o">=</span> <span class="s1">&#39;block&#39;</span><span class="p">;</span> <span class="c1">// Finish it immediately.</span>
+      <span class="p">}</span>
+    <span class="p">},</span>
+
+    <span class="nx">closeEffect</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">done</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">if</span> <span class="p">(</span><span class="nx">done</span><span class="p">)</span> <span class="p">{</span> <span class="c1">// It is running asynchronously.</span>
+        <span class="nx">startCloseAnim</span><span class="p">();</span> <span class="c1">// Show your animation 1 sec.</span>
+        <span class="nx">setTimeout</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+          <span class="nx">stopCloseAnim</span><span class="p">();</span>
+          <span class="nx">content</span><span class="p">.</span><span class="nx">style</span><span class="p">.</span><span class="nx">display</span> <span class="o">=</span> <span class="s1">&#39;none&#39;</span><span class="p">;</span>
+          <span class="nx">done</span><span class="p">();</span> <span class="c1">// Tell the finished to PlainModal.</span>
+        <span class="p">},</span> <span class="mi">1000</span><span class="p">);</span>
+
+      <span class="p">}</span> <span class="k">else</span> <span class="p">{</span> <span class="c1">// It is running synchronously.</span>
+        <span class="nx">stopCloseAnim</span><span class="p">();</span> <span class="c1">// It might be called when it is already running.</span>
+        <span class="nx">content</span><span class="p">.</span><span class="nx">style</span><span class="p">.</span><span class="nx">display</span> <span class="o">=</span> <span class="s1">&#39;none&#39;</span><span class="p">;</span> <span class="c1">// Finish it immediately.</span>
+      <span class="p">}</span>
+    <span class="p">}</span>
+  <span class="p">});</span>
+</code></pre></div>
+<!-- include "ex-080.html" -->
+<!-- ================ ex -->
+<div class="cols2">
+  <div class="col">
+    <button id="ex-080-open-a">OPEN</button>
+  </div>
+  <div class="col">
+    <button id="ex-080-open-b">OPEN</button>
+  </div>
+</div>
+
+<div id="ex-080-content-a">
+  <p>Hello, world!</p>
+  <button id="ex-080-close-a">CLOSE</button>
+</div>
+
+<div id="ex-080-content-b">
+  <p>Hello, world!</p>
+  <button id="ex-080-close-b">CLOSE</button>
+</div>
+
+<script>
+window.addEventListener('load', function() {
+  'use strict';
+
+  var contentA = document.getElementById('ex-080-content-a'),
+    transitionA = new TimedTransition(contentA, {
+      procToOn: function() { mClassList(contentA).add('open'); },
+      procToOff: function() { mClassList(contentA).remove('open'); }
+    }),
+    modalA = new PlainModal(contentA, {
+      closeButton: document.getElementById('ex-080-close-a'),
+      duration: 300,
+      openEffect: function() { transitionA.on(); },
+      closeEffect: function() { transitionA.off(); }
+    });
+
+  contentA.addEventListener('timedTransitionEnd', modalA.effectDone, true);
+
+  document.getElementById('ex-080-open-a').addEventListener('click', function() {
+    modalA.open();
+  }, false);
+
+  // ============================================
+
+  var contentB = document.getElementById('ex-080-content-b'),
+    transitionB = new TimedTransition(contentB, {
+      procToOn: function() { mClassList(contentB).add('open'); },
+      procToOff: function() { mClassList(contentB).remove('open'); }
+    }),
+    modalB = new PlainModal(contentB, {
+      closeButton: document.getElementById('ex-080-close-b'),
+      duration: 600,
+      openEffect: function() { transitionB.on(); },
+      closeEffect: function() { transitionB.off(); }
+    });
+
+  contentB.addEventListener('timedTransitionEnd', modalB.effectDone, true);
+
+  document.getElementById('ex-080-open-b').addEventListener('click', function() {
+    modalB.open();
+  }, false);
+
+});
+</script>
+<!-- ================ /ex -->
+<!-- /include "ex-080.html" -->
+
+<p>You might want to use CSS animation such as <a href="https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Transitions/Using_CSS_transitions">CSS Transitions</a> for the effect, and you might want to use DOM events such as <a href="https://developer.mozilla.org/en-US/docs/Web/Events/transitionend"><code>transitionend</code></a> event to get the finishing the effect. (You should consider cross-browser compatibility when you use those. It will be described later.)<br>Note that you should add an event listener only once because the DOM events allow adding multiple listeners for an event. If you will use <code>addEventListener</code> in the <code>openEffect</code> or <code>closeEffect</code> function, you need something like a flag to avoid multiple adding.<br>Or, you can get the callback function via <code>effectDone</code> property instead of <code>done</code> argument. This is useful for using effects with DOM events. You can get it at outer of the <code>openEffect</code> and <code>closeEffect</code> functions also. And it is a property, not a method. Therefore you can pass it to <code>addEventListener</code> directly without wrapping by a function. And also, it can be used for both the <code>openEffect</code> and <code>closeEffect</code> functions.</p>
+
+<p>For example:</p>
+<div class="highlight"><pre><code class="language-css" data-lang="css"><span class="nc">.modal</span> <span class="p">{</span>
+  <span class="k">margin-top</span><span class="o">:</span> <span class="m">-600px</span><span class="p">;</span> <span class="c">/* Default position: out of view */</span>
+  <span class="n">transition</span><span class="o">:</span> <span class="k">margin-top</span> <span class="m">1s</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="nc">.opened</span> <span class="p">{</span>
+  <span class="k">margin-top</span><span class="o">:</span> <span class="m">0</span><span class="p">;</span> <span class="c">/* Move to the center position */</span>
+<span class="p">}</span>
+
+<span class="nc">.force</span> <span class="p">{</span>
+  <span class="n">transition</span><span class="o">-</span><span class="n">property</span><span class="o">:</span> <span class="k">none</span><span class="p">;</span> <span class="c">/* Disable the animation */</span>
+<span class="p">}</span>
+</code></pre></div><div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">var</span> <span class="nx">content</span> <span class="o">=</span> <span class="nb">document</span><span class="p">.</span><span class="nx">getElementById</span><span class="p">(</span><span class="s1">&#39;modal-content&#39;</span><span class="p">),</span>
+  <span class="nx">modal</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">PlainModal</span><span class="p">(</span><span class="nx">content</span><span class="p">,</span> <span class="p">{</span>
+    <span class="nx">openEffect</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">done</span><span class="p">)</span> <span class="p">{</span>
+      <span class="nx">content</span><span class="p">.</span><span class="nx">classList</span><span class="p">.</span><span class="nx">toggle</span><span class="p">(</span><span class="s1">&#39;force&#39;</span><span class="p">,</span> <span class="o">!</span><span class="nx">done</span><span class="p">);</span> <span class="c1">// Switch by async/sync.</span>
+      <span class="nx">content</span><span class="p">.</span><span class="nx">classList</span><span class="p">.</span><span class="nx">add</span><span class="p">(</span><span class="s1">&#39;opened&#39;</span><span class="p">);</span>
+    <span class="p">},</span>
+    <span class="nx">closeEffect</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">done</span><span class="p">)</span> <span class="p">{</span>
+      <span class="nx">content</span><span class="p">.</span><span class="nx">classList</span><span class="p">.</span><span class="nx">toggle</span><span class="p">(</span><span class="s1">&#39;force&#39;</span><span class="p">,</span> <span class="o">!</span><span class="nx">done</span><span class="p">);</span> <span class="c1">// Switch by async/sync.</span>
+      <span class="nx">content</span><span class="p">.</span><span class="nx">classList</span><span class="p">.</span><span class="nx">remove</span><span class="p">(</span><span class="s1">&#39;opened&#39;</span><span class="p">);</span>
+    <span class="p">}</span>
+    <span class="c1">// You will probably collect 2 functions into single function</span>
+    <span class="c1">// with `state` and `toggle`.</span>
+  <span class="p">});</span>
+
+<span class="c1">// Tell the finished to PlainModal when the event is fired.</span>
+<span class="nx">content</span><span class="p">.</span><span class="nx">addEventListener</span><span class="p">(</span><span class="s1">&#39;transitionend&#39;</span><span class="p">,</span> <span class="nx">modal</span><span class="p">.</span><span class="nx">effectDone</span><span class="p">,</span> <span class="kc">true</span><span class="p">);</span> <span class="c1">// Add only once.</span>
+</code></pre></div>
+<!-- include "ex-090.html" -->
+<!-- ================ ex -->
+<div><button id="ex-090-open">OPEN</button></div>
+
+<div id="ex-090-content">
+  <p>Hello, world!</p>
+  <button id="ex-090-close">CLOSE</button>
+</div>
+
+<script>
+window.addEventListener('load', function() {
+  'use strict';
+
+  var content = document.getElementById('ex-090-content'),
+    transition = new TimedTransition(content, {
+      procToOn: function() { mClassList(content).add('open'); },
+      procToOff: function() { mClassList(content).remove('open'); }
+    }),
+    modal = new PlainModal(content, {
+      closeButton: document.getElementById('ex-090-close'),
+      duration: 300,
+      openEffect: function() { transition.on(); },
+      closeEffect: function() { transition.off(); }
+    });
+
+  content.addEventListener('timedTransitionEnd', modal.effectDone, true);
+
+  document.getElementById('ex-090-open').addEventListener('click', function() {
+    modal.open();
+  }, false);
+
+});
+</script>
+<!-- ================ /ex -->
+<!-- /include "ex-090.html" -->
+
+<p>Note that you should consider cross-browser compatibility if you will use CSS Transitions or <code>element.classList</code>.<br>These may help you for cross-browser compatibility.</p>
+
+<ul>
+<li><a href="https://github.com/anseki/timed-transition">TimedTransition</a> for CSS Transitions</li>
+<li><a href="https://github.com/anseki/m-class-list">mClassList</a> for <code>classList</code></li>
+<li><a href="https://github.com/anseki/cssprefix">CSSPrefix</a> for CSS properties</li>
+</ul>
+
+<p>In addition, if you will use other transitions also to do something, the listener will be code like:</p>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="c1">// `timedTransitionEnd` instead of `transitionend`, for cross-browser compatibility</span>
+<span class="nx">content</span><span class="p">.</span><span class="nx">addEventListener</span><span class="p">(</span><span class="s1">&#39;timedTransitionEnd&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">event</span><span class="p">)</span> <span class="p">{</span>
+  <span class="k">if</span> <span class="p">(</span><span class="nx">event</span><span class="p">.</span><span class="nx">target</span> <span class="o">===</span> <span class="nx">content</span> <span class="o">&amp;&amp;</span> <span class="nx">event</span><span class="p">.</span><span class="nx">propertyName</span> <span class="o">===</span> <span class="s1">&#39;margin-top&#39;</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">modal</span><span class="p">.</span><span class="nx">effectDone</span><span class="p">();</span>
+  <span class="p">}</span>
+<span class="p">},</span> <span class="kc">true</span><span class="p">);</span>
+</code></pre></div>
+<h3 id="options-onopen-onclose-onbeforeopen-onbeforeclose"><code>onOpen</code>, <code>onClose</code>, <code>onBeforeOpen</code>, <code>onBeforeClose</code></h3>
+
+<p><em>Type:</em> function or <code>undefined</code><br><em>Default:</em> <code>undefined</code></p>
+
+<p>Event listeners:</p>
+
+<ul>
+<li><code>onBeforeOpen</code> is called when the modal window is about to be opened. If <code>false</code> is returned, the opening is canceled.</li>
+<li><code>onOpen</code> is called when an opening effect of the modal window is finished.</li>
+<li><code>onBeforeClose</code> is called when the modal window is about to be closed. If <code>false</code> is returned, the closing is canceled.</li>
+<li><code>onClose</code> is called when a closing effect of the modal window is finished.</li>
+</ul>
+
+<p>In the functions, <code>this</code> refers to the current PlainModal instance.</p>
+
+<p>For example:</p>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">var</span> <span class="nx">modal</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">PlainModal</span><span class="p">({</span>
+  <span class="nx">onOpen</span><span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">closeButton</span><span class="p">.</span><span class="nx">style</span><span class="p">.</span><span class="nx">display</span> <span class="o">=</span> <span class="s1">&#39;block&#39;</span><span class="p">;</span>
+    <span class="nx">name</span><span class="p">.</span><span class="nx">focus</span><span class="p">();</span> <span class="c1">// Activate the first input box.</span>
+  <span class="p">},</span>
+  <span class="nx">onBeforeClose</span><span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nx">name</span><span class="p">.</span><span class="nx">value</span><span class="p">)</span> <span class="p">{</span>
+      <span class="nx">alert</span><span class="p">(</span><span class="s1">&#39;Please input your name&#39;</span><span class="p">);</span>
+      <span class="k">return</span> <span class="kc">false</span><span class="p">;</span> <span class="c1">// Cancel the closing the modal window.</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">});</span>
+</code></pre></div>
+<h2 id="properties">Properties</h2>
+
+<h3 id="state"><code>state</code></h3>
+
+<p><em>Type:</em> number<br><em>Read-only</em></p>
+
+<p>A number to indicate current state of the modal window.<br>It is one of the following static constant values:</p>
+
+<ul>
+<li><code>PlainModal.STATE_CLOSED</code> (<code>0</code>): The modal window is being closing fully.</li>
+<li><code>PlainModal.STATE_OPENING</code> (<code>1</code>): An opening effect of the modal window is running.</li>
+<li><code>PlainModal.STATE_OPENED</code> (<code>2</code>): The modal window is being opening fully.</li>
+<li><code>PlainModal.STATE_CLOSING</code> (<code>3</code>): A closing effect of the modal window is running.</li>
+<li><code>PlainModal.STATE_INACTIVATING</code> (<code>4</code>): An inactivating effect of the modal window is running.</li>
+<li><code>PlainModal.STATE_INACTIVATED</code> (<code>5</code>): The modal window is being inactivating fully.</li>
+<li><code>PlainModal.STATE_ACTIVATING</code> (<code>6</code>): An activating effect of the modal window is running.</li>
+</ul>
+
+<p>A modal window is inactivated and activated by a child modal window. For details, see &quot;<a href="#child-and-descendants">Child and Descendants</a>&quot;.</p>
+
+<p>For example:</p>
+<div class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">openButton</span><span class="p">.</span><span class="nx">addEventListener</span><span class="p">(</span><span class="s1">&#39;click&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+  <span class="k">if</span> <span class="p">(</span><span class="nx">modal</span><span class="p">.</span><span class="nx">state</span> <span class="o">===</span> <span class="nx">PlainModal</span><span class="p">.</span><span class="nx">STATE_CLOSED</span> <span class="o">||</span>
+      <span class="nx">modal</span><span class="p">.</span><span class="nx">state</span> <span class="o">===</span> <span class="nx">PlainModal</span><span class="p">.</span><span class="nx">STATE_CLOSING</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">modal</span><span class="p">.</span><span class="nx">open</span><span class="p">();</span>
+  <span class="p">}</span>
+<span class="p">},</span> <span class="kc">false</span><span class="p">);</span>
+</code></pre></div>
+<h3 id="closebutton"><code>closeButton</code></h3>
+
+<p>Get or set <a href="#options-closebutton"><code>closeButton</code></a> option.</p>
+
+<h3 id="duration"><code>duration</code></h3>
+
+<p>Get or set <a href="#options-duration"><code>duration</code></a> option.</p>
+
+<h3 id="overlayblur"><code>overlayBlur</code></h3>
+
+<p>Get or set <a href="#options-overlayblur"><code>overlayBlur</code></a> option.</p>
+
+<h3 id="draghandle"><code>dragHandle</code></h3>
+
+<p>Get or set <a href="#options-draghandle"><code>dragHandle</code></a> option.</p>
+
+<h3 id="openeffect-closeeffect"><code>openEffect</code>, <code>closeEffect</code></h3>
+
+<p>Get or set <a href="#options-openeffect-closeeffect"><code>openEffect</code>, <code>closeEffect</code></a> options.</p>
+
+<h3 id="effectdone"><code>effectDone</code></h3>
+
+<p><em>Type:</em> function<br><em>Read-only</em></p>
+
+<p>See <a href="#options-openeffect-closeeffect"><code>openEffect</code>, <code>closeEffect</code></a> options.</p>
+
+<h3 id="onopen-onclose-onbeforeopen-onbeforeclose"><code>onOpen</code>, <code>onClose</code>, <code>onBeforeOpen</code>, <code>onBeforeClose</code></h3>
+
+<p>Get or set <a href="#options-onopen-onclose-onbeforeopen-onbeforeclose"><code>onOpen</code>, <code>onClose</code>, <code>onBeforeOpen</code>, <code>onBeforeClose</code></a> options.</p>
+
+<h2 id="child-and-descendants">Child and Descendants</h2>
+
+<p>When a modal window was already opened and another modal window is opened, now, the new one is the first one&#39;s &quot;child modal window&quot; and the first one is the new one&#39;s &quot;parent modal window&quot;. Also, more modal windows can be opened, and those are descendants modal windows.</p>
+
+<!-- include "ex-100.html" -->
+<!-- ================ ex -->
+<div><button id="ex-100-open">OPEN</button></div>
+
+<div id="ex-100-parent" class="ex-100-content">
+  <div class="ex-100-title">Parent<span class="ex-100-close"></span></div>
+  <svg version="1.1" viewBox="0 0 219.77 254.01" width="329.655" height="381.015">
+    <path id="ex-100-path" d="M157.38,238.12c0-5.25,0.19-22.5,0.19-43.89c0-14.92-5.11-24.69-10.86-29.63c35.64-3.96,73.05-17.49,73.05-78.95c0-17.46-6.2-31.74-16.45-42.93c1.65-4.05,7.15-20.31-1.58-42.34c0,0-13.41-4.3-43.96,16.4c-12.79-3.55-26.47-5.32-40.05-5.39c-13.6,0.07-27.29,1.84-40.06,5.39c-30.56-20.7-44-16.4-44-16.4c-8.7,22.03-3.21,38.29-1.56,42.34C21.87,53.9,15.63,68.18,15.63,85.65c0,61.31,37.35,75.05,72.88,79.07c-4.58,4-8.7,11.05-10.15,21.39c-9.13,4.09-32.3,11.16-46.57-13.29c0,0-8.45-15.35-24.51-16.5c0,0-15.63-0.19-1.1,9.75c0,0,10.49,4.91,17.77,23.38c0,0,9.39,31.12,53.89,21.46c0.08,13.34,0.22,23.41,0.22,27.21c0,3.15-1.62,7.78-5.73,9.36c14.39,4.25,29.61,6.54,45.38,6.54c15.76,0,30.98-2.29,45.36-6.53C158.96,245.91,157.38,241.28,157.38,238.12z"/>
+  </svg>
+  <div><button id="ex-100-change">Change Color</button></div>
+</div>
+
+<div id="ex-100-child" class="ex-100-content">
+  <div class="ex-100-title">Child<span class="ex-100-close"></span></div>
+  <p>Choose one, or click "Input" for more color.</p>
+  <div id="ex-100-table"></div><button id="ex-100-input">Input</button>
+</div>
+
+<div id="ex-100-grandchild" class="ex-100-content">
+  <div class="ex-100-title">Grandchild<span class="ex-100-close"></span></div>
+  <input id="ex-100-text" type="text" value="">
+  <div><button id="ex-100-ok">OK</button></div>
+</div>
+
+<script>
+window.addEventListener('load', function() {
+  'use strict';
+
+  var COLORS = ['#008000', '#ff0000', '#000000', '#0000ff', '#ffff00', '#ffa500', '#ff00ff'],
+    colorAdd = '#e0e0e0',
+    elmColorsCtnr = document.getElementById('ex-100-table'),
+    elmColorText = document.getElementById('ex-100-text'),
+    elmColorAdd,
+
+    path = document.getElementById('ex-100-path'),
+    modalParent = new PlainModal(document.getElementById('ex-100-parent'), {
+      closeButton: document.querySelector('#ex-100-parent .ex-100-close'),
+      dragHandle: document.querySelector('#ex-100-parent .ex-100-title')
+    }),
+
+    modalChild = new PlainModal(document.getElementById('ex-100-child'), {
+      closeButton: document.querySelector('#ex-100-child .ex-100-close'),
+      dragHandle: document.querySelector('#ex-100-child .ex-100-title')
+    }),
+
+    modalGrandchild = new PlainModal(document.getElementById('ex-100-grandchild'), {
+      closeButton: document.querySelector('#ex-100-grandchild .ex-100-close'),
+      dragHandle: document.querySelector('#ex-100-grandchild .ex-100-title')
+    });
+
+  // Setup color palette
+  COLORS.forEach(function(color) {
+    var elm = elmColorsCtnr.appendChild(document.createElement('div'));
+    elm.style.backgroundColor = color;
+    elm.addEventListener('click', function() {
+      path.style.fill = color;
+      modalChild.close();
+    }, false);
+  });
+
+  elmColorAdd = elmColorsCtnr.appendChild(document.createElement('div'));
+  elmColorAdd.className = 'ex-100-add';
+  elmColorAdd.style.backgroundColor = colorAdd;
+  elmColorAdd.addEventListener('click', function() {
+    path.style.fill = colorAdd;
+    modalChild.close();
+  }, false);
+
+  path.style.fill = COLORS[0];
+
+  document.getElementById('ex-100-ok').addEventListener('click', function() {
+    elmColorAdd.style.backgroundColor = elmColorText.value;
+    colorAdd = elmColorAdd.style.backgroundColor; // Get via element
+    modalGrandchild.close();
+  }, false);
+
+  document.getElementById('ex-100-open').addEventListener('click', function() {
+    modalParent.open();
+  }, false);
+
+  document.getElementById('ex-100-change').addEventListener('click', function() {
+    modalChild.open();
+  }, false);
+
+  document.getElementById('ex-100-input').addEventListener('click', function() {
+    elmColorText.value = colorAdd;
+    modalGrandchild.open();
+  }, false);
+
+});
+</script>
+<!-- ================ /ex -->
+<!-- /include "ex-100.html" -->
+
+<p>When a child modal window is opened, its parent modal window is moved to under the overlay that the user can&#39;t touch, then that is inactivated. And the child modal window is put on the foreground, then that is activated.<br>When the child modal window is closed, its parent modal window is activated again.<br>Descendants modal windows also work in the same way. That is, only one modal window can be active one that the user can touch. The active modal window is one that was last opened or a parent modal window that was last activated by closing its child modal window.</p>
+
+<p>When a parent modal window is closed, its child modal window is closed before. The child modal window is closed with <code>force</code>.<br>Descendants modal windows also work in the same way. That is, when a modal window is closed, all its descendants modal windows are closed.</p>
+
+<h2 id="plainmodalclosebyesckey"><code>PlainModal.closeByEscKey</code></h2>
+
+<p>By default, when the user presses Escape key, the current active modal window is closed.<br>If you want, set <code>PlainModal.closeByEscKey = false</code> to disable this behavior.</p>
+
+<h2 id="plainmodalclosebyoverlay"><code>PlainModal.closeByOverlay</code></h2>
+
+<p>By default, when the user clicks an overlay, the current active modal window is closed.<br>If you want, set <code>PlainModal.closeByOverlay = false</code> to disable this behavior.</p>
+
+<h2 id="style-of-overlay">Style of overlay</h2>
+
+<p>If you want to change style of the overlay, you can define style rules with <code>.plainmodal .plainmodal-overlay</code> selector in your style-sheet.<br>Note that some properties that affect the layout (e.g. <code>width</code>, <code>border</code>, etc.) might not work or those might break the overlay.</p>
+
+<p>For example, CSS rule-definition for whity overlay:</p>
+<div class="highlight"><pre><code class="language-css" data-lang="css"><span class="nc">.plainmodal</span> <span class="nc">.plainmodal-overlay</span> <span class="p">{</span>
+  <span class="k">background-color</span><span class="o">:</span> <span class="n">rgba</span><span class="p">(</span><span class="m">255</span><span class="o">,</span> <span class="m">255</span><span class="o">,</span> <span class="m">255</span><span class="o">,</span> <span class="m">0</span><span class="o">.</span><span class="m">6</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+<!-- include "ex-110.html" -->
+<!-- ================ ex -->
+<div><button id="ex-110-open-a">OPEN</button></div>
+<!-- ================ /ex -->
+<!-- /include "ex-110.html" -->
+
+<p>For example, for background image:</p>
+<div class="highlight"><pre><code class="language-css" data-lang="css"><span class="nc">.plainmodal</span> <span class="nc">.plainmodal-overlay</span> <span class="p">{</span>
+  <span class="k">background-image</span><span class="o">:</span> <span class="sx">url(bg.png)</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+<!-- include "ex-119.html" -->
+<!-- ================ ex -->
+<div><button id="ex-110-open-b">OPEN</button></div>
+
+<div id="ex-110-content">
+  <p>Hello, world!</p>
+  <button id="ex-110-close">CLOSE</button>
+</div>
+
+<script>
+window.addEventListener('load', function() {
+  'use strict';
+
+  var IMG_URL = 'img/ex-110.png',
+    CSS_TEXT_A = '.plainmodal .plainmodal-overlay{background-color:rgba(255, 255, 255, 0.6)}',
+    CSS_TEXT_B = '.plainmodal .plainmodal-overlay{background-image:url("' + IMG_URL + '")}',
+    sheet,
+    modal = new PlainModal(document.getElementById('ex-110-content'), {
+      closeButton: document.getElementById('ex-110-close'),
+      onClose: function() { sheet.parentNode.removeChild(sheet); }
+    });
+
+  function addCss(cssText) {
+    sheet = (document.getElementsByTagName('head')[0] || document.documentElement)
+      .appendChild(document.createElement('style'));
+    sheet.type = 'text/css';
+    sheet.textContent = cssText;
+  }
+
+  document.getElementById('ex-110-open-a').addEventListener('click', function() {
+    addCss(CSS_TEXT_A);
+    modal.open();
+  }, false);
+
+  document.getElementById('ex-110-open-b').addEventListener('click', function() {
+    addCss(CSS_TEXT_B);
+    modal.open();
+  }, false);
+
+  // preload
+  (new Image()).src = IMG_URL;
+});
+</script>
+<!-- ================ /ex -->
+<!-- /include "ex-119.html" -->
+
+<h2 id="see-also">See Also</h2>
+
+<ul>
+<li><a href="https://anseki.github.io/plain-overlay/">PlainOverlay</a> : The simple library for customizable overlay which covers all or part of a web page.</li>
+<li><a href="https://anseki.github.io/plain-draggable/">PlainDraggable</a> : The simple and high performance library to allow HTML/SVG element to be dragged.</li>
+</ul>
+
+<hr>
+
+<p>Thanks for images: <a href="https://github.com/">GitHub</a>, <a href="http://thepatternlibrary.com/">The Pattern Library</a></p>
+
+  </main>
+  <footer>
+    <p class="copyright">PlainModal maintained by <a href="https://github.com/anseki">anseki</a></p>
+  </footer>
+
+</body>
+</html>
