@@ -391,17 +391,15 @@ For example, for background image:
 
 ```css
 .plainmodal .plainmodal-overlay {
-  background-image : url(bg.png);
+  background-image: url(bg.png);
 }
 ```
 
 ## See Also
-
-These are used by PlainModal inside.
 
 - [PlainOverlay](https://anseki.github.io/plain-overlay/) : The simple library for customizable overlay which covers all or part of a web page.
 - [PlainDraggable](https://anseki.github.io/plain-draggable/) : The simple and high performance library to allow HTML/SVG element to be dragged.
 
 ---
 
-Thanks for images: [The Pattern Library](http://thepatternlibrary.com/)
+Thanks for images: [GitHub](https://github.com/), [The Pattern Library](http://thepatternlibrary.com/)
