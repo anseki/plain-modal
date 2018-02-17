@@ -15,6 +15,7 @@
     "window"
   ],
   "main": "plain-modal.min.js",
+  "module": "./src/plain-modal.js",
   "jsnext:main": "./src/plain-modal.js",
   "devDependencies": {
     "anim-event": "^1.0.11",
