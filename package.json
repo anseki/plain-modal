@@ -20,8 +20,7 @@
   "files": [
     "plain-modal.min.js",
     "plain-modal-limit.min.js",
-    "src/*.js",
-    "src/*.scss",
+    "src/*.@(js|scss)",
     "!src/*.proc.*",
     "webpack.config.rules.js",
     "bower.json",
