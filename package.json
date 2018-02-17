@@ -17,6 +17,16 @@
   "main": "plain-modal.min.js",
   "module": "./src/plain-modal.js",
   "jsnext:main": "./src/plain-modal.js",
+  "files": [
+    "plain-modal.min.js",
+    "plain-modal-limit.min.js",
+    "src/*.js",
+    "src/*.scss",
+    "!src/*.proc.*",
+    "webpack.config.rules.js",
+    "bower.json",
+    "LICENSE-MIT"
+  ],
   "devDependencies": {
     "anim-event": "^1.0.11",
     "babel-core": "^6.26.0",
