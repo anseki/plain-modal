@@ -41,7 +41,7 @@
     "node-sass": "^4.7.2",
     "node-static-alias": "^1.0.0",
     "plain-draggable": "^2.0.19",
-    "plain-overlay": "^1.4.4",
+    "plain-overlay": "^1.4.5",
     "pre-proc": "^0.2.8",
     "pre-proc-loader": "^1.0.9",
     "sass-loader": "^6.0.6",
