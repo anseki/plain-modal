@@ -15,14 +15,10 @@
     "window"
   ],
   "main": "plain-modal.min.js",
-  "module": "./src/plain-modal.js",
-  "jsnext:main": "./src/plain-modal.js",
+  "module": "plain-modal.esm.js",
+  "jsnext:main": "plain-modal.esm.js",
   "files": [
-    "plain-modal.min.js",
-    "plain-modal-limit.min.js",
-    "src/*.@(js|scss)",
-    "!src/*.proc.*",
-    "webpack.config.rules.js",
+    "plain-modal?(-limit)?(-debug).@(min|esm).js",
     "bower.json",
     "LICENSE-MIT"
   ],
@@ -30,7 +26,6 @@
     "anim-event": "^1.0.12",
     "babel-core": "^6.26.0",
     "babel-loader": "^7.1.2",
-    "babel-plugin-add-module-exports": "^0.2.1",
     "babel-preset-es2015": "^6.24.1",
     "compass-mixins": "^0.12.10",
     "cross-env": "^5.1.3",
@@ -42,6 +37,7 @@
     "node-static-alias": "^1.0.0",
     "plain-draggable": "^2.0.19",
     "plain-overlay": "^1.4.5",
+    "post-compile-webpack-plugin": "^0.1.1",
     "pre-proc": "^0.2.8",
     "pre-proc-loader": "^1.0.9",
     "sass-loader": "^6.0.6",
@@ -52,10 +48,10 @@
     "webpack": "^3.11.0"
   },
   "scripts": {
-    "build": "cross-env NODE_ENV=production webpack",
-    "dev": "webpack --display-modules",
-    "build-limit": "cross-env EDITION=limit NODE_ENV=production webpack",
-    "dev-limit": "cross-env EDITION=limit webpack --display-modules",
+    "build": "cross-env NODE_ENV=production webpack --verbose",
+    "dev": "webpack --verbose",
+    "build-limit": "cross-env EDITION=limit NODE_ENV=production webpack --verbose",
+    "dev-limit": "cross-env EDITION=limit webpack --verbose",
     "test": "node ./test/httpd"
   },
   "homepage": "https://anseki.github.io/plain-modal/",
