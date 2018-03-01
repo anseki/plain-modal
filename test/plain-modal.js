@@ -69,9 +69,9 @@ var PlainModal =
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/*================================================
+/* ================================================
         DON'T MANUALLY EDIT THIS FILE
-================================================*/
+================================================ */
 
 /*
  * CSSPrefix
@@ -249,9 +249,9 @@ var CSSPrefix = {
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/*================================================
+/* ================================================
         DON'T MANUALLY EDIT THIS FILE
-================================================*/
+================================================ */
 
 /*
  * mClassList
@@ -366,9 +366,9 @@ mClassList.methodChain = true;
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/*================================================
+/* ================================================
         DON'T MANUALLY EDIT THIS FILE
-================================================*/
+================================================ */
 
 /*
  * AnimEvent
@@ -2725,9 +2725,9 @@ PlainOverlay.IS_GECKO = IS_GECKO;
 
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_cssprefix__ = __webpack_require__(0);
-/*================================================
+/* ================================================
         DON'T MANUALLY EDIT THIS FILE
-================================================*/
+================================================ */
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
