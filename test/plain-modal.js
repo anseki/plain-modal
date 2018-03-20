@@ -45,6 +45,11 @@ var PlainModal =
 /******/ 		}
 /******/ 	};
 /******/
+/******/ 	// define __esModule on exports
+/******/ 	__webpack_require__.r = function(exports) {
+/******/ 		Object.defineProperty(exports, '__esModule', { value: true });
+/******/ 	};
+/******/
 /******/ 	// getDefaultExport function for compatibility with non-harmony modules
 /******/ 	__webpack_require__.n = function(module) {
 /******/ 		var getter = module && module.__esModule ?
@@ -60,15 +65,143 @@ var PlainModal =
 /******/ 	// __webpack_public_path__
 /******/ 	__webpack_require__.p = "";
 /******/
+/******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 3);
+/******/ 	return __webpack_require__(__webpack_require__.s = "./src/plain-modal.js");
 /******/ })
 /************************************************************************/
-/******/ ([
-/* 0 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
+/******/ ({
+
+/***/ "./node_modules/anim-event/anim-event.mjs":
+/*!************************************************!*\
+  !*** ./node_modules/anim-event/anim-event.mjs ***!
+  \************************************************/
+/*! exports provided: default */
+/***/ (function(__webpack_module__, __webpack_exports__, __webpack_require__) {
 
 "use strict";
+__webpack_require__.r(__webpack_exports__);
+/* ================================================
+        DON'T MANUALLY EDIT THIS FILE
+================================================ */
+
+/*
+ * AnimEvent
+ * https://github.com/anseki/anim-event
+ *
+ * Copyright (c) 2018 anseki
+ * Licensed under the MIT license.
+ */
+
+var MSPF = 1000 / 60,
+    // ms/frame (FPS: 60)
+KEEP_LOOP = 500,
+
+
+/**
+ * @typedef {Object} task
+ * @property {Event} event
+ * @property {function} listener
+ */
+
+/** @type {task[]} */
+tasks = [];
+
+var requestAnim = window.requestAnimationFrame || window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame || window.msRequestAnimationFrame || function (callback) {
+  return setTimeout(callback, MSPF);
+},
+    cancelAnim = window.cancelAnimationFrame || window.mozCancelAnimationFrame || window.webkitCancelAnimationFrame || window.msCancelAnimationFrame || function (requestID) {
+  return clearTimeout(requestID);
+},
+    requestID = void 0,
+    lastFrameTime = Date.now();
+
+function step() {
+  var called = void 0,
+      next = void 0;
+
+  if (requestID) {
+    cancelAnim.call(window, requestID);
+    requestID = null;
+  }
+
+  tasks.forEach(function (task) {
+    if (task.event) {
+      task.listener(task.event);
+      task.event = null;
+      called = true;
+    }
+  });
+
+  if (called) {
+    lastFrameTime = Date.now();
+    next = true;
+  } else if (Date.now() - lastFrameTime < KEEP_LOOP) {
+    // Go on for a while
+    next = true;
+  }
+  if (next) {
+    requestID = requestAnim.call(window, step);
+  }
+}
+
+function indexOfTasks(listener) {
+  var index = -1;
+  tasks.some(function (task, i) {
+    if (task.listener === listener) {
+      index = i;
+      return true;
+    }
+    return false;
+  });
+  return index;
+}
+
+var AnimEvent = {
+  /**
+   * @param {function} listener - An event listener.
+   * @returns {(function|null)} A wrapped event listener.
+   */
+  add: function add(listener) {
+    var task = void 0;
+    if (indexOfTasks(listener) === -1) {
+      tasks.push(task = { listener: listener });
+      return function (event) {
+        task.event = event;
+        if (!requestID) {
+          step();
+        }
+      };
+    } else {
+      return null;
+    }
+  },
+
+  remove: function remove(listener) {
+    var iRemove = void 0;
+    if ((iRemove = indexOfTasks(listener)) > -1) {
+      tasks.splice(iRemove, 1);
+      if (!tasks.length && requestID) {
+        cancelAnim.call(window, requestID);
+        requestID = null;
+      }
+    }
+  }
+};
+
+/* harmony default export */ __webpack_exports__["default"] = (AnimEvent);
+
+/***/ }),
+
+/***/ "./node_modules/cssprefix/cssprefix.mjs":
+/*!**********************************************!*\
+  !*** ./node_modules/cssprefix/cssprefix.mjs ***!
+  \**********************************************/
+/*! exports provided: default */
+/***/ (function(__webpack_module__, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
 /* ================================================
         DON'T MANUALLY EDIT THIS FILE
 ================================================ */
@@ -242,13 +375,19 @@ var CSSPrefix = {
   getValue: getValue
 };
 
-/* harmony default export */ __webpack_exports__["a"] = (CSSPrefix);
+/* harmony default export */ __webpack_exports__["default"] = (CSSPrefix);
 
 /***/ }),
-/* 1 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+/***/ "./node_modules/m-class-list/m-class-list.mjs":
+/*!****************************************************!*\
+  !*** ./node_modules/m-class-list/m-class-list.mjs ***!
+  \****************************************************/
+/*! exports provided: default */
+/***/ (function(__webpack_module__, __webpack_exports__, __webpack_require__) {
 
 "use strict";
+__webpack_require__.r(__webpack_exports__);
 /* ================================================
         DON'T MANUALLY EDIT THIS FILE
 ================================================ */
@@ -359,142 +498,35 @@ function mClassList(element) {
 
 mClassList.methodChain = true;
 
-/* harmony default export */ __webpack_exports__["a"] = (mClassList);
+/* harmony default export */ __webpack_exports__["default"] = (mClassList);
 
 /***/ }),
-/* 2 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+/***/ "./node_modules/plain-draggable/plain-draggable-limit.mjs":
+/*!****************************************************************!*\
+  !*** ./node_modules/plain-draggable/plain-draggable-limit.mjs ***!
+  \****************************************************************/
+/*! exports provided: default */
+/***/ (function(__webpack_module__, __webpack_exports__, __webpack_require__) {
 
 "use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var cssprefix__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! cssprefix */ "./node_modules/cssprefix/cssprefix.mjs");
+/* harmony import */ var anim_event__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! anim-event */ "./node_modules/anim-event/anim-event.mjs");
+/* harmony import */ var m_class_list__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! m-class-list */ "./node_modules/m-class-list/m-class-list.mjs");
 /* ================================================
         DON'T MANUALLY EDIT THIS FILE
 ================================================ */
 
-/*
- * AnimEvent
- * https://github.com/anseki/anim-event
- *
- * Copyright (c) 2018 anseki
- * Licensed under the MIT license.
- */
-
-var MSPF = 1000 / 60,
-    // ms/frame (FPS: 60)
-KEEP_LOOP = 500,
-
-
-/**
- * @typedef {Object} task
- * @property {Event} event
- * @property {function} listener
- */
-
-/** @type {task[]} */
-tasks = [];
-
-var requestAnim = window.requestAnimationFrame || window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame || window.msRequestAnimationFrame || function (callback) {
-  return setTimeout(callback, MSPF);
-},
-    cancelAnim = window.cancelAnimationFrame || window.mozCancelAnimationFrame || window.webkitCancelAnimationFrame || window.msCancelAnimationFrame || function (requestID) {
-  return clearTimeout(requestID);
-},
-    requestID = void 0,
-    lastFrameTime = Date.now();
-
-function step() {
-  var called = void 0,
-      next = void 0;
-
-  if (requestID) {
-    cancelAnim.call(window, requestID);
-    requestID = null;
-  }
-
-  tasks.forEach(function (task) {
-    if (task.event) {
-      task.listener(task.event);
-      task.event = null;
-      called = true;
-    }
-  });
-
-  if (called) {
-    lastFrameTime = Date.now();
-    next = true;
-  } else if (Date.now() - lastFrameTime < KEEP_LOOP) {
-    // Go on for a while
-    next = true;
-  }
-  if (next) {
-    requestID = requestAnim.call(window, step);
-  }
-}
-
-function indexOfTasks(listener) {
-  var index = -1;
-  tasks.some(function (task, i) {
-    if (task.listener === listener) {
-      index = i;
-      return true;
-    }
-    return false;
-  });
-  return index;
-}
-
-var AnimEvent = {
-  /**
-   * @param {function} listener - An event listener.
-   * @returns {(function|null)} A wrapped event listener.
-   */
-  add: function add(listener) {
-    var task = void 0;
-    if (indexOfTasks(listener) === -1) {
-      tasks.push(task = { listener: listener });
-      return function (event) {
-        task.event = event;
-        if (!requestID) {
-          step();
-        }
-      };
-    } else {
-      return null;
-    }
-  },
-
-  remove: function remove(listener) {
-    var iRemove = void 0;
-    if ((iRemove = indexOfTasks(listener)) > -1) {
-      tasks.splice(iRemove, 1);
-      if (!tasks.length && requestID) {
-        cancelAnim.call(window, requestID);
-        requestID = null;
-      }
-    }
-  }
-};
-
-/* harmony default export */ __webpack_exports__["a"] = (AnimEvent);
-
-/***/ }),
-/* 3 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_cssprefix__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_m_class_list__ = __webpack_require__(1);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_plain_overlay__ = __webpack_require__(4);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__default_scss__ = __webpack_require__(6);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__default_scss___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_3__default_scss__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_plain_draggable__ = __webpack_require__(7);
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 /*
- * PlainModal
- * https://anseki.github.io/plain-modal/
+ * PlainDraggable
+ * https://anseki.github.io/plain-draggable/
  *
  * Copyright (c) 2018 anseki
  * Licensed under the MIT license.
@@ -503,31 +535,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 
 
+m_class_list__WEBPACK_IMPORTED_MODULE_2__["default"].ignoreNative = true;
 
-// [DRAG]
-
-// [/DRAG]
-__WEBPACK_IMPORTED_MODULE_1_m_class_list__["a" /* default */].ignoreNative = true;
-
-var APP_ID = 'plainmodal',
-    STYLE_ELEMENT_ID = APP_ID + '-style',
-    STYLE_CLASS = APP_ID,
-    STYLE_CLASS_CONTENT = APP_ID + '-content',
-    STYLE_CLASS_OVERLAY = APP_ID + '-overlay',
-    STYLE_CLASS_OVERLAY_HIDE = STYLE_CLASS_OVERLAY + '-hide',
-    STYLE_CLASS_OVERLAY_FORCE = STYLE_CLASS_OVERLAY + '-force',
-    STATE_CLOSED = 0,
-    STATE_OPENING = 1,
-    STATE_OPENED = 2,
-    STATE_CLOSING = 3,
-    STATE_INACTIVATING = 4,
-    STATE_INACTIVATED = 5,
-    STATE_ACTIVATING = 6,
-    DURATION = 200,
-    // COPY from PlainOverlay
-
-IS_TRIDENT = !!document.uniqueID,
-    IS_EDGE = '-ms-scroll-limit' in document.documentElement.style && '-ms-ime-align' in document.documentElement.style && !window.navigator.msPointerEnabled,
+var ZINDEX = 9000,
+    IS_WEBKIT = !window.chrome && 'WebkitAppearance' in document.documentElement.style,
     isObject = function () {
   var toString = {}.toString,
       fnToString = {}.hasOwnProperty.toString,
@@ -538,58 +549,52 @@ IS_TRIDENT = !!document.uniqueID,
     return obj && toString.call(obj) === '[object Object]' && (!(proto = Object.getPrototypeOf(obj)) || (constr = proto.hasOwnProperty('constructor') && proto.constructor) && typeof constr === 'function' && fnToString.call(constr) === objFnString);
   };
 }(),
+    isFinite = Number.isFinite || function (value) {
+  return typeof value === 'number' && window.isFinite(value);
+},
 
-
-/**
- * An object that has properties of instance.
- * @typedef {Object} props
- * @property {Element} elmContent - Content element.
- * @property {Element} elmOverlay - Overlay element. (Not PlainOverlay)
- * @property {PlainOverlay} plainOverlay - PlainOverlay instance.
- * @property {PlainDraggable} plainDraggable - PlainDraggable instance.
- * @property {number} state - Current state.
- * @property {Object} options - Options.
- * @property {props} parentProps - props that is effected with current props.
- * @property {{plainOverlay: boolean, option: boolean}} effectFinished - The effect finished.
- */
 
 /** @type {Object.<_id: number, props>} */
-insProps = {},
-
-
-/**
- * A `props` list, it have a `state` other than `STATE_CLOSED`.
- * A `props` is pushed to the end of this array, `shownProps[shownProps.length - 1]` can be active.
- * @type {Array.<props>}
- */
-shownProps = [];
+insProps = {};
 
 var insId = 0,
-    openCloseEffectProps = void 0,
-    // A `props` that is running the "open/close" effect now.
-closeByEscKey = true,
-    closeByOverlay = true;
+    activeItem = void 0,
+    hasMoved = void 0,
+    pointerOffset = void 0,
+    body = void 0,
 
-// [DEBUG]
-var traceLog = [];
-var STATE_TEXT = {};
-STATE_TEXT[STATE_CLOSED] = 'STATE_CLOSED';
-STATE_TEXT[STATE_OPENING] = 'STATE_OPENING';
-STATE_TEXT[STATE_OPENED] = 'STATE_OPENED';
-STATE_TEXT[STATE_CLOSING] = 'STATE_CLOSING';
-STATE_TEXT[STATE_INACTIVATING] = 'STATE_INACTIVATING';
-STATE_TEXT[STATE_INACTIVATED] = 'STATE_INACTIVATED';
-STATE_TEXT[STATE_ACTIVATING] = 'STATE_ACTIVATING';
-// [/DEBUG]
+// CSS property/value
+cssValueDraggableCursor = void 0,
+    cssValueDraggingCursor = void 0,
+    cssOrgValueBodyCursor = void 0,
+    cssPropTransform = void 0,
+    cssPropUserSelect = void 0,
+    cssOrgValueBodyUserSelect = void 0,
 
-function forceReflow(target) {
-  // Trident and Blink bug (reflow like `offsetWidth` can't update)
-  setTimeout(function () {
-    var parent = target.parentNode,
-        next = target.nextSibling;
-    // It has to be removed first for Blink.
-    parent.insertBefore(parent.removeChild(target), next);
-  }, 0);
+// Try to set `cursor` property.
+cssWantedValueDraggableCursor = IS_WEBKIT ? ['all-scroll', 'move'] : ['grab', 'all-scroll', 'move'],
+    cssWantedValueDraggingCursor = IS_WEBKIT ? 'move' : ['grabbing', 'move'],
+
+// class
+draggableClass = 'plain-draggable',
+    draggingClass = 'plain-draggable-dragging',
+    movingClass = 'plain-draggable-moving';
+
+function copyTree(obj) {
+  return !obj ? obj : isObject(obj) ? Object.keys(obj).reduce(function (copyObj, key) {
+    copyObj[key] = copyTree(obj[key]);
+    return copyObj;
+  }, {}) : Array.isArray(obj) ? obj.map(copyTree) : obj;
+}
+
+function hasChanged(a, b) {
+  var typeA = void 0,
+      keysA = void 0;
+  return (typeof a === 'undefined' ? 'undefined' : _typeof(a)) !== (typeof b === 'undefined' ? 'undefined' : _typeof(b)) || (typeA = isObject(a) ? 'obj' : Array.isArray(a) ? 'array' : '') !== (isObject(b) ? 'obj' : Array.isArray(b) ? 'array' : '') || (typeA === 'obj' ? hasChanged(keysA = Object.keys(a).sort(), Object.keys(b).sort()) || keysA.some(function (prop) {
+    return hasChanged(a[prop], b[prop]);
+  }) : typeA === 'array' ? a.length !== b.length || a.some(function (aVal, i) {
+    return hasChanged(aVal, b[i]);
+  }) : a !== b);
 }
 
 /**
@@ -602,390 +607,415 @@ function isElement(element) {
   typeof element.getBoundingClientRect === 'function' && !(element.compareDocumentPosition(document) & Node.DOCUMENT_POSITION_DISCONNECTED));
 }
 
-// [DRAG]
-function switchDraggable(props) {
-  // [DEBUG]
-  traceLog.push('<switchDraggable>', '_id:' + props._id, 'state:' + STATE_TEXT[props.state]);
-  // [/DEBUG]
-  if (props.plainDraggable) {
-    // [DEBUG]
-    traceLog.push('plainDraggable.disabled:' + !(props.options.dragHandle && props.state === STATE_OPENED));
-    // [/DEBUG]
-    var disabled = !(props.options.dragHandle && props.state === STATE_OPENED);
-    props.plainDraggable.disabled = disabled;
-    if (!disabled) {
-      props.plainDraggable.position();
-    }
-    // [DEBUG]
+/**
+ * An object that simulates `DOMRect` to indicate a bounding-box.
+ * @typedef {Object} BBox
+ * @property {(number|null)} left - document coordinate
+ * @property {(number|null)} top - document coordinate
+ * @property {(number|null)} right - document coordinate
+ * @property {(number|null)} bottom - document coordinate
+ * @property {(number|null)} x - Substitutes for left
+ * @property {(number|null)} y - Substitutes for top
+ * @property {(number|null)} width
+ * @property {(number|null)} height
+ */
+
+/**
+ * @param {Object} bBox - A target object.
+ * @returns {(BBox|null)} A normalized `BBox`, or null if `bBox` is invalid.
+ */
+function validBBox(bBox) {
+  if (!isObject(bBox)) {
+    return null;
+  }
+  var value = void 0;
+  if (isFinite(value = bBox.left) || isFinite(value = bBox.x)) {
+    bBox.left = bBox.x = value;
   } else {
-    traceLog.push('plainDraggable:NONE');
-    // [/DEBUG]
+    return null;
   }
-  traceLog.push('</switchDraggable>'); // [DEBUG/]
-}
-// [/DRAG]
+  if (isFinite(value = bBox.top) || isFinite(value = bBox.y)) {
+    bBox.top = bBox.y = value;
+  } else {
+    return null;
+  }
 
-function finishOpening(props) {
-  // [DEBUG]
-  traceLog.push('<finishOpening>', '_id:' + props._id, 'state:' + STATE_TEXT[props.state]);
-  // [/DEBUG]
-  openCloseEffectProps = null;
-  props.state = STATE_OPENED;
-  traceLog.push('state:' + STATE_TEXT[props.state]); // [DEBUG/]
-  switchDraggable(props); // [DRAG/]
-  if (props.parentProps) {
-    // [DEBUG]
-    traceLog.push('parentProps._id:' + props.parentProps._id, 'parentProps.state:' + STATE_TEXT[props.parentProps.state]);
-    // [/DEBUG]
-    props.parentProps.state = STATE_INACTIVATED;
-    traceLog.push('parentProps.state:' + STATE_TEXT[props.parentProps.state]); // [DEBUG/]
+  if (isFinite(bBox.width) && bBox.width >= 0) {
+    bBox.right = bBox.left + bBox.width;
+  } else if (isFinite(bBox.right) && bBox.right >= bBox.left) {
+    bBox.width = bBox.right - bBox.left;
+  } else {
+    return null;
   }
-  if (props.options.onOpen) {
-    props.options.onOpen.call(props.ins);
+  if (isFinite(bBox.height) && bBox.height >= 0) {
+    bBox.bottom = bBox.top + bBox.height;
+  } else if (isFinite(bBox.bottom) && bBox.bottom >= bBox.top) {
+    bBox.height = bBox.bottom - bBox.top;
+  } else {
+    return null;
   }
-  traceLog.push('</finishOpening>'); // [DEBUG/]
-}
-
-function finishClosing(props) {
-  // [DEBUG]
-  traceLog.push('<finishClosing>', '_id:' + props._id, 'state:' + STATE_TEXT[props.state]);
-  if (shownProps[shownProps.length - 1] !== props) {
-    throw new Error('`shownProps` is broken.');
-  }
-  // [/DEBUG]
-  shownProps.pop();
-  // [DEBUG]
-  traceLog.push('shownProps:' + (shownProps.length ? shownProps.map(function (props) {
-    return props._id;
-  }).join(',') : 'NONE'));
-  // [/DEBUG]
-  openCloseEffectProps = null;
-  props.state = STATE_CLOSED;
-  traceLog.push('state:' + STATE_TEXT[props.state]); // [DEBUG/]
-  if (props.parentProps) {
-    // [DEBUG]
-    traceLog.push('parentProps._id:' + props.parentProps._id, 'parentProps.state:' + STATE_TEXT[props.parentProps.state]);
-    // [/DEBUG]
-    props.parentProps.state = STATE_OPENED;
-    traceLog.push('parentProps.state:' + STATE_TEXT[props.parentProps.state]); // [DEBUG/]
-    switchDraggable(props.parentProps); // [DRAG/]
-    traceLog.push('parentProps(UNLINK):' + props.parentProps._id); // [DEBUG/]
-    props.parentProps = null;
-  }
-  if (props.options.onClose) {
-    props.options.onClose.call(props.ins);
-  }
-  traceLog.push('</finishClosing>'); // [DEBUG/]
+  return bBox;
 }
 
 /**
+ * A value that is Pixels or Ratio
+ * @typedef {{value: number, isRatio: boolean}} PPValue
+ */
+
+function validPPValue(value) {
+
+  // Get PPValue from string (all `/s` were already removed)
+  function string2PPValue(inString) {
+    var matches = /^(.+?)(\%)?$/.exec(inString);
+    var value = void 0,
+        isRatio = void 0;
+    return matches && isFinite(value = parseFloat(matches[1])) ? { value: (isRatio = !!(matches[2] && value)) ? value / 100 : value, isRatio: isRatio } : null; // 0% -> 0
+  }
+
+  return isFinite(value) ? { value: value, isRatio: false } : typeof value === 'string' ? string2PPValue(value.replace(/\s/g, '')) : null;
+}
+
+function ppValue2OptionValue(ppValue) {
+  return ppValue.isRatio ? ppValue.value * 100 + '%' : ppValue.value;
+}
+
+function resolvePPValue(ppValue, baseOrigin, baseSize) {
+  return typeof ppValue === 'number' ? ppValue : baseOrigin + ppValue.value * (ppValue.isRatio ? baseSize : 1);
+}
+
+/**
+ * An object that simulates BBox but properties are PPValue.
+ * @typedef {Object} PPBBox
+ */
+
+/**
+ * @param {Object} bBox - A target object.
+ * @returns {(PPBBox|null)} A normalized `PPBBox`, or null if `bBox` is invalid.
+ */
+function validPPBBox(bBox) {
+  if (!isObject(bBox)) {
+    return null;
+  }
+  var ppValue = void 0;
+  if ((ppValue = validPPValue(bBox.left)) || (ppValue = validPPValue(bBox.x))) {
+    bBox.left = bBox.x = ppValue;
+  } else {
+    return null;
+  }
+  if ((ppValue = validPPValue(bBox.top)) || (ppValue = validPPValue(bBox.y))) {
+    bBox.top = bBox.y = ppValue;
+  } else {
+    return null;
+  }
+
+  if ((ppValue = validPPValue(bBox.width)) && ppValue.value >= 0) {
+    bBox.width = ppValue;
+    delete bBox.right;
+  } else if (ppValue = validPPValue(bBox.right)) {
+    bBox.right = ppValue;
+    delete bBox.width;
+  } else {
+    return null;
+  }
+  if ((ppValue = validPPValue(bBox.height)) && ppValue.value >= 0) {
+    bBox.height = ppValue;
+    delete bBox.bottom;
+  } else if (ppValue = validPPValue(bBox.bottom)) {
+    bBox.bottom = ppValue;
+    delete bBox.height;
+  } else {
+    return null;
+  }
+  return bBox;
+}
+
+function ppBBox2OptionObject(ppBBox) {
+  return Object.keys(ppBBox).reduce(function (obj, prop) {
+    obj[prop] = ppValue2OptionValue(ppBBox[prop]);
+    return obj;
+  }, {});
+}
+
+// PPBBox -> BBox
+function resolvePPBBox(ppBBox, baseBBox) {
+  var prop2Axis = { left: 'x', right: 'x', x: 'x', width: 'x',
+    top: 'y', bottom: 'y', y: 'y', height: 'y' },
+      baseOriginXY = { x: baseBBox.left, y: baseBBox.top },
+      baseSizeXY = { x: baseBBox.width, y: baseBBox.height };
+  return validBBox(Object.keys(ppBBox).reduce(function (bBox, prop) {
+    bBox[prop] = resolvePPValue(ppBBox[prop], prop === 'width' || prop === 'height' ? 0 : baseOriginXY[prop2Axis[prop]], baseSizeXY[prop2Axis[prop]]);
+    return bBox;
+  }, {}));
+}
+
+/**
+ * @param {Element} element - A target element.
+ * @param {?boolean} getPaddingBox - Get padding-box instead of border-box as bounding-box.
+ * @returns {BBox} A bounding-box of `element`.
+ */
+function getBBox(element, getPaddingBox) {
+  var rect = element.getBoundingClientRect(),
+      bBox = { left: rect.left, top: rect.top, width: rect.width, height: rect.height };
+  bBox.left += window.pageXOffset;
+  bBox.top += window.pageYOffset;
+  if (getPaddingBox) {
+    var style = window.getComputedStyle(element, ''),
+        borderTop = parseFloat(style.borderTopWidth) || 0,
+        borderRight = parseFloat(style.borderRightWidth) || 0,
+        borderBottom = parseFloat(style.borderBottomWidth) || 0,
+        borderLeft = parseFloat(style.borderLeftWidth) || 0;
+    bBox.left += borderLeft;
+    bBox.top += borderTop;
+    bBox.width -= borderLeft + borderRight;
+    bBox.height -= borderTop + borderBottom;
+  }
+  return validBBox(bBox);
+}
+
+/**
+ * Optimize an element for animation.
+ * @param {Element} element - A target element.
+ * @param {?boolean} gpuTrigger - Initialize for SVGElement if `true`.
+ * @returns {Element} A target element.
+ */
+function initAnim(element, gpuTrigger) {
+  var style = element.style;
+  style.webkitTapHighlightColor = 'transparent';
+
+  // Only when it has no shadow
+  var cssPropBoxShadow = cssprefix__WEBPACK_IMPORTED_MODULE_0__["default"].getName('boxShadow'),
+      boxShadow = window.getComputedStyle(element, '')[cssPropBoxShadow];
+  if (!boxShadow || boxShadow === 'none') {
+    style[cssPropBoxShadow] = '0 0 1px transparent';
+  }
+
+  if (gpuTrigger && cssPropTransform) {
+    style[cssPropTransform] = 'translateZ(0)';
+  }
+  return element;
+}
+
+function setDraggableCursor(element, orgCursor) {
+  if (cssValueDraggableCursor == null) {
+    if (cssWantedValueDraggableCursor !== false) {
+      cssValueDraggableCursor = cssprefix__WEBPACK_IMPORTED_MODULE_0__["default"].getValue('cursor', cssWantedValueDraggableCursor);
+    }
+    // The wanted value was denied, or changing is not wanted.
+    if (cssValueDraggableCursor == null) {
+      cssValueDraggableCursor = false;
+    }
+  }
+  // Update it to change a state even if cssValueDraggableCursor is false.
+  element.style.cursor = cssValueDraggableCursor === false ? orgCursor : cssValueDraggableCursor;
+}
+
+function setDraggingCursor(element) {
+  if (cssValueDraggingCursor == null) {
+    if (cssWantedValueDraggingCursor !== false) {
+      cssValueDraggingCursor = cssprefix__WEBPACK_IMPORTED_MODULE_0__["default"].getValue('cursor', cssWantedValueDraggingCursor);
+    }
+    // The wanted value was denied, or changing is not wanted.
+    if (cssValueDraggingCursor == null) {
+      cssValueDraggingCursor = false;
+    }
+  }
+  if (cssValueDraggingCursor !== false) {
+    element.style.cursor = cssValueDraggingCursor;
+  }
+}
+
+/**
+ * Move by `translate`.
  * @param {props} props - `props` of instance.
- * @param {string} effectKey - `plainOverlay' or 'option`
+ * @param {{left: number, top: number}} position - New position.
+ * @returns {boolean} `true` if it was moved.
+ */
+function moveTranslate(props, position) {
+  var elementBBox = props.elementBBox;
+  if (position.left !== elementBBox.left || position.top !== elementBBox.top) {
+    var offset = props.htmlOffset;
+    props.elementStyle[cssPropTransform] = 'translate(' + (position.left + offset.left) + 'px, ' + (position.top + offset.top) + 'px)';
+    return true;
+  }
+  return false;
+}
+
+/**
+ * Set `props.element` position.
+ * @param {props} props - `props` of instance.
+ * @param {{left: number, top: number}} position - New position.
+ * @param {function} [cbCheck] - Callback that is called with valid position, cancel moving if it returns `false`.
+ * @returns {boolean} `true` if it was moved.
+ */
+function move(props, position, cbCheck) {
+  var elementBBox = props.elementBBox;
+
+  function fix() {
+    if (props.minLeft >= props.maxLeft) {
+      // Disabled
+      position.left = elementBBox.left;
+    } else if (position.left < props.minLeft) {
+      position.left = props.minLeft;
+    } else if (position.left > props.maxLeft) {
+      position.left = props.maxLeft;
+    }
+    if (props.minTop >= props.maxTop) {
+      // Disabled
+      position.top = elementBBox.top;
+    } else if (position.top < props.minTop) {
+      position.top = props.minTop;
+    } else if (position.top > props.maxTop) {
+      position.top = props.maxTop;
+    }
+  }
+
+  fix();
+  if (cbCheck) {
+    if (cbCheck(position) === false) {
+      return false;
+    }
+    fix(); // Again
+  }
+
+  var moved = props.moveElm(props, position);
+  if (moved) {
+    // Update elementBBox
+    props.elementBBox = validBBox({ left: position.left, top: position.top,
+      width: elementBBox.width, height: elementBBox.height });
+  }
+  return moved;
+}
+
+/**
+ * Initialize HTMLElement for `translate`, and get `offset` that is used by `moveTranslate`.
+ * @param {props} props - `props` of instance.
  * @returns {void}
  */
-function finishOpenEffect(props, effectKey) {
-  // [DEBUG]
-  traceLog.push('<finishOpenEffect>', '_id:' + props._id, 'state:' + STATE_TEXT[props.state]);
-  traceLog.push('effectKey:' + effectKey);
-  // [/DEBUG]
-  if (props.state !== STATE_OPENING) {
-    traceLog.push('CANCEL', '</finishOpenEffect>'); // [DEBUG/]
+function initTranslate(props) {
+  var element = props.element,
+      elementStyle = props.elementStyle,
+      curPosition = getBBox(element),
+      // Get BBox before change style.
+  RESTORE_PROPS = ['display', 'marginTop', 'marginBottom', 'width', 'height'];
+  RESTORE_PROPS.unshift(cssPropTransform);
+
+  if (!props.orgStyle) {
+    props.orgStyle = RESTORE_PROPS.reduce(function (orgStyle, prop) {
+      orgStyle[prop] = elementStyle[prop] || '';
+      return orgStyle;
+    }, {});
+    props.lastStyle = {};
+  } else {
+    RESTORE_PROPS.forEach(function (prop) {
+      // Skip this if it seems user changed it. (it can't check perfectly.)
+      if (props.lastStyle[prop] == null || elementStyle[prop] === props.lastStyle[prop]) {
+        elementStyle[prop] = props.orgStyle[prop];
+      }
+    });
+  }
+
+  var orgSize = getBBox(element),
+      cmpStyle = window.getComputedStyle(element, '');
+  // https://www.w3.org/TR/css-transforms-1/#transformable-element
+  if (cmpStyle.display === 'inline') {
+    elementStyle.display = 'inline-block';
+    ['Top', 'Bottom'].forEach(function (dirProp) {
+      var padding = parseFloat(cmpStyle['padding' + dirProp]);
+      // paddingTop/Bottom make padding but don't make space -> negative margin in inline-block
+      // marginTop/Bottom don't work in inline element -> `0` in inline-block
+      elementStyle['margin' + dirProp] = padding ? '-' + padding + 'px' : '0';
+    });
+  }
+  elementStyle[cssPropTransform] = 'translate(0, 0)';
+  // Get document offset.
+  var newBBox = getBBox(element);
+  var offset = props.htmlOffset = { left: newBBox.left ? -newBBox.left : 0, top: newBBox.top ? -newBBox.top : 0 }; // avoid `-0`
+
+  // Restore position
+  elementStyle[cssPropTransform] = 'translate(' + (curPosition.left + offset.left) + 'px, ' + (curPosition.top + offset.top) + 'px)';
+  // Restore size
+  ['width', 'height'].forEach(function (prop) {
+    if (newBBox[prop] !== orgSize[prop]) {
+      // Ignore `box-sizing`
+      elementStyle[prop] = orgSize[prop] + 'px';
+      newBBox = getBBox(element);
+      if (newBBox[prop] !== orgSize[prop]) {
+        // Retry
+        elementStyle[prop] = orgSize[prop] - (newBBox[prop] - orgSize[prop]) + 'px';
+      }
+    }
+    props.lastStyle[prop] = elementStyle[prop];
+  });
+}
+
+/**
+ * Set `elementBBox`, `containmentBBox`, `min/max``Left/Top` and `snapTargets`.
+ * @param {props} props - `props` of instance.
+ * @returns {void}
+ */
+function initBBox(props) {
+  props.initElm(props);
+
+  var docBBox = getBBox(document.documentElement),
+      elementBBox = props.elementBBox = getBBox(props.element),
+      containmentBBox = props.containmentBBox = props.containmentIsBBox ? resolvePPBBox(props.options.containment, docBBox) || docBBox : getBBox(props.options.containment, true);
+  props.minLeft = containmentBBox.left;
+  props.maxLeft = containmentBBox.right - elementBBox.width;
+  props.minTop = containmentBBox.top;
+  props.maxTop = containmentBBox.bottom - elementBBox.height;
+  // Adjust position
+  move(props, { left: elementBBox.left, top: elementBBox.top });
+}
+
+function dragEnd(props) {
+  setDraggableCursor(props.options.handle, props.orgCursor);
+  body.style.cursor = cssOrgValueBodyCursor;
+
+  if (props.options.zIndex !== false) {
+    props.elementStyle.zIndex = props.orgZIndex;
+  }
+  if (cssPropUserSelect) {
+    body.style[cssPropUserSelect] = cssOrgValueBodyUserSelect;
+  }
+  var classList = Object(m_class_list__WEBPACK_IMPORTED_MODULE_2__["default"])(props.element);
+  if (movingClass) {
+    classList.remove(movingClass);
+  }
+  if (draggingClass) {
+    classList.remove(draggingClass);
+  }
+
+  activeItem = null;
+  if (props.onDragEnd) {
+    props.onDragEnd();
+  }
+}
+
+function mousedown(props, event) {
+  if (props.disabled) {
     return;
   }
-  props.effectFinished[effectKey] = true;
-  // [DEBUG]
-  traceLog.push('effectFinished.plainOverlay:' + props.effectFinished.plainOverlay);
-  traceLog.push('effectFinished.option:' + props.effectFinished.option);
-  traceLog.push('openEffect:' + (props.options.openEffect ? 'YES' : 'NO'));
-  // [/DEBUG]
-  if (props.effectFinished.plainOverlay && (!props.options.openEffect || props.effectFinished.option)) {
-    finishOpening(props);
-  }
-  traceLog.push('_id:' + props._id, '</finishOpenEffect>'); // [DEBUG/]
-}
+  if (activeItem) {
+    dragEnd(activeItem);
+  } // activeItem is normally null by `mouseup`.
 
-/**
- * @param {props} props - `props` of instance.
- * @param {string} effectKey - `plainOverlay' or 'option`
- * @returns {void}
- */
-function finishCloseEffect(props, effectKey) {
-  // [DEBUG]
-  traceLog.push('<finishCloseEffect>', '_id:' + props._id, 'state:' + STATE_TEXT[props.state]);
-  traceLog.push('effectKey:' + effectKey);
-  // [/DEBUG]
-  if (props.state !== STATE_CLOSING) {
-    traceLog.push('CANCEL', '</finishCloseEffect>'); // [DEBUG/]
-    return;
-  }
-  props.effectFinished[effectKey] = true;
-  // [DEBUG]
-  traceLog.push('effectFinished.plainOverlay:' + props.effectFinished.plainOverlay);
-  traceLog.push('effectFinished.option:' + props.effectFinished.option);
-  traceLog.push('closeEffect:' + (props.options.closeEffect ? 'YES' : 'NO'));
-  // [/DEBUG]
-  if (props.effectFinished.plainOverlay && (!props.options.closeEffect || props.effectFinished.option)) {
-    finishClosing(props);
-  }
-  traceLog.push('_id:' + props._id, '</finishCloseEffect>'); // [DEBUG/]
-}
+  setDraggingCursor(props.options.handle);
+  body.style.cursor = cssValueDraggingCursor || // If it is `false` or `''`
+  window.getComputedStyle(props.options.handle, '').cursor;
 
-/**
- * Process after preparing data and adjusting style.
- * @param {props} props - `props` of instance.
- * @param {boolean} [force] - Skip effect.
- * @returns {void}
- */
-function execOpening(props, force) {
-  // [DEBUG]
-  traceLog.push('<execOpening>', '_id:' + props._id, 'state:' + STATE_TEXT[props.state]);
-  traceLog.push('force:' + !!force);
-  // [/DEBUG]
-  if (props.parentProps) {
-    // inactivate parentProps
-    // [DEBUG]
-    traceLog.push('parentProps._id:' + props.parentProps._id, 'parentProps.state:' + STATE_TEXT[props.parentProps.state]);
-    // [/DEBUG]
-    /*
-      Cases:
-        - STATE_OPENED or STATE_ACTIVATING, regardless of force
-        - STATE_INACTIVATING and force
-    */
-    var parentProps = props.parentProps,
-        elmOverlay = parentProps.elmOverlay;
-    if (parentProps.state === STATE_OPENED) {
-      elmOverlay.style[__WEBPACK_IMPORTED_MODULE_0_cssprefix__["a" /* default */].getName('transitionDuration')] = props.options.duration === DURATION ? '' : props.options.duration + 'ms';
-      // [DEBUG]
-      traceLog.push('elmOverlay.duration:' + (props.options.duration === DURATION ? '' : props.options.duration + 'ms'));
-      // [/DEBUG]
-    }
-    var elmOverlayClassList = Object(__WEBPACK_IMPORTED_MODULE_1_m_class_list__["a" /* default */])(elmOverlay);
-    elmOverlayClassList.toggle(STYLE_CLASS_OVERLAY_FORCE, !!force);
-    elmOverlayClassList.add(STYLE_CLASS_OVERLAY_HIDE);
-    // [DEBUG]
-    traceLog.push('elmOverlay.CLASS_FORCE:' + elmOverlayClassList.contains(STYLE_CLASS_OVERLAY_FORCE));
-    traceLog.push('elmOverlay.CLASS_HIDE:' + elmOverlayClassList.contains(STYLE_CLASS_OVERLAY_HIDE));
-    // [/DEBUG]
-    // Update `state` regardless of force, for switchDraggable.
-    parentProps.state = STATE_INACTIVATING;
-    parentProps.plainOverlay.blockingDisabled = true;
-    traceLog.push('parentProps.state:' + STATE_TEXT[props.parentProps.state]); // [DEBUG/]
-    switchDraggable(parentProps); // [DRAG/]
+  if (props.options.zIndex !== false) {
+    props.elementStyle.zIndex = props.options.zIndex;
+  }
+  if (cssPropUserSelect) {
+    body.style[cssPropUserSelect] = 'none';
+  }
+  if (draggingClass) {
+    Object(m_class_list__WEBPACK_IMPORTED_MODULE_2__["default"])(props.element).add(draggingClass);
   }
 
-  props.state = STATE_OPENING;
-  props.plainOverlay.blockingDisabled = false;
-  traceLog.push('state:' + STATE_TEXT[props.state]); // [DEBUG/]
-  props.effectFinished.plainOverlay = props.effectFinished.option = false;
-  props.plainOverlay.show(force);
-  if (props.options.openEffect) {
-    if (force) {
-      props.options.openEffect.call(props.ins);
-      finishOpenEffect(props, 'option');
-    } else {
-      props.options.openEffect.call(props.ins, props.openEffectDone);
-    }
-  }
-  traceLog.push('_id:' + props._id, '</execOpening>'); // [DEBUG/]
-}
-
-/**
- * Process after preparing data and adjusting style.
- * @param {props} props - `props` of instance.
- * @param {boolean} [force] - Skip effect.
- * @param {boolean} [sync] - `force` with sync-mode. (Skip restoring active element)
- * @returns {void}
- */
-function execClosing(props, force, sync) {
-  // [DEBUG]
-  traceLog.push('<execClosing>', '_id:' + props._id, 'state:' + STATE_TEXT[props.state]);
-  traceLog.push('force:' + !!force, 'sync:' + !!sync);
-  // [/DEBUG]
-  if (props.parentProps) {
-    // activate parentProps
-    // [DEBUG]
-    traceLog.push('parentProps._id:' + props.parentProps._id, 'parentProps.state:' + STATE_TEXT[props.parentProps.state]);
-    // [/DEBUG]
-    /*
-      Cases:
-        - STATE_INACTIVATED or STATE_INACTIVATING, regardless of `force`
-        - STATE_ACTIVATING and `force`
-    */
-    var parentProps = props.parentProps,
-        elmOverlay = parentProps.elmOverlay;
-    if (parentProps.state === STATE_INACTIVATED) {
-      elmOverlay.style[__WEBPACK_IMPORTED_MODULE_0_cssprefix__["a" /* default */].getName('transitionDuration')] = props.options.duration === DURATION ? '' : props.options.duration + 'ms';
-      // [DEBUG]
-      traceLog.push('elmOverlay.duration:' + (props.options.duration === DURATION ? '' : props.options.duration + 'ms'));
-      // [/DEBUG]
-    }
-    var elmOverlayClassList = Object(__WEBPACK_IMPORTED_MODULE_1_m_class_list__["a" /* default */])(elmOverlay);
-    elmOverlayClassList.toggle(STYLE_CLASS_OVERLAY_FORCE, !!force);
-    elmOverlayClassList.remove(STYLE_CLASS_OVERLAY_HIDE);
-    // [DEBUG]
-    traceLog.push('elmOverlay.CLASS_FORCE:' + elmOverlayClassList.contains(STYLE_CLASS_OVERLAY_FORCE));
-    traceLog.push('elmOverlay.CLASS_HIDE:' + elmOverlayClassList.contains(STYLE_CLASS_OVERLAY_HIDE));
-    // [/DEBUG]
-    // same condition as props
-    parentProps.state = STATE_ACTIVATING;
-    parentProps.plainOverlay.blockingDisabled = false;
-    traceLog.push('parentProps.state:' + STATE_TEXT[props.parentProps.state]); // [DEBUG/]
-  }
-
-  props.state = STATE_CLOSING;
-  traceLog.push('state:' + STATE_TEXT[props.state]); // [DEBUG/]
-  switchDraggable(props); // [DRAG/]
-  props.effectFinished.plainOverlay = props.effectFinished.option = false;
-  props.plainOverlay.hide(force, sync);
-  if (props.options.closeEffect) {
-    if (force) {
-      props.options.closeEffect.call(props.ins);
-      finishCloseEffect(props, 'option');
-    } else {
-      props.options.closeEffect.call(props.ins, props.closeEffectDone);
-    }
-  }
-  traceLog.push('_id:' + props._id, '</execClosing>'); // [DEBUG/]
-}
-
-/**
- * Finish the "open/close" effect immediately with sync-mode.
- * @param {props} props - `props` of instance.
- * @returns {void}
- */
-function fixOpenClose(props) {
-  // [DEBUG]
-  traceLog.push('<fixOpenClose>', '_id:' + props._id, 'state:' + STATE_TEXT[props.state]);
-  // [/DEBUG]
-  if (props.state === STATE_OPENING) {
-    execOpening(props, true);
-  } else if (props.state === STATE_CLOSING) {
-    execClosing(props, true, true);
-  }
-  traceLog.push('_id:' + props._id, '</fixOpenClose>'); // [DEBUG/]
-}
-
-/**
- * @param {props} props - `props` of instance.
- * @param {boolean} [force] - Skip effect.
- * @returns {void}
- */
-function _open(props, force) {
-  traceLog.push('<open>', '_id:' + props._id, 'state:' + STATE_TEXT[props.state]); // [DEBUG/]
-  if (props.state !== STATE_CLOSED && props.state !== STATE_CLOSING && props.state !== STATE_OPENING || props.state === STATE_OPENING && !force || props.state !== STATE_OPENING && props.options.onBeforeOpen && props.options.onBeforeOpen.call(props.ins) === false) {
-    traceLog.push('CANCEL', '</open>'); // [DEBUG/]
-    return false;
-  }
-  /*
-    Cases:
-      - STATE_CLOSED or STATE_CLOSING, regardless of `force`
-      - STATE_OPENING and `force`
-  */
-
-  // [DEBUG]
-  traceLog.push('openCloseEffectProps:' + (openCloseEffectProps ? openCloseEffectProps._id : 'NONE'));
-  // [/DEBUG]
-  if (props.state === STATE_CLOSED) {
-    if (openCloseEffectProps) {
-      fixOpenClose(openCloseEffectProps);
-    }
-    openCloseEffectProps = props;
-
-    if (shownProps.length) {
-      // [DEBUG]
-      if (shownProps.indexOf(props) !== -1) {
-        throw new Error('`shownProps` is broken.');
-      }
-      // [/DEBUG]
-      props.parentProps = shownProps[shownProps.length - 1];
-      traceLog.push('parentProps(LINK):' + props.parentProps._id); // [DEBUG/]
-    }
-    shownProps.push(props);
-    // [DEBUG]
-    traceLog.push('shownProps:' + (shownProps.length ? shownProps.map(function (props) {
-      return props._id;
-    }).join(',') : 'NONE'));
-    // [/DEBUG]
-
-    Object(__WEBPACK_IMPORTED_MODULE_1_m_class_list__["a" /* default */])(props.elmOverlay).add(STYLE_CLASS_OVERLAY_FORCE).remove(STYLE_CLASS_OVERLAY_HIDE);
-    // [DEBUG]
-    traceLog.push('elmOverlay.CLASS_FORCE:' + Object(__WEBPACK_IMPORTED_MODULE_1_m_class_list__["a" /* default */])(props.elmOverlay).contains(STYLE_CLASS_OVERLAY_FORCE));
-    traceLog.push('elmOverlay.CLASS_HIDE:' + Object(__WEBPACK_IMPORTED_MODULE_1_m_class_list__["a" /* default */])(props.elmOverlay).contains(STYLE_CLASS_OVERLAY_HIDE));
-    // [/DEBUG]
-  }
-
-  execOpening(props, force);
-  traceLog.push('_id:' + props._id, '</open>'); // [DEBUG/]
-  return true;
-}
-
-/**
- * @param {props} props - `props` of instance.
- * @param {boolean} [force] - Skip effect.
- * @returns {void}
- */
-function _close(props, force) {
-  traceLog.push('<close>', '_id:' + props._id, 'state:' + STATE_TEXT[props.state]); // [DEBUG/]
-  if (props.state === STATE_CLOSED || props.state === STATE_CLOSING && !force || props.state !== STATE_CLOSING && props.options.onBeforeClose && props.options.onBeforeClose.call(props.ins) === false) {
-    traceLog.push('CANCEL', '</close>'); // [DEBUG/]
-    return false;
-  }
-  /*
-    Cases:
-      - Other than STATE_CLOSED and STATE_CLOSING, regardless of `force`
-      - STATE_CLOSING and `force`
-  */
-
-  // [DEBUG]
-  traceLog.push('openCloseEffectProps:' + (openCloseEffectProps ? openCloseEffectProps._id : 'NONE'));
-  // [/DEBUG]
-  if (openCloseEffectProps && openCloseEffectProps !== props) {
-    fixOpenClose(openCloseEffectProps);
-    openCloseEffectProps = null;
-  }
-  /*
-    Cases:
-      - STATE_OPENED, STATE_OPENING or STATE_INACTIVATED, regardless of `force`
-      - STATE_CLOSING and `force`
-  */
-  if (props.state === STATE_INACTIVATED) {
-    // -> STATE_OPENED
-    // [DEBUG]
-    var i = shownProps.indexOf(props);
-    if (i === -1 || i === shownProps.length - 1) {
-      throw new Error('`shownProps` is broken.');
-    }
-    traceLog.push('shownProps:' + (shownProps.length ? shownProps.map(function (props) {
-      return props._id;
-    }).join(',') : 'NONE'));
-    // [/DEBUG]
-    var topProps = void 0;
-    while ((topProps = shownProps[shownProps.length - 1]) !== props) {
-      // [DEBUG]
-      if (topProps.state !== STATE_OPENED) {
-        throw new Error('`shownProps` is broken.');
-      }
-      traceLog.push('topProps._id:' + topProps._id, 'topProps.state:' + STATE_TEXT[topProps.state]);
-      // [/DEBUG]
-      execClosing(topProps, true, true);
-    }
-  }
-  /*
-    Cases:
-      - STATE_OPENED or STATE_OPENING, regardless of `force`
-      - STATE_CLOSING and `force`
-  */
-
-  if (props.state === STATE_OPENED) {
-    if (openCloseEffectProps) {
-      throw new Error('`openCloseEffectProps` is broken.');
-    } // [DEBUG/]
-    openCloseEffectProps = props;
-  }
-
-  execClosing(props, force);
-  traceLog.push('_id:' + props._id, '</close>'); // [DEBUG/]
-  return true;
+  activeItem = props;
+  hasMoved = false;
+  pointerOffset = { left: props.elementBBox.left - event.pageX, top: props.elementBBox.top - event.pageY };
 }
 
 /**
@@ -994,175 +1024,203 @@ function _close(props, force) {
  * @returns {void}
  */
 function _setOptions(props, newOptions) {
-  var options = props.options,
-      plainOverlay = props.plainOverlay;
+  var options = props.options;
+  var needsInitBBox = void 0;
 
-  // closeButton
-  if (newOptions.hasOwnProperty('closeButton') && (newOptions.closeButton = isElement(newOptions.closeButton) ? newOptions.closeButton : newOptions.closeButton == null ? void 0 : false) !== false && newOptions.closeButton !== options.closeButton) {
-    if (options.closeButton) {
-      // Remove
-      options.closeButton.removeEventListener('click', props.handleClose, false);
-    }
-    options.closeButton = newOptions.closeButton;
-    if (options.closeButton) {
-      // Add
-      options.closeButton.addEventListener('click', props.handleClose, false);
-    }
-  }
+  // containment
+  if (newOptions.containment) {
+    var bBox = void 0;
+    if (isElement(newOptions.containment)) {
+      // Specific element
+      if (newOptions.containment !== options.containment) {
+        // Restore
+        props.scrollElements.forEach(function (element) {
+          element.removeEventListener('scroll', props.handleScroll, false);
+        });
+        props.scrollElements = [];
+        window.removeEventListener('scroll', props.handleScroll, false);
+        // Parse tree
+        var element = newOptions.containment,
+            fixedElement = void 0;
+        while (element && element !== body) {
+          if (element.nodeType === Node.ELEMENT_NODE) {
+            var cmpStyle = window.getComputedStyle(element, '');
+            // Scrollable element
+            if (!(element instanceof SVGElement) && (cmpStyle.overflow !== 'visible' || cmpStyle.overflowX !== 'visible' || cmpStyle.overflowY !== 'visible' // `hidden` also is scrollable.
+            )) {
+              element.addEventListener('scroll', props.handleScroll, false);
+              props.scrollElements.push(element);
+            }
+            // Element that is re-positioned (document based) when window scrolled.
+            if (cmpStyle.position === 'fixed') {
+              fixedElement = true;
+            }
+          }
+          element = element.parentNode;
+        }
+        if (fixedElement) {
+          window.addEventListener('scroll', props.handleScroll, false);
+        }
 
-  // duration
-  // Check by PlainOverlay
-  plainOverlay.duration = newOptions.duration;
-  options.duration = plainOverlay.duration;
-
-  // overlayBlur
-  // Check by PlainOverlay
-  plainOverlay.blur = newOptions.overlayBlur;
-  options.overlayBlur = plainOverlay.blur;
-
-  // [DRAG]
-  // dragHandle
-  if (newOptions.hasOwnProperty('dragHandle') && (newOptions.dragHandle = isElement(newOptions.dragHandle) ? newOptions.dragHandle : newOptions.dragHandle == null ? void 0 : false) !== false && newOptions.dragHandle !== options.dragHandle) {
-    options.dragHandle = newOptions.dragHandle;
-    if (options.dragHandle) {
-      if (!props.plainDraggable) {
-        props.plainDraggable = new __WEBPACK_IMPORTED_MODULE_4_plain_draggable__["a" /* default */](props.elmContent);
+        options.containment = newOptions.containment;
+        props.containmentIsBBox = false;
+        needsInitBBox = true;
       }
-      props.plainDraggable.handle = options.dragHandle;
+    } else if ((bBox = validPPBBox(copyTree(newOptions.containment))) && // bBox
+    hasChanged(bBox, options.containment)) {
+      options.containment = bBox;
+      props.containmentIsBBox = true;
+      needsInitBBox = true;
     }
-    switchDraggable(props);
   }
-  // [/DRAG]
 
-  // effect functions and event listeners
-  ['openEffect', 'closeEffect', 'onOpen', 'onClose', 'onBeforeOpen', 'onBeforeClose'].forEach(function (option) {
+  if (needsInitBBox) {
+    initBBox(props);
+  }
+
+  // Gecko, Trident pick drag-event of some elements such as img, a, etc.
+  function dragstart(event) {
+    event.preventDefault();
+  }
+
+  // handle
+  if (isElement(newOptions.handle) && newOptions.handle !== options.handle) {
+    if (options.handle) {
+      // Restore
+      options.handle.style.cursor = props.orgCursor;
+      if (cssPropUserSelect) {
+        options.handle.style[cssPropUserSelect] = props.orgUserSelect;
+      }
+      options.handle.removeEventListener('dragstart', dragstart, false);
+      options.handle.removeEventListener('mousedown', props.handleMousedown, false);
+    }
+    var handle = options.handle = newOptions.handle;
+    props.orgCursor = handle.style.cursor;
+    setDraggableCursor(handle, props.orgCursor);
+    if (cssPropUserSelect) {
+      props.orgUserSelect = handle.style[cssPropUserSelect];
+      handle.style[cssPropUserSelect] = 'none';
+    }
+    handle.addEventListener('dragstart', dragstart, false);
+    handle.addEventListener('mousedown', props.handleMousedown, false);
+  }
+
+  // zIndex
+  if (isFinite(newOptions.zIndex) || newOptions.zIndex === false) {
+    options.zIndex = newOptions.zIndex;
+    if (props === activeItem) {
+      props.elementStyle.zIndex = options.zIndex === false ? props.orgZIndex : options.zIndex;
+    }
+  }
+
+  // left/top
+  var position = { left: props.elementBBox.left, top: props.elementBBox.top };
+  var needsMove = void 0;
+  if (isFinite(newOptions.left) && newOptions.left !== position.left) {
+    position.left = newOptions.left;
+    needsMove = true;
+  }
+  if (isFinite(newOptions.top) && newOptions.top !== position.top) {
+    position.top = newOptions.top;
+    needsMove = true;
+  }
+  if (needsMove) {
+    move(props, position);
+  }
+
+  // Event listeners
+  ['onDrag', 'onMove', 'onMoveStart', 'onDragEnd'].forEach(function (option) {
     if (typeof newOptions[option] === 'function') {
       options[option] = newOptions[option];
+      props[option] = options[option].bind(props.ins);
     } else if (newOptions.hasOwnProperty(option) && newOptions[option] == null) {
-      options[option] = void 0;
+      options[option] = props[option] = void 0;
     }
   });
 }
 
-var PlainModal = function () {
+var PlainDraggable = function () {
   /**
-   * Create a `PlainModal` instance.
-   * @param {Element} content - An element that is shown as the content of the modal window.
+   * Create a `PlainDraggable` instance.
+   * @param {Element} element - Target element.
    * @param {Object} [options] - Options.
    */
-  function PlainModal(content, options) {
-    _classCallCheck(this, PlainModal);
+  function PlainDraggable(element, options) {
+    _classCallCheck(this, PlainDraggable);
 
     var props = {
       ins: this,
       options: { // Initial options (not default)
-        closeButton: void 0,
-        duration: DURATION,
-        dragHandle: void 0, // [DRAG/]
-        overlayBlur: false
+        zIndex: ZINDEX // Initial state.
       },
-      state: STATE_CLOSED,
-      effectFinished: { plainOverlay: false, option: false }
+      disabled: false
     };
 
     Object.defineProperty(this, '_id', { value: ++insId });
     props._id = this._id;
     insProps[this._id] = props;
 
-    if (!content.nodeType || content.nodeType !== Node.ELEMENT_NODE || content.ownerDocument.defaultView !== window) {
-      throw new Error('This `content` is not accepted.');
+    if (!isElement(element) || element === body) {
+      throw new Error('This element is not accepted.');
     }
-    props.elmContent = content;
     if (!options) {
       options = {};
     } else if (!isObject(options)) {
       throw new Error('Invalid options.');
     }
 
-    // Setup window
-    if (!document.getElementById(STYLE_ELEMENT_ID)) {
-      var head = document.getElementsByTagName('head')[0] || document.documentElement,
-          sheet = head.insertBefore(document.createElement('style'), head.firstChild);
-      sheet.type = 'text/css';
-      sheet.id = STYLE_ELEMENT_ID;
-      sheet.textContent = __WEBPACK_IMPORTED_MODULE_3__default_scss___default.a;
-      if (IS_TRIDENT || IS_EDGE) {
-        forceReflow(sheet);
-      } // Trident bug
-
-      // for closeByEscKey
-      window.addEventListener('keydown', function (event) {
-        var key = void 0,
-            topProps = void 0;
-        if (closeByEscKey && ((key = event.key.toLowerCase()) === 'escape' || key === 'esc') && (topProps = shownProps.length && shownProps[shownProps.length - 1]) && (traceLog.push('<keydown/>', 'CLOSE', '_id:' + topProps._id), true) && // [DEBUG/]
-        _close(topProps)) {
-          event.preventDefault();
-          event.stopImmediatePropagation(); // preventDefault stops other listeners, maybe.
-          event.stopPropagation();
-        }
-      }, true);
+    var gpuTrigger = true;
+    var cssPropWillChange = cssprefix__WEBPACK_IMPORTED_MODULE_0__["default"].getName('willChange');
+    if (cssPropWillChange) {
+      gpuTrigger = false;
     }
 
-    Object(__WEBPACK_IMPORTED_MODULE_1_m_class_list__["a" /* default */])(content).add(STYLE_CLASS_CONTENT);
-    // Overlay
-    props.plainOverlay = new __WEBPACK_IMPORTED_MODULE_2_plain_overlay__["a" /* default */]({
-      face: content,
-      onShow: function onShow() {
-        finishOpenEffect(props, 'plainOverlay');
-      },
-      onHide: function onHide() {
-        finishCloseEffect(props, 'plainOverlay');
+    if (!options.leftTop && cssPropTransform) {
+      // translate
+      if (cssPropWillChange) {
+        element.style[cssPropWillChange] = 'transform';
       }
-    });
-    // The `content` is now contained into PlainOverlay, and update `display`.
-    if (window.getComputedStyle(content, '').display === 'none') {
-      content.style.display = 'block';
+      props.initElm = initTranslate;
+      props.moveElm = moveTranslate;
+    } else {
+      // left and top
+      throw new Error('`transform` is not supported.');
     }
-    // Trident can not get parent of SVG by parentElement.
-    var elmPlainOverlayBody = content.parentNode; // elmOverlayBody of PlainOverlay
-    Object(__WEBPACK_IMPORTED_MODULE_1_m_class_list__["a" /* default */])(elmPlainOverlayBody.parentNode).add(STYLE_CLASS); // elmOverlay of PlainOverlay
 
-    // elmOverlay (own overlay)
-    var elmOverlay = props.elmOverlay = elmPlainOverlayBody.appendChild(document.createElement('div'));
-    elmOverlay.className = STYLE_CLASS_OVERLAY;
-    // for closeByOverlay
-    elmOverlay.addEventListener('click', function (event) {
-      if (event.target === elmOverlay && closeByOverlay) {
-        traceLog.push('<overlayClick/>', 'CLOSE', '_id:' + props._id); // [DEBUG/]
-        _close(props);
-      }
-    }, true);
-
+    props.element = initAnim(element, gpuTrigger);
+    props.elementStyle = element.style;
+    props.orgZIndex = props.elementStyle.zIndex;
+    if (draggableClass) {
+      Object(m_class_list__WEBPACK_IMPORTED_MODULE_2__["default"])(element).add(draggableClass);
+    }
     // Prepare removable event listeners for each instance.
-    props.handleClose = function () {
-      _close(props);
+    props.handleMousedown = function (event) {
+      mousedown(props, event);
     };
-    // Callback functions for additional effects, prepare these to allow to be used as listener.
-    props.openEffectDone = function () {
-      finishOpenEffect(props, 'option');
-    };
-    props.closeEffectDone = function () {
-      finishCloseEffect(props, 'option');
-    };
-    props.effectDone = function () {
-      traceLog.push('<effectDone/>', '_id:' + props._id, 'state:' + STATE_TEXT[props.state]); // [DEBUG/]
-      if (props.state === STATE_OPENING) {
-        finishOpenEffect(props, 'option');
-      } else if (props.state === STATE_CLOSING) {
-        finishCloseEffect(props, 'option');
-      }
-    };
+    props.handleScroll = anim_event__WEBPACK_IMPORTED_MODULE_1__["default"].add(function () {
+      initBBox(props);
+    });
+    props.scrollElements = [];
+
+    // Default options
+    if (!options.containment) {
+      var parent = void 0;
+      options.containment = (parent = element.parentNode) && isElement(parent) ? parent : body;
+    }
+    if (!options.handle) {
+      options.handle = element;
+    }
 
     _setOptions(props, options);
   }
 
   /**
    * @param {Object} options - New options.
-   * @returns {PlainModal} Current instance itself.
+   * @returns {PlainDraggable} Current instance itself.
    */
 
 
-  _createClass(PlainModal, [{
+  _createClass(PlainDraggable, [{
     key: 'setOptions',
     value: function setOptions(options) {
       if (isObject(options)) {
@@ -1170,221 +1228,322 @@ var PlainModal = function () {
       }
       return this;
     }
-
-    /**
-     * Open the modal window.
-     * @param {boolean} [force] - Show it immediately without effect.
-     * @param {Object} [options] - New options.
-     * @returns {PlainModal} Current instance itself.
-     */
-
   }, {
-    key: 'open',
-    value: function open(force, options) {
-      if (arguments.length < 2 && typeof force !== 'boolean') {
-        options = force;
-        force = false;
+    key: 'position',
+    value: function position() {
+      initBBox(insProps[this._id]);
+      return this;
+    }
+  }, {
+    key: 'disabled',
+    get: function get() {
+      return insProps[this._id].disabled;
+    },
+    set: function set(value) {
+      var props = insProps[this._id];
+      if ((value = !!value) !== props.disabled) {
+        props.disabled = value;
+        if (props.disabled) {
+          if (props === activeItem) {
+            dragEnd(props);
+          }
+          props.options.handle.style.cursor = props.orgCursor;
+          if (cssPropUserSelect) {
+            props.options.handle.style[cssPropUserSelect] = props.orgUserSelect;
+          }
+          if (draggableClass) {
+            Object(m_class_list__WEBPACK_IMPORTED_MODULE_2__["default"])(props.element).remove(draggableClass);
+          }
+        } else {
+          setDraggableCursor(props.options.handle, props.orgCursor);
+          if (cssPropUserSelect) {
+            props.options.handle.style[cssPropUserSelect] = 'none';
+          }
+          if (draggableClass) {
+            Object(m_class_list__WEBPACK_IMPORTED_MODULE_2__["default"])(props.element).add(draggableClass);
+          }
+        }
       }
-
-      this.setOptions(options);
-      _open(insProps[this._id], force);
-      return this;
-    }
-
-    /**
-     * Close the modal window.
-     * @param {boolean} [force] - Close it immediately without effect.
-     * @returns {PlainModal} Current instance itself.
-     */
-
-  }, {
-    key: 'close',
-    value: function close(force) {
-      _close(insProps[this._id], force);
-      return this;
     }
   }, {
-    key: 'state',
+    key: 'element',
     get: function get() {
-      return insProps[this._id].state;
+      return insProps[this._id].element;
     }
   }, {
-    key: 'closeButton',
+    key: 'rect',
     get: function get() {
-      return insProps[this._id].options.closeButton;
+      return copyTree(insProps[this._id].elementBBox);
+    }
+  }, {
+    key: 'left',
+    get: function get() {
+      return insProps[this._id].elementBBox.left;
     },
     set: function set(value) {
-      _setOptions(insProps[this._id], { closeButton: value });
+      _setOptions(insProps[this._id], { left: value });
     }
   }, {
-    key: 'duration',
+    key: 'top',
     get: function get() {
-      return insProps[this._id].options.duration;
+      return insProps[this._id].elementBBox.top;
     },
     set: function set(value) {
-      _setOptions(insProps[this._id], { duration: value });
+      _setOptions(insProps[this._id], { top: value });
     }
   }, {
-    key: 'overlayBlur',
+    key: 'containment',
     get: function get() {
-      return insProps[this._id].options.overlayBlur;
+      var props = insProps[this._id];
+      return props.containmentIsBBox ? ppBBox2OptionObject(props.options.containment) : props.options.containment;
     },
     set: function set(value) {
-      _setOptions(insProps[this._id], { overlayBlur: value });
+      _setOptions(insProps[this._id], { containment: value });
     }
-
-    // [DRAG]
-
   }, {
-    key: 'dragHandle',
+    key: 'handle',
     get: function get() {
-      return insProps[this._id].options.dragHandle;
+      return insProps[this._id].options.handle;
     },
     set: function set(value) {
-      _setOptions(insProps[this._id], { dragHandle: value });
+      _setOptions(insProps[this._id], { handle: value });
     }
-    // [/DRAG]
-
   }, {
-    key: 'openEffect',
+    key: 'zIndex',
     get: function get() {
-      return insProps[this._id].options.openEffect;
+      return insProps[this._id].options.zIndex;
     },
     set: function set(value) {
-      _setOptions(insProps[this._id], { openEffect: value });
+      _setOptions(insProps[this._id], { zIndex: value });
     }
   }, {
-    key: 'closeEffect',
+    key: 'onDrag',
     get: function get() {
-      return insProps[this._id].options.closeEffect;
+      return insProps[this._id].options.onDrag;
     },
     set: function set(value) {
-      _setOptions(insProps[this._id], { closeEffect: value });
+      _setOptions(insProps[this._id], { onDrag: value });
     }
   }, {
-    key: 'effectDone',
+    key: 'onMove',
     get: function get() {
-      return insProps[this._id].effectDone;
-    }
-  }, {
-    key: 'onOpen',
-    get: function get() {
-      return insProps[this._id].options.onOpen;
+      return insProps[this._id].options.onMove;
     },
     set: function set(value) {
-      _setOptions(insProps[this._id], { onOpen: value });
+      _setOptions(insProps[this._id], { onMove: value });
     }
   }, {
-    key: 'onClose',
+    key: 'onMoveStart',
     get: function get() {
-      return insProps[this._id].options.onClose;
+      return insProps[this._id].options.onMoveStart;
     },
     set: function set(value) {
-      _setOptions(insProps[this._id], { onClose: value });
+      _setOptions(insProps[this._id], { onMoveStart: value });
     }
   }, {
-    key: 'onBeforeOpen',
+    key: 'onDragEnd',
     get: function get() {
-      return insProps[this._id].options.onBeforeOpen;
+      return insProps[this._id].options.onDragEnd;
     },
     set: function set(value) {
-      _setOptions(insProps[this._id], { onBeforeOpen: value });
-    }
-  }, {
-    key: 'onBeforeClose',
-    get: function get() {
-      return insProps[this._id].options.onBeforeClose;
-    },
-    set: function set(value) {
-      _setOptions(insProps[this._id], { onBeforeClose: value });
+      _setOptions(insProps[this._id], { onDragEnd: value });
     }
   }], [{
-    key: 'closeByEscKey',
+    key: 'draggableCursor',
     get: function get() {
-      return closeByEscKey;
+      return cssWantedValueDraggableCursor;
     },
     set: function set(value) {
-      if (typeof value === 'boolean') {
-        closeByEscKey = value;
+      if (cssWantedValueDraggableCursor !== value) {
+        cssWantedValueDraggableCursor = value;
+        cssValueDraggableCursor = null; // Reset
+        Object.keys(insProps).forEach(function (id) {
+          var props = insProps[id];
+          if (props.disabled || props === activeItem && cssValueDraggingCursor !== false) {
+            return;
+          }
+          setDraggableCursor(props.options.handle, props.orgCursor);
+          if (props === activeItem) {
+            // Since cssValueDraggingCursor is `false`, copy cursor again.
+            body.style.cursor = cssOrgValueBodyCursor;
+            body.style.cursor = window.getComputedStyle(props.options.handle, '').cursor;
+          }
+        });
       }
     }
   }, {
-    key: 'closeByOverlay',
+    key: 'draggingCursor',
     get: function get() {
-      return closeByOverlay;
+      return cssWantedValueDraggingCursor;
     },
     set: function set(value) {
-      if (typeof value === 'boolean') {
-        closeByOverlay = value;
+      if (cssWantedValueDraggingCursor !== value) {
+        cssWantedValueDraggingCursor = value;
+        cssValueDraggingCursor = null; // Reset
+        if (activeItem) {
+          setDraggingCursor(activeItem.options.handle);
+          if (cssValueDraggingCursor === false) {
+            setDraggableCursor(activeItem.options.handle, activeItem.orgCursor); // draggableCursor
+            body.style.cursor = cssOrgValueBodyCursor;
+          }
+          body.style.cursor = cssValueDraggingCursor || // If it is `false` or `''`
+          window.getComputedStyle(activeItem.options.handle, '').cursor;
+        }
       }
     }
   }, {
-    key: 'STATE_CLOSED',
+    key: 'draggableClass',
     get: function get() {
-      return STATE_CLOSED;
+      return draggableClass;
+    },
+    set: function set(value) {
+      value = value ? value + '' : void 0;
+      if (value !== draggableClass) {
+        Object.keys(insProps).forEach(function (id) {
+          var props = insProps[id];
+          if (!props.disabled) {
+            var classList = Object(m_class_list__WEBPACK_IMPORTED_MODULE_2__["default"])(props.element);
+            if (draggableClass) {
+              classList.remove(draggableClass);
+            }
+            if (value) {
+              classList.add(value);
+            }
+          }
+        });
+        draggableClass = value;
+      }
     }
   }, {
-    key: 'STATE_OPENING',
+    key: 'draggingClass',
     get: function get() {
-      return STATE_OPENING;
+      return draggingClass;
+    },
+    set: function set(value) {
+      value = value ? value + '' : void 0;
+      if (value !== draggingClass) {
+        if (activeItem) {
+          var classList = Object(m_class_list__WEBPACK_IMPORTED_MODULE_2__["default"])(activeItem.element);
+          if (draggingClass) {
+            classList.remove(draggingClass);
+          }
+          if (value) {
+            classList.add(value);
+          }
+        }
+        draggingClass = value;
+      }
     }
   }, {
-    key: 'STATE_OPENED',
+    key: 'movingClass',
     get: function get() {
-      return STATE_OPENED;
-    }
-  }, {
-    key: 'STATE_CLOSING',
-    get: function get() {
-      return STATE_CLOSING;
-    }
-  }, {
-    key: 'STATE_INACTIVATING',
-    get: function get() {
-      return STATE_INACTIVATING;
-    }
-  }, {
-    key: 'STATE_INACTIVATED',
-    get: function get() {
-      return STATE_INACTIVATED;
-    }
-  }, {
-    key: 'STATE_ACTIVATING',
-    get: function get() {
-      return STATE_ACTIVATING;
+      return movingClass;
+    },
+    set: function set(value) {
+      value = value ? value + '' : void 0;
+      if (value !== movingClass) {
+        if (activeItem && hasMoved) {
+          var classList = Object(m_class_list__WEBPACK_IMPORTED_MODULE_2__["default"])(activeItem.element);
+          if (movingClass) {
+            classList.remove(movingClass);
+          }
+          if (value) {
+            classList.add(value);
+          }
+        }
+        movingClass = value;
+      }
     }
   }]);
 
-  return PlainModal;
+  return PlainDraggable;
 }();
 
-/* [DRAG/]
-PlainModal.limit = true;
-[DRAG/] */
+document.addEventListener('mousemove', anim_event__WEBPACK_IMPORTED_MODULE_1__["default"].add(function (event) {
+  if (activeItem && move(activeItem, {
+    left: event.pageX + pointerOffset.left,
+    top: event.pageY + pointerOffset.top
+  }, activeItem.onDrag)) {
 
-// [DEBUG]
+    if (!hasMoved) {
+      hasMoved = true;
+      if (movingClass) {
+        Object(m_class_list__WEBPACK_IMPORTED_MODULE_2__["default"])(activeItem.element).add(movingClass);
+      }
+      if (activeItem.onMoveStart) {
+        activeItem.onMoveStart();
+      }
+    }
+    if (activeItem.onMove) {
+      activeItem.onMove();
+    }
+  }
+}), false);
+
+document.addEventListener('mouseup', function () {
+  // It might occur outside body.
+  if (activeItem) {
+    dragEnd(activeItem);
+  }
+}, false);
+
+{
+  var initDoc = function initDoc() {
+    cssPropTransform = cssprefix__WEBPACK_IMPORTED_MODULE_0__["default"].getName('transform');
+    cssOrgValueBodyCursor = body.style.cursor;
+    if (cssPropUserSelect = cssprefix__WEBPACK_IMPORTED_MODULE_0__["default"].getName('userSelect')) {
+      cssOrgValueBodyUserSelect = body.style[cssPropUserSelect];
+    }
+
+    // Gecko bug, multiple calling (parallel) by `requestAnimationFrame`.
+    window.addEventListener('resize', anim_event__WEBPACK_IMPORTED_MODULE_1__["default"].add(function () {
+      if (resizing) {
+        return;
+      }
+      resizing = true;
+      Object.keys(insProps).forEach(function (id) {
+        if (insProps[id].initElm) {
+          // Easy checking for instance without errors.
+          initBBox(insProps[id]);
+        }
+        // eslint-disable-next-line brace-style
+      });
+      resizing = false;
+    }), true);
+  };
+
+  var resizing = false;
 
 
-PlainModal.insProps = insProps;
-PlainModal.traceLog = traceLog;
-PlainModal.shownProps = shownProps;
-PlainModal.STATE_TEXT = STATE_TEXT;
-PlainModal.IS_TRIDENT = IS_TRIDENT;
-PlainModal.IS_EDGE = IS_EDGE;
-window.PlainOverlay = __WEBPACK_IMPORTED_MODULE_2_plain_overlay__["a" /* default */];
-// [/DEBUG]
+  if (body = document.body) {
+    initDoc();
+  } else {
+    document.addEventListener('DOMContentLoaded', function () {
+      body = document.body;
+      initDoc();
+    }, false);
+  }
+}
 
-/* harmony default export */ __webpack_exports__["default"] = (PlainModal);
+PlainDraggable.limit = true;
+
+/* harmony default export */ __webpack_exports__["default"] = (PlainDraggable);
 
 /***/ }),
-/* 4 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+/***/ "./node_modules/plain-overlay/plain-overlay-limit-sync-debug.mjs":
+/*!***********************************************************************!*\
+  !*** ./node_modules/plain-overlay/plain-overlay-limit-sync-debug.mjs ***!
+  \***********************************************************************/
+/*! exports provided: default */
+/***/ (function(__webpack_module__, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_cssprefix__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_anim_event__ = __webpack_require__(2);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_m_class_list__ = __webpack_require__(1);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_timed_transition__ = __webpack_require__(5);
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var cssprefix__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! cssprefix */ "./node_modules/cssprefix/cssprefix.mjs");
+/* harmony import */ var anim_event__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! anim-event */ "./node_modules/anim-event/anim-event.mjs");
+/* harmony import */ var m_class_list__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! m-class-list */ "./node_modules/m-class-list/m-class-list.mjs");
+/* harmony import */ var timed_transition__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! timed-transition */ "./node_modules/timed-transition/timed-transition.mjs");
 /* ================================================
         DON'T MANUALLY EDIT THIS FILE
 ================================================ */
@@ -1406,7 +1565,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 
 /* Static ESM */ /* import CSS_TEXT from './default.scss' */ var CSS_TEXT = ".plainoverlay{-webkit-tap-highlight-color:transparent;transform:translateZ(0);box-shadow:0 0 1px transparent}.plainoverlay{position:absolute;left:0;top:0;overflow:hidden;background-color:rgba(136,136,136,0.6);cursor:wait;z-index:9000;-webkit-transition-property:opacity;-moz-transition-property:opacity;-o-transition-property:opacity;transition-property:opacity;-webkit-transition-duration:200ms;-moz-transition-duration:200ms;-o-transition-duration:200ms;transition-duration:200ms;-webkit-transition-timing-function:linear;-moz-transition-timing-function:linear;-o-transition-timing-function:linear;transition-timing-function:linear;opacity:0}.plainoverlay.plainoverlay-show{opacity:1}.plainoverlay.plainoverlay-force{-webkit-transition-property:none;-moz-transition-property:none;-o-transition-property:none;transition-property:none}.plainoverlay.plainoverlay-hide{display:none}.plainoverlay.plainoverlay-doc{position:fixed;left:-200px;top:-200px;overflow:visible;padding:200px;width:100vw;height:100vh}.plainoverlay-body{width:100%;height:100%;display:-webkit-flex;display:flex;-webkit-justify-content:center;justify-content:center;-webkit-align-items:center;align-items:center}.plainoverlay.plainoverlay-doc .plainoverlay-body{width:100vw;height:100vh}";
-__WEBPACK_IMPORTED_MODULE_2_m_class_list__["a" /* default */].ignoreNative = true;
+m_class_list__WEBPACK_IMPORTED_MODULE_2__["default"].ignoreNative = true;
 
 var APP_ID = 'plainoverlay',
     STYLE_ELEMENT_ID = APP_ID + '-style',
@@ -1916,7 +2075,7 @@ function _position(props, targetBodyBBox) {
 
   // border-radius
   [{ prop: 'TopLeft', hBorder: 'left', vBorder: 'top' }, { prop: 'TopRight', hBorder: 'right', vBorder: 'top' }, { prop: 'BottomRight', hBorder: 'right', vBorder: 'bottom' }, { prop: 'BottomLeft', hBorder: 'left', vBorder: 'bottom' }].forEach(function (corner) {
-    var prop = __WEBPACK_IMPORTED_MODULE_0_cssprefix__["a" /* default */].getName('border' + corner.prop + 'Radius'),
+    var prop = cssprefix__WEBPACK_IMPORTED_MODULE_0__["default"].getName('border' + corner.prop + 'Radius'),
         values = targetBodyCmpStyle[prop].split(' ');
     var h = values[0],
         v = values[1] || values[0],
@@ -1944,7 +2103,7 @@ function getTargetElements(props) {
   if (props.isDoc) {
     targetElements.push(elmTargetBody);
     Array.prototype.slice.call(elmTargetBody.childNodes).forEach(function (childNode) {
-      if (childNode.nodeType === Node.ELEMENT_NODE && childNode !== elmOverlay && !Object(__WEBPACK_IMPORTED_MODULE_2_m_class_list__["a" /* default */])(childNode).contains(STYLE_CLASS) && childNode.id !== FACE_DEFS_ELEMENT_ID) {
+      if (childNode.nodeType === Node.ELEMENT_NODE && childNode !== elmOverlay && !Object(m_class_list__WEBPACK_IMPORTED_MODULE_2__["default"])(childNode).contains(STYLE_CLASS) && childNode.id !== FACE_DEFS_ELEMENT_ID) {
         targetElements.push(childNode);
         Array.prototype.push.apply(targetElements, childNode.querySelectorAll('*'));
       }
@@ -1960,13 +2119,13 @@ function finishShowing(props) {
   // blur
   props.filterElements = null;
   if (props.options.blur !== false) {
-    var propName = __WEBPACK_IMPORTED_MODULE_0_cssprefix__["a" /* default */].getName('filter'),
-        propValue = __WEBPACK_IMPORTED_MODULE_0_cssprefix__["a" /* default */].getValue('filter', 'blur(' + props.options.blur + 'px)');
+    var propName = cssprefix__WEBPACK_IMPORTED_MODULE_0__["default"].getName('filter'),
+        propValue = cssprefix__WEBPACK_IMPORTED_MODULE_0__["default"].getValue('filter', 'blur(' + props.options.blur + 'px)');
     if (propValue) {
       // undefined if no propName
       // Array of {element: element, savedStyle: {}}
       var filterElements = props.isDoc ? Array.prototype.slice.call(props.elmTargetBody.childNodes).filter(function (childNode) {
-        return childNode.nodeType === Node.ELEMENT_NODE && childNode !== props.elmOverlay && !Object(__WEBPACK_IMPORTED_MODULE_2_m_class_list__["a" /* default */])(childNode).contains(STYLE_CLASS) && childNode.id !== FACE_DEFS_ELEMENT_ID;
+        return childNode.nodeType === Node.ELEMENT_NODE && childNode !== props.elmOverlay && !Object(m_class_list__WEBPACK_IMPORTED_MODULE_2__["default"])(childNode).contains(STYLE_CLASS) && childNode.id !== FACE_DEFS_ELEMENT_ID;
       }).map(function (element) {
         return { element: element, savedStyle: {} };
       }) : [{ element: props.elmTargetBody, savedStyle: {} }];
@@ -1992,7 +2151,7 @@ function finishHiding(props, sync) {
   // sync-mode (`sync` is `true`): Skip restoring active element and finish all immediately.
   traceLog.push('<finishHiding>', '_id:' + props._id, 'state:' + STATE_TEXT[props.state]); // [DEBUG/]
   traceLog.push('sync:' + !!sync); // [DEBUG/]
-  Object(__WEBPACK_IMPORTED_MODULE_2_m_class_list__["a" /* default */])(props.elmOverlay).add(STYLE_CLASS_HIDE);
+  Object(m_class_list__WEBPACK_IMPORTED_MODULE_2__["default"])(props.elmOverlay).add(STYLE_CLASS_HIDE);
 
   restoreStyle(props.elmTarget, props.savedStyleTarget);
   restoreStyle(props.elmTargetBody, props.savedStyleTargetBody);
@@ -2120,7 +2279,7 @@ function _show(props, force) {
 
   if (props.state === STATE_HIDDEN) {
     var elmOverlay = props.elmOverlay,
-        elmOverlayClassList = Object(__WEBPACK_IMPORTED_MODULE_2_m_class_list__["a" /* default */])(elmOverlay);
+        elmOverlayClassList = Object(m_class_list__WEBPACK_IMPORTED_MODULE_2__["default"])(elmOverlay);
     props.document.body.appendChild(elmOverlay); // Move to last (for same z-index)
     var targetElements = getTargetElements(props);
     window.targetElements = targetElements; // [DEBUG/]
@@ -2236,7 +2395,7 @@ function _setOptions(props, newOptions) {
   // duration
   if (isFinite(newOptions.duration) && newOptions.duration !== options.duration) {
     options.duration = newOptions.duration;
-    props.elmOverlay.style[__WEBPACK_IMPORTED_MODULE_0_cssprefix__["a" /* default */].getName('transitionDuration')] = newOptions.duration === DURATION ? '' : newOptions.duration + 'ms';
+    props.elmOverlay.style[cssprefix__WEBPACK_IMPORTED_MODULE_0__["default"].getName('transitionDuration')] = newOptions.duration === DURATION ? '' : newOptions.duration + 'ms';
     props.transition.duration = newOptions.duration + 'ms';
   }
 
@@ -2384,21 +2543,21 @@ var PlainOverlay = function () {
 
     // elmOverlay
     var elmOverlay = props.elmOverlay = elmDocument.createElement('div'),
-        elmOverlayClassList = Object(__WEBPACK_IMPORTED_MODULE_2_m_class_list__["a" /* default */])(elmOverlay);
+        elmOverlayClassList = Object(m_class_list__WEBPACK_IMPORTED_MODULE_2__["default"])(elmOverlay);
     elmOverlayClassList.add(STYLE_CLASS, STYLE_CLASS_HIDE);
     if (props.isDoc) {
       elmOverlayClassList.add(STYLE_CLASS_DOC);
     }
 
     // TimedTransition
-    props.transition = new __WEBPACK_IMPORTED_MODULE_3_timed_transition__["a" /* default */](elmOverlay, {
+    props.transition = new timed_transition__WEBPACK_IMPORTED_MODULE_3__["default"](elmOverlay, {
       procToOn: function procToOn(force) {
-        var elmOverlayClassList = Object(__WEBPACK_IMPORTED_MODULE_2_m_class_list__["a" /* default */])(elmOverlay);
+        var elmOverlayClassList = Object(m_class_list__WEBPACK_IMPORTED_MODULE_2__["default"])(elmOverlay);
         elmOverlayClassList.toggle(STYLE_CLASS_FORCE, !!force);
         elmOverlayClassList.add(STYLE_CLASS_SHOW);
       },
       procToOff: function procToOff(force) {
-        var elmOverlayClassList = Object(__WEBPACK_IMPORTED_MODULE_2_m_class_list__["a" /* default */])(elmOverlay);
+        var elmOverlayClassList = Object(m_class_list__WEBPACK_IMPORTED_MODULE_2__["default"])(elmOverlay);
         elmOverlayClassList.toggle(STYLE_CLASS_FORCE, !!force);
         elmOverlayClassList.remove(STYLE_CLASS_SHOW);
       },
@@ -2464,7 +2623,7 @@ var PlainOverlay = function () {
 
     // Gecko bug, multiple calling (parallel) by `requestAnimationFrame`.
     props.resizing = false;
-    props.window.addEventListener('resize', __WEBPACK_IMPORTED_MODULE_1_anim_event__["a" /* default */].add(function () {
+    props.window.addEventListener('resize', anim_event__WEBPACK_IMPORTED_MODULE_1__["default"].add(function () {
       if (props.resizing) {
         console.warn('`resize` event listener is already running.'); // [DEBUG/]
         return;
@@ -2717,14 +2876,20 @@ PlainOverlay.IS_BLINK = IS_BLINK;
 PlainOverlay.IS_GECKO = IS_GECKO;
 // [/DEBUG]
 
-/* harmony default export */ __webpack_exports__["a"] = (PlainOverlay);
+/* harmony default export */ __webpack_exports__["default"] = (PlainOverlay);
 
 /***/ }),
-/* 5 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+/***/ "./node_modules/timed-transition/timed-transition.mjs":
+/*!************************************************************!*\
+  !*** ./node_modules/timed-transition/timed-transition.mjs ***!
+  \************************************************************/
+/*! exports provided: default */
+/***/ (function(__webpack_module__, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_cssprefix__ = __webpack_require__(0);
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var cssprefix__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! cssprefix */ "./node_modules/cssprefix/cssprefix.mjs");
 /* ================================================
         DON'T MANUALLY EDIT THIS FILE
 ================================================ */
@@ -3005,7 +3170,7 @@ function _setOptions(props, newOptions) {
 
   function parseAsCss(option) {
     var optionValue = typeof newOptions[option] === 'number' ? // From CSS
-    (props.window.getComputedStyle(props.element, '')[__WEBPACK_IMPORTED_MODULE_0_cssprefix__["a" /* default */].getName('transition-' + option)] || '').split(',')[newOptions[option]] : newOptions[option];
+    (props.window.getComputedStyle(props.element, '')[cssprefix__WEBPACK_IMPORTED_MODULE_0__["default"].getName('transition-' + option)] || '').split(',')[newOptions[option]] : newOptions[option];
     return typeof optionValue === 'string' ? optionValue.trim() : null;
   }
 
@@ -3230,35 +3395,43 @@ var TimedTransition = function () {
   return TimedTransition;
 }();
 
-/* harmony default export */ __webpack_exports__["a"] = (TimedTransition);
+/* harmony default export */ __webpack_exports__["default"] = (TimedTransition);
 
 /***/ }),
-/* 6 */
+
+/***/ "./src/default.scss":
+/*!**************************!*\
+  !*** ./src/default.scss ***!
+  \**************************/
+/*! no static exports found */
 /***/ (function(module, exports) {
 
 module.exports = ".plainmodal .plainmodal-overlay{-webkit-tap-highlight-color:transparent;transform:translateZ(0);box-shadow:0 0 1px transparent}.plainmodal.plainoverlay{background-color:transparent;cursor:auto}.plainmodal .plainmodal-content{z-index:9000}.plainmodal .plainmodal-overlay{width:100%;height:100%;position:absolute;left:0;top:0;background-color:rgba(136,136,136,0.6);-webkit-transition-property:opacity;-moz-transition-property:opacity;-o-transition-property:opacity;transition-property:opacity;-webkit-transition-duration:200ms;-moz-transition-duration:200ms;-o-transition-duration:200ms;transition-duration:200ms;-webkit-transition-timing-function:linear;-moz-transition-timing-function:linear;-o-transition-timing-function:linear;transition-timing-function:linear;opacity:1}.plainmodal .plainmodal-overlay.plainmodal-overlay-hide{opacity:0}.plainmodal .plainmodal-overlay.plainmodal-overlay-force{-webkit-transition-property:none;-moz-transition-property:none;-o-transition-property:none;transition-property:none}";
 
 /***/ }),
-/* 7 */
+
+/***/ "./src/plain-modal.js":
+/*!****************************!*\
+  !*** ./src/plain-modal.js ***!
+  \****************************/
+/*! exports provided: default */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_cssprefix__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_anim_event__ = __webpack_require__(2);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_m_class_list__ = __webpack_require__(1);
-/* ================================================
-        DON'T MANUALLY EDIT THIS FILE
-================================================ */
-
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var cssprefix__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! cssprefix */ "./node_modules/cssprefix/cssprefix.mjs");
+/* harmony import */ var m_class_list__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! m-class-list */ "./node_modules/m-class-list/m-class-list.mjs");
+/* harmony import */ var plain_overlay__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! plain-overlay */ "./node_modules/plain-overlay/plain-overlay-limit-sync-debug.mjs");
+/* harmony import */ var _default_scss__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./default.scss */ "./src/default.scss");
+/* harmony import */ var _default_scss__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(_default_scss__WEBPACK_IMPORTED_MODULE_3__);
+/* harmony import */ var plain_draggable__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! plain-draggable */ "./node_modules/plain-draggable/plain-draggable-limit.mjs");
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 /*
- * PlainDraggable
- * https://anseki.github.io/plain-draggable/
+ * PlainModal
+ * https://anseki.github.io/plain-modal/
  *
  * Copyright (c) 2018 anseki
  * Licensed under the MIT license.
@@ -3267,10 +3440,31 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 
 
-__WEBPACK_IMPORTED_MODULE_2_m_class_list__["a" /* default */].ignoreNative = true;
 
-var ZINDEX = 9000,
-    IS_WEBKIT = !window.chrome && 'WebkitAppearance' in document.documentElement.style,
+// [DRAG]
+
+// [/DRAG]
+m_class_list__WEBPACK_IMPORTED_MODULE_1__["default"].ignoreNative = true;
+
+var APP_ID = 'plainmodal',
+    STYLE_ELEMENT_ID = APP_ID + '-style',
+    STYLE_CLASS = APP_ID,
+    STYLE_CLASS_CONTENT = APP_ID + '-content',
+    STYLE_CLASS_OVERLAY = APP_ID + '-overlay',
+    STYLE_CLASS_OVERLAY_HIDE = STYLE_CLASS_OVERLAY + '-hide',
+    STYLE_CLASS_OVERLAY_FORCE = STYLE_CLASS_OVERLAY + '-force',
+    STATE_CLOSED = 0,
+    STATE_OPENING = 1,
+    STATE_OPENED = 2,
+    STATE_CLOSING = 3,
+    STATE_INACTIVATING = 4,
+    STATE_INACTIVATED = 5,
+    STATE_ACTIVATING = 6,
+    DURATION = 200,
+    // COPY from PlainOverlay
+
+IS_TRIDENT = !!document.uniqueID,
+    IS_EDGE = '-ms-scroll-limit' in document.documentElement.style && '-ms-ime-align' in document.documentElement.style && !window.navigator.msPointerEnabled,
     isObject = function () {
   var toString = {}.toString,
       fnToString = {}.hasOwnProperty.toString,
@@ -3281,52 +3475,58 @@ var ZINDEX = 9000,
     return obj && toString.call(obj) === '[object Object]' && (!(proto = Object.getPrototypeOf(obj)) || (constr = proto.hasOwnProperty('constructor') && proto.constructor) && typeof constr === 'function' && fnToString.call(constr) === objFnString);
   };
 }(),
-    isFinite = Number.isFinite || function (value) {
-  return typeof value === 'number' && window.isFinite(value);
-},
 
+
+/**
+ * An object that has properties of instance.
+ * @typedef {Object} props
+ * @property {Element} elmContent - Content element.
+ * @property {Element} elmOverlay - Overlay element. (Not PlainOverlay)
+ * @property {PlainOverlay} plainOverlay - PlainOverlay instance.
+ * @property {PlainDraggable} plainDraggable - PlainDraggable instance.
+ * @property {number} state - Current state.
+ * @property {Object} options - Options.
+ * @property {props} parentProps - props that is effected with current props.
+ * @property {{plainOverlay: boolean, option: boolean}} effectFinished - The effect finished.
+ */
 
 /** @type {Object.<_id: number, props>} */
-insProps = {};
+insProps = {},
+
+
+/**
+ * A `props` list, it have a `state` other than `STATE_CLOSED`.
+ * A `props` is pushed to the end of this array, `shownProps[shownProps.length - 1]` can be active.
+ * @type {Array.<props>}
+ */
+shownProps = [];
 
 var insId = 0,
-    activeItem = void 0,
-    hasMoved = void 0,
-    pointerOffset = void 0,
-    body = void 0,
+    openCloseEffectProps = void 0,
+    // A `props` that is running the "open/close" effect now.
+closeByEscKey = true,
+    closeByOverlay = true;
 
-// CSS property/value
-cssValueDraggableCursor = void 0,
-    cssValueDraggingCursor = void 0,
-    cssOrgValueBodyCursor = void 0,
-    cssPropTransform = void 0,
-    cssPropUserSelect = void 0,
-    cssOrgValueBodyUserSelect = void 0,
+// [DEBUG]
+var traceLog = [];
+var STATE_TEXT = {};
+STATE_TEXT[STATE_CLOSED] = 'STATE_CLOSED';
+STATE_TEXT[STATE_OPENING] = 'STATE_OPENING';
+STATE_TEXT[STATE_OPENED] = 'STATE_OPENED';
+STATE_TEXT[STATE_CLOSING] = 'STATE_CLOSING';
+STATE_TEXT[STATE_INACTIVATING] = 'STATE_INACTIVATING';
+STATE_TEXT[STATE_INACTIVATED] = 'STATE_INACTIVATED';
+STATE_TEXT[STATE_ACTIVATING] = 'STATE_ACTIVATING';
+// [/DEBUG]
 
-// Try to set `cursor` property.
-cssWantedValueDraggableCursor = IS_WEBKIT ? ['all-scroll', 'move'] : ['grab', 'all-scroll', 'move'],
-    cssWantedValueDraggingCursor = IS_WEBKIT ? 'move' : ['grabbing', 'move'],
-
-// class
-draggableClass = 'plain-draggable',
-    draggingClass = 'plain-draggable-dragging',
-    movingClass = 'plain-draggable-moving';
-
-function copyTree(obj) {
-  return !obj ? obj : isObject(obj) ? Object.keys(obj).reduce(function (copyObj, key) {
-    copyObj[key] = copyTree(obj[key]);
-    return copyObj;
-  }, {}) : Array.isArray(obj) ? obj.map(copyTree) : obj;
-}
-
-function hasChanged(a, b) {
-  var typeA = void 0,
-      keysA = void 0;
-  return (typeof a === 'undefined' ? 'undefined' : _typeof(a)) !== (typeof b === 'undefined' ? 'undefined' : _typeof(b)) || (typeA = isObject(a) ? 'obj' : Array.isArray(a) ? 'array' : '') !== (isObject(b) ? 'obj' : Array.isArray(b) ? 'array' : '') || (typeA === 'obj' ? hasChanged(keysA = Object.keys(a).sort(), Object.keys(b).sort()) || keysA.some(function (prop) {
-    return hasChanged(a[prop], b[prop]);
-  }) : typeA === 'array' ? a.length !== b.length || a.some(function (aVal, i) {
-    return hasChanged(aVal, b[i]);
-  }) : a !== b);
+function forceReflow(target) {
+  // Trident and Blink bug (reflow like `offsetWidth` can't update)
+  setTimeout(function () {
+    var parent = target.parentNode,
+        next = target.nextSibling;
+    // It has to be removed first for Blink.
+    parent.insertBefore(parent.removeChild(target), next);
+  }, 0);
 }
 
 /**
@@ -3339,415 +3539,390 @@ function isElement(element) {
   typeof element.getBoundingClientRect === 'function' && !(element.compareDocumentPosition(document) & Node.DOCUMENT_POSITION_DISCONNECTED));
 }
 
-/**
- * An object that simulates `DOMRect` to indicate a bounding-box.
- * @typedef {Object} BBox
- * @property {(number|null)} left - document coordinate
- * @property {(number|null)} top - document coordinate
- * @property {(number|null)} right - document coordinate
- * @property {(number|null)} bottom - document coordinate
- * @property {(number|null)} x - Substitutes for left
- * @property {(number|null)} y - Substitutes for top
- * @property {(number|null)} width
- * @property {(number|null)} height
- */
-
-/**
- * @param {Object} bBox - A target object.
- * @returns {(BBox|null)} A normalized `BBox`, or null if `bBox` is invalid.
- */
-function validBBox(bBox) {
-  if (!isObject(bBox)) {
-    return null;
-  }
-  var value = void 0;
-  if (isFinite(value = bBox.left) || isFinite(value = bBox.x)) {
-    bBox.left = bBox.x = value;
-  } else {
-    return null;
-  }
-  if (isFinite(value = bBox.top) || isFinite(value = bBox.y)) {
-    bBox.top = bBox.y = value;
-  } else {
-    return null;
-  }
-
-  if (isFinite(bBox.width) && bBox.width >= 0) {
-    bBox.right = bBox.left + bBox.width;
-  } else if (isFinite(bBox.right) && bBox.right >= bBox.left) {
-    bBox.width = bBox.right - bBox.left;
-  } else {
-    return null;
-  }
-  if (isFinite(bBox.height) && bBox.height >= 0) {
-    bBox.bottom = bBox.top + bBox.height;
-  } else if (isFinite(bBox.bottom) && bBox.bottom >= bBox.top) {
-    bBox.height = bBox.bottom - bBox.top;
-  } else {
-    return null;
-  }
-  return bBox;
-}
-
-/**
- * A value that is Pixels or Ratio
- * @typedef {{value: number, isRatio: boolean}} PPValue
- */
-
-function validPPValue(value) {
-
-  // Get PPValue from string (all `/s` were already removed)
-  function string2PPValue(inString) {
-    var matches = /^(.+?)(\%)?$/.exec(inString);
-    var value = void 0,
-        isRatio = void 0;
-    return matches && isFinite(value = parseFloat(matches[1])) ? { value: (isRatio = !!(matches[2] && value)) ? value / 100 : value, isRatio: isRatio } : null; // 0% -> 0
-  }
-
-  return isFinite(value) ? { value: value, isRatio: false } : typeof value === 'string' ? string2PPValue(value.replace(/\s/g, '')) : null;
-}
-
-function ppValue2OptionValue(ppValue) {
-  return ppValue.isRatio ? ppValue.value * 100 + '%' : ppValue.value;
-}
-
-function resolvePPValue(ppValue, baseOrigin, baseSize) {
-  return typeof ppValue === 'number' ? ppValue : baseOrigin + ppValue.value * (ppValue.isRatio ? baseSize : 1);
-}
-
-/**
- * An object that simulates BBox but properties are PPValue.
- * @typedef {Object} PPBBox
- */
-
-/**
- * @param {Object} bBox - A target object.
- * @returns {(PPBBox|null)} A normalized `PPBBox`, or null if `bBox` is invalid.
- */
-function validPPBBox(bBox) {
-  if (!isObject(bBox)) {
-    return null;
-  }
-  var ppValue = void 0;
-  if ((ppValue = validPPValue(bBox.left)) || (ppValue = validPPValue(bBox.x))) {
-    bBox.left = bBox.x = ppValue;
-  } else {
-    return null;
-  }
-  if ((ppValue = validPPValue(bBox.top)) || (ppValue = validPPValue(bBox.y))) {
-    bBox.top = bBox.y = ppValue;
-  } else {
-    return null;
-  }
-
-  if ((ppValue = validPPValue(bBox.width)) && ppValue.value >= 0) {
-    bBox.width = ppValue;
-    delete bBox.right;
-  } else if (ppValue = validPPValue(bBox.right)) {
-    bBox.right = ppValue;
-    delete bBox.width;
-  } else {
-    return null;
-  }
-  if ((ppValue = validPPValue(bBox.height)) && ppValue.value >= 0) {
-    bBox.height = ppValue;
-    delete bBox.bottom;
-  } else if (ppValue = validPPValue(bBox.bottom)) {
-    bBox.bottom = ppValue;
-    delete bBox.height;
-  } else {
-    return null;
-  }
-  return bBox;
-}
-
-function ppBBox2OptionObject(ppBBox) {
-  return Object.keys(ppBBox).reduce(function (obj, prop) {
-    obj[prop] = ppValue2OptionValue(ppBBox[prop]);
-    return obj;
-  }, {});
-}
-
-// PPBBox -> BBox
-function resolvePPBBox(ppBBox, baseBBox) {
-  var prop2Axis = { left: 'x', right: 'x', x: 'x', width: 'x',
-    top: 'y', bottom: 'y', y: 'y', height: 'y' },
-      baseOriginXY = { x: baseBBox.left, y: baseBBox.top },
-      baseSizeXY = { x: baseBBox.width, y: baseBBox.height };
-  return validBBox(Object.keys(ppBBox).reduce(function (bBox, prop) {
-    bBox[prop] = resolvePPValue(ppBBox[prop], prop === 'width' || prop === 'height' ? 0 : baseOriginXY[prop2Axis[prop]], baseSizeXY[prop2Axis[prop]]);
-    return bBox;
-  }, {}));
-}
-
-/**
- * @param {Element} element - A target element.
- * @param {?boolean} getPaddingBox - Get padding-box instead of border-box as bounding-box.
- * @returns {BBox} A bounding-box of `element`.
- */
-function getBBox(element, getPaddingBox) {
-  var rect = element.getBoundingClientRect(),
-      bBox = { left: rect.left, top: rect.top, width: rect.width, height: rect.height };
-  bBox.left += window.pageXOffset;
-  bBox.top += window.pageYOffset;
-  if (getPaddingBox) {
-    var style = window.getComputedStyle(element, ''),
-        borderTop = parseFloat(style.borderTopWidth) || 0,
-        borderRight = parseFloat(style.borderRightWidth) || 0,
-        borderBottom = parseFloat(style.borderBottomWidth) || 0,
-        borderLeft = parseFloat(style.borderLeftWidth) || 0;
-    bBox.left += borderLeft;
-    bBox.top += borderTop;
-    bBox.width -= borderLeft + borderRight;
-    bBox.height -= borderTop + borderBottom;
-  }
-  return validBBox(bBox);
-}
-
-/**
- * Optimize an element for animation.
- * @param {Element} element - A target element.
- * @param {?boolean} gpuTrigger - Initialize for SVGElement if `true`.
- * @returns {Element} A target element.
- */
-function initAnim(element, gpuTrigger) {
-  var style = element.style;
-  style.webkitTapHighlightColor = 'transparent';
-
-  // Only when it has no shadow
-  var cssPropBoxShadow = __WEBPACK_IMPORTED_MODULE_0_cssprefix__["a" /* default */].getName('boxShadow'),
-      boxShadow = window.getComputedStyle(element, '')[cssPropBoxShadow];
-  if (!boxShadow || boxShadow === 'none') {
-    style[cssPropBoxShadow] = '0 0 1px transparent';
-  }
-
-  if (gpuTrigger && cssPropTransform) {
-    style[cssPropTransform] = 'translateZ(0)';
-  }
-  return element;
-}
-
-function setDraggableCursor(element, orgCursor) {
-  if (cssValueDraggableCursor == null) {
-    if (cssWantedValueDraggableCursor !== false) {
-      cssValueDraggableCursor = __WEBPACK_IMPORTED_MODULE_0_cssprefix__["a" /* default */].getValue('cursor', cssWantedValueDraggableCursor);
+// [DRAG]
+function switchDraggable(props) {
+  // [DEBUG]
+  traceLog.push('<switchDraggable>', '_id:' + props._id, 'state:' + STATE_TEXT[props.state]);
+  // [/DEBUG]
+  if (props.plainDraggable) {
+    // [DEBUG]
+    traceLog.push('plainDraggable.disabled:' + !(props.options.dragHandle && props.state === STATE_OPENED));
+    // [/DEBUG]
+    var disabled = !(props.options.dragHandle && props.state === STATE_OPENED);
+    props.plainDraggable.disabled = disabled;
+    if (!disabled) {
+      props.plainDraggable.position();
     }
-    // The wanted value was denied, or changing is not wanted.
-    if (cssValueDraggableCursor == null) {
-      cssValueDraggableCursor = false;
-    }
+    // [DEBUG]
+  } else {
+    traceLog.push('plainDraggable:NONE');
+    // [/DEBUG]
   }
-  // Update it to change a state even if cssValueDraggableCursor is false.
-  element.style.cursor = cssValueDraggableCursor === false ? orgCursor : cssValueDraggableCursor;
+  traceLog.push('</switchDraggable>'); // [DEBUG/]
+}
+// [/DRAG]
+
+function finishOpening(props) {
+  // [DEBUG]
+  traceLog.push('<finishOpening>', '_id:' + props._id, 'state:' + STATE_TEXT[props.state]);
+  // [/DEBUG]
+  openCloseEffectProps = null;
+  props.state = STATE_OPENED;
+  traceLog.push('state:' + STATE_TEXT[props.state]); // [DEBUG/]
+  switchDraggable(props); // [DRAG/]
+  if (props.parentProps) {
+    // [DEBUG]
+    traceLog.push('parentProps._id:' + props.parentProps._id, 'parentProps.state:' + STATE_TEXT[props.parentProps.state]);
+    // [/DEBUG]
+    props.parentProps.state = STATE_INACTIVATED;
+    traceLog.push('parentProps.state:' + STATE_TEXT[props.parentProps.state]); // [DEBUG/]
+  }
+  if (props.options.onOpen) {
+    props.options.onOpen.call(props.ins);
+  }
+  traceLog.push('</finishOpening>'); // [DEBUG/]
 }
 
-function setDraggingCursor(element) {
-  if (cssValueDraggingCursor == null) {
-    if (cssWantedValueDraggingCursor !== false) {
-      cssValueDraggingCursor = __WEBPACK_IMPORTED_MODULE_0_cssprefix__["a" /* default */].getValue('cursor', cssWantedValueDraggingCursor);
-    }
-    // The wanted value was denied, or changing is not wanted.
-    if (cssValueDraggingCursor == null) {
-      cssValueDraggingCursor = false;
-    }
+function finishClosing(props) {
+  // [DEBUG]
+  traceLog.push('<finishClosing>', '_id:' + props._id, 'state:' + STATE_TEXT[props.state]);
+  if (shownProps[shownProps.length - 1] !== props) {
+    throw new Error('`shownProps` is broken.');
   }
-  if (cssValueDraggingCursor !== false) {
-    element.style.cursor = cssValueDraggingCursor;
+  // [/DEBUG]
+  shownProps.pop();
+  // [DEBUG]
+  traceLog.push('shownProps:' + (shownProps.length ? shownProps.map(function (props) {
+    return props._id;
+  }).join(',') : 'NONE'));
+  // [/DEBUG]
+  openCloseEffectProps = null;
+  props.state = STATE_CLOSED;
+  traceLog.push('state:' + STATE_TEXT[props.state]); // [DEBUG/]
+  if (props.parentProps) {
+    // [DEBUG]
+    traceLog.push('parentProps._id:' + props.parentProps._id, 'parentProps.state:' + STATE_TEXT[props.parentProps.state]);
+    // [/DEBUG]
+    props.parentProps.state = STATE_OPENED;
+    traceLog.push('parentProps.state:' + STATE_TEXT[props.parentProps.state]); // [DEBUG/]
+    switchDraggable(props.parentProps); // [DRAG/]
+    traceLog.push('parentProps(UNLINK):' + props.parentProps._id); // [DEBUG/]
+    props.parentProps = null;
   }
+  if (props.options.onClose) {
+    props.options.onClose.call(props.ins);
+  }
+  traceLog.push('</finishClosing>'); // [DEBUG/]
 }
 
 /**
- * Move by `translate`.
  * @param {props} props - `props` of instance.
- * @param {{left: number, top: number}} position - New position.
- * @returns {boolean} `true` if it was moved.
- */
-function moveTranslate(props, position) {
-  var elementBBox = props.elementBBox;
-  if (position.left !== elementBBox.left || position.top !== elementBBox.top) {
-    var offset = props.htmlOffset;
-    props.elementStyle[cssPropTransform] = 'translate(' + (position.left + offset.left) + 'px, ' + (position.top + offset.top) + 'px)';
-    return true;
-  }
-  return false;
-}
-
-/**
- * Set `props.element` position.
- * @param {props} props - `props` of instance.
- * @param {{left: number, top: number}} position - New position.
- * @param {function} [cbCheck] - Callback that is called with valid position, cancel moving if it returns `false`.
- * @returns {boolean} `true` if it was moved.
- */
-function move(props, position, cbCheck) {
-  var elementBBox = props.elementBBox;
-
-  function fix() {
-    if (props.minLeft >= props.maxLeft) {
-      // Disabled
-      position.left = elementBBox.left;
-    } else if (position.left < props.minLeft) {
-      position.left = props.minLeft;
-    } else if (position.left > props.maxLeft) {
-      position.left = props.maxLeft;
-    }
-    if (props.minTop >= props.maxTop) {
-      // Disabled
-      position.top = elementBBox.top;
-    } else if (position.top < props.minTop) {
-      position.top = props.minTop;
-    } else if (position.top > props.maxTop) {
-      position.top = props.maxTop;
-    }
-  }
-
-  fix();
-  if (cbCheck) {
-    if (cbCheck(position) === false) {
-      return false;
-    }
-    fix(); // Again
-  }
-
-  var moved = props.moveElm(props, position);
-  if (moved) {
-    // Update elementBBox
-    props.elementBBox = validBBox({ left: position.left, top: position.top,
-      width: elementBBox.width, height: elementBBox.height });
-  }
-  return moved;
-}
-
-/**
- * Initialize HTMLElement for `translate`, and get `offset` that is used by `moveTranslate`.
- * @param {props} props - `props` of instance.
+ * @param {string} effectKey - `plainOverlay' or 'option`
  * @returns {void}
  */
-function initTranslate(props) {
-  var element = props.element,
-      elementStyle = props.elementStyle,
-      curPosition = getBBox(element),
-      // Get BBox before change style.
-  RESTORE_PROPS = ['display', 'marginTop', 'marginBottom', 'width', 'height'];
-  RESTORE_PROPS.unshift(cssPropTransform);
-
-  if (!props.orgStyle) {
-    props.orgStyle = RESTORE_PROPS.reduce(function (orgStyle, prop) {
-      orgStyle[prop] = elementStyle[prop] || '';
-      return orgStyle;
-    }, {});
-    props.lastStyle = {};
-  } else {
-    RESTORE_PROPS.forEach(function (prop) {
-      // Skip this if it seems user changed it. (it can't check perfectly.)
-      if (props.lastStyle[prop] == null || elementStyle[prop] === props.lastStyle[prop]) {
-        elementStyle[prop] = props.orgStyle[prop];
-      }
-    });
-  }
-
-  var orgSize = getBBox(element),
-      cmpStyle = window.getComputedStyle(element, '');
-  // https://www.w3.org/TR/css-transforms-1/#transformable-element
-  if (cmpStyle.display === 'inline') {
-    elementStyle.display = 'inline-block';
-    ['Top', 'Bottom'].forEach(function (dirProp) {
-      var padding = parseFloat(cmpStyle['padding' + dirProp]);
-      // paddingTop/Bottom make padding but don't make space -> negative margin in inline-block
-      // marginTop/Bottom don't work in inline element -> `0` in inline-block
-      elementStyle['margin' + dirProp] = padding ? '-' + padding + 'px' : '0';
-    });
-  }
-  elementStyle[cssPropTransform] = 'translate(0, 0)';
-  // Get document offset.
-  var newBBox = getBBox(element);
-  var offset = props.htmlOffset = { left: newBBox.left ? -newBBox.left : 0, top: newBBox.top ? -newBBox.top : 0 }; // avoid `-0`
-
-  // Restore position
-  elementStyle[cssPropTransform] = 'translate(' + (curPosition.left + offset.left) + 'px, ' + (curPosition.top + offset.top) + 'px)';
-  // Restore size
-  ['width', 'height'].forEach(function (prop) {
-    if (newBBox[prop] !== orgSize[prop]) {
-      // Ignore `box-sizing`
-      elementStyle[prop] = orgSize[prop] + 'px';
-      newBBox = getBBox(element);
-      if (newBBox[prop] !== orgSize[prop]) {
-        // Retry
-        elementStyle[prop] = orgSize[prop] - (newBBox[prop] - orgSize[prop]) + 'px';
-      }
-    }
-    props.lastStyle[prop] = elementStyle[prop];
-  });
-}
-
-/**
- * Set `elementBBox`, `containmentBBox`, `min/max``Left/Top` and `snapTargets`.
- * @param {props} props - `props` of instance.
- * @returns {void}
- */
-function initBBox(props) {
-  props.initElm(props);
-
-  var docBBox = getBBox(document.documentElement),
-      elementBBox = props.elementBBox = getBBox(props.element),
-      containmentBBox = props.containmentBBox = props.containmentIsBBox ? resolvePPBBox(props.options.containment, docBBox) || docBBox : getBBox(props.options.containment, true);
-  props.minLeft = containmentBBox.left;
-  props.maxLeft = containmentBBox.right - elementBBox.width;
-  props.minTop = containmentBBox.top;
-  props.maxTop = containmentBBox.bottom - elementBBox.height;
-  // Adjust position
-  move(props, { left: elementBBox.left, top: elementBBox.top });
-}
-
-function dragEnd(props) {
-  setDraggableCursor(props.options.handle, props.orgCursor);
-  body.style.cursor = cssOrgValueBodyCursor;
-
-  if (props.options.zIndex !== false) {
-    props.elementStyle.zIndex = props.orgZIndex;
-  }
-  if (cssPropUserSelect) {
-    body.style[cssPropUserSelect] = cssOrgValueBodyUserSelect;
-  }
-  var classList = Object(__WEBPACK_IMPORTED_MODULE_2_m_class_list__["a" /* default */])(props.element);
-  if (movingClass) {
-    classList.remove(movingClass);
-  }
-  if (draggingClass) {
-    classList.remove(draggingClass);
-  }
-
-  activeItem = null;
-  if (props.onDragEnd) {
-    props.onDragEnd();
-  }
-}
-
-function mousedown(props, event) {
-  if (props.disabled) {
+function finishOpenEffect(props, effectKey) {
+  // [DEBUG]
+  traceLog.push('<finishOpenEffect>', '_id:' + props._id, 'state:' + STATE_TEXT[props.state]);
+  traceLog.push('effectKey:' + effectKey);
+  // [/DEBUG]
+  if (props.state !== STATE_OPENING) {
+    traceLog.push('CANCEL', '</finishOpenEffect>'); // [DEBUG/]
     return;
   }
-  if (activeItem) {
-    dragEnd(activeItem);
-  } // activeItem is normally null by `mouseup`.
-
-  setDraggingCursor(props.options.handle);
-  body.style.cursor = cssValueDraggingCursor || // If it is `false` or `''`
-  window.getComputedStyle(props.options.handle, '').cursor;
-
-  if (props.options.zIndex !== false) {
-    props.elementStyle.zIndex = props.options.zIndex;
+  props.effectFinished[effectKey] = true;
+  // [DEBUG]
+  traceLog.push('effectFinished.plainOverlay:' + props.effectFinished.plainOverlay);
+  traceLog.push('effectFinished.option:' + props.effectFinished.option);
+  traceLog.push('openEffect:' + (props.options.openEffect ? 'YES' : 'NO'));
+  // [/DEBUG]
+  if (props.effectFinished.plainOverlay && (!props.options.openEffect || props.effectFinished.option)) {
+    finishOpening(props);
   }
-  if (cssPropUserSelect) {
-    body.style[cssPropUserSelect] = 'none';
+  traceLog.push('_id:' + props._id, '</finishOpenEffect>'); // [DEBUG/]
+}
+
+/**
+ * @param {props} props - `props` of instance.
+ * @param {string} effectKey - `plainOverlay' or 'option`
+ * @returns {void}
+ */
+function finishCloseEffect(props, effectKey) {
+  // [DEBUG]
+  traceLog.push('<finishCloseEffect>', '_id:' + props._id, 'state:' + STATE_TEXT[props.state]);
+  traceLog.push('effectKey:' + effectKey);
+  // [/DEBUG]
+  if (props.state !== STATE_CLOSING) {
+    traceLog.push('CANCEL', '</finishCloseEffect>'); // [DEBUG/]
+    return;
   }
-  if (draggingClass) {
-    Object(__WEBPACK_IMPORTED_MODULE_2_m_class_list__["a" /* default */])(props.element).add(draggingClass);
+  props.effectFinished[effectKey] = true;
+  // [DEBUG]
+  traceLog.push('effectFinished.plainOverlay:' + props.effectFinished.plainOverlay);
+  traceLog.push('effectFinished.option:' + props.effectFinished.option);
+  traceLog.push('closeEffect:' + (props.options.closeEffect ? 'YES' : 'NO'));
+  // [/DEBUG]
+  if (props.effectFinished.plainOverlay && (!props.options.closeEffect || props.effectFinished.option)) {
+    finishClosing(props);
+  }
+  traceLog.push('_id:' + props._id, '</finishCloseEffect>'); // [DEBUG/]
+}
+
+/**
+ * Process after preparing data and adjusting style.
+ * @param {props} props - `props` of instance.
+ * @param {boolean} [force] - Skip effect.
+ * @returns {void}
+ */
+function execOpening(props, force) {
+  // [DEBUG]
+  traceLog.push('<execOpening>', '_id:' + props._id, 'state:' + STATE_TEXT[props.state]);
+  traceLog.push('force:' + !!force);
+  // [/DEBUG]
+  if (props.parentProps) {
+    // inactivate parentProps
+    // [DEBUG]
+    traceLog.push('parentProps._id:' + props.parentProps._id, 'parentProps.state:' + STATE_TEXT[props.parentProps.state]);
+    // [/DEBUG]
+    /*
+      Cases:
+        - STATE_OPENED or STATE_ACTIVATING, regardless of force
+        - STATE_INACTIVATING and force
+    */
+    var parentProps = props.parentProps,
+        elmOverlay = parentProps.elmOverlay;
+    if (parentProps.state === STATE_OPENED) {
+      elmOverlay.style[cssprefix__WEBPACK_IMPORTED_MODULE_0__["default"].getName('transitionDuration')] = props.options.duration === DURATION ? '' : props.options.duration + 'ms';
+      // [DEBUG]
+      traceLog.push('elmOverlay.duration:' + (props.options.duration === DURATION ? '' : props.options.duration + 'ms'));
+      // [/DEBUG]
+    }
+    var elmOverlayClassList = Object(m_class_list__WEBPACK_IMPORTED_MODULE_1__["default"])(elmOverlay);
+    elmOverlayClassList.toggle(STYLE_CLASS_OVERLAY_FORCE, !!force);
+    elmOverlayClassList.add(STYLE_CLASS_OVERLAY_HIDE);
+    // [DEBUG]
+    traceLog.push('elmOverlay.CLASS_FORCE:' + elmOverlayClassList.contains(STYLE_CLASS_OVERLAY_FORCE));
+    traceLog.push('elmOverlay.CLASS_HIDE:' + elmOverlayClassList.contains(STYLE_CLASS_OVERLAY_HIDE));
+    // [/DEBUG]
+    // Update `state` regardless of force, for switchDraggable.
+    parentProps.state = STATE_INACTIVATING;
+    parentProps.plainOverlay.blockingDisabled = true;
+    traceLog.push('parentProps.state:' + STATE_TEXT[props.parentProps.state]); // [DEBUG/]
+    switchDraggable(parentProps); // [DRAG/]
   }
 
-  activeItem = props;
-  hasMoved = false;
-  pointerOffset = { left: props.elementBBox.left - event.pageX, top: props.elementBBox.top - event.pageY };
+  props.state = STATE_OPENING;
+  props.plainOverlay.blockingDisabled = false;
+  traceLog.push('state:' + STATE_TEXT[props.state]); // [DEBUG/]
+  props.effectFinished.plainOverlay = props.effectFinished.option = false;
+  props.plainOverlay.show(force);
+  if (props.options.openEffect) {
+    if (force) {
+      props.options.openEffect.call(props.ins);
+      finishOpenEffect(props, 'option');
+    } else {
+      props.options.openEffect.call(props.ins, props.openEffectDone);
+    }
+  }
+  traceLog.push('_id:' + props._id, '</execOpening>'); // [DEBUG/]
+}
+
+/**
+ * Process after preparing data and adjusting style.
+ * @param {props} props - `props` of instance.
+ * @param {boolean} [force] - Skip effect.
+ * @param {boolean} [sync] - `force` with sync-mode. (Skip restoring active element)
+ * @returns {void}
+ */
+function execClosing(props, force, sync) {
+  // [DEBUG]
+  traceLog.push('<execClosing>', '_id:' + props._id, 'state:' + STATE_TEXT[props.state]);
+  traceLog.push('force:' + !!force, 'sync:' + !!sync);
+  // [/DEBUG]
+  if (props.parentProps) {
+    // activate parentProps
+    // [DEBUG]
+    traceLog.push('parentProps._id:' + props.parentProps._id, 'parentProps.state:' + STATE_TEXT[props.parentProps.state]);
+    // [/DEBUG]
+    /*
+      Cases:
+        - STATE_INACTIVATED or STATE_INACTIVATING, regardless of `force`
+        - STATE_ACTIVATING and `force`
+    */
+    var parentProps = props.parentProps,
+        elmOverlay = parentProps.elmOverlay;
+    if (parentProps.state === STATE_INACTIVATED) {
+      elmOverlay.style[cssprefix__WEBPACK_IMPORTED_MODULE_0__["default"].getName('transitionDuration')] = props.options.duration === DURATION ? '' : props.options.duration + 'ms';
+      // [DEBUG]
+      traceLog.push('elmOverlay.duration:' + (props.options.duration === DURATION ? '' : props.options.duration + 'ms'));
+      // [/DEBUG]
+    }
+    var elmOverlayClassList = Object(m_class_list__WEBPACK_IMPORTED_MODULE_1__["default"])(elmOverlay);
+    elmOverlayClassList.toggle(STYLE_CLASS_OVERLAY_FORCE, !!force);
+    elmOverlayClassList.remove(STYLE_CLASS_OVERLAY_HIDE);
+    // [DEBUG]
+    traceLog.push('elmOverlay.CLASS_FORCE:' + elmOverlayClassList.contains(STYLE_CLASS_OVERLAY_FORCE));
+    traceLog.push('elmOverlay.CLASS_HIDE:' + elmOverlayClassList.contains(STYLE_CLASS_OVERLAY_HIDE));
+    // [/DEBUG]
+    // same condition as props
+    parentProps.state = STATE_ACTIVATING;
+    parentProps.plainOverlay.blockingDisabled = false;
+    traceLog.push('parentProps.state:' + STATE_TEXT[props.parentProps.state]); // [DEBUG/]
+  }
+
+  props.state = STATE_CLOSING;
+  traceLog.push('state:' + STATE_TEXT[props.state]); // [DEBUG/]
+  switchDraggable(props); // [DRAG/]
+  props.effectFinished.plainOverlay = props.effectFinished.option = false;
+  props.plainOverlay.hide(force, sync);
+  if (props.options.closeEffect) {
+    if (force) {
+      props.options.closeEffect.call(props.ins);
+      finishCloseEffect(props, 'option');
+    } else {
+      props.options.closeEffect.call(props.ins, props.closeEffectDone);
+    }
+  }
+  traceLog.push('_id:' + props._id, '</execClosing>'); // [DEBUG/]
+}
+
+/**
+ * Finish the "open/close" effect immediately with sync-mode.
+ * @param {props} props - `props` of instance.
+ * @returns {void}
+ */
+function fixOpenClose(props) {
+  // [DEBUG]
+  traceLog.push('<fixOpenClose>', '_id:' + props._id, 'state:' + STATE_TEXT[props.state]);
+  // [/DEBUG]
+  if (props.state === STATE_OPENING) {
+    execOpening(props, true);
+  } else if (props.state === STATE_CLOSING) {
+    execClosing(props, true, true);
+  }
+  traceLog.push('_id:' + props._id, '</fixOpenClose>'); // [DEBUG/]
+}
+
+/**
+ * @param {props} props - `props` of instance.
+ * @param {boolean} [force] - Skip effect.
+ * @returns {void}
+ */
+function _open(props, force) {
+  traceLog.push('<open>', '_id:' + props._id, 'state:' + STATE_TEXT[props.state]); // [DEBUG/]
+  if (props.state !== STATE_CLOSED && props.state !== STATE_CLOSING && props.state !== STATE_OPENING || props.state === STATE_OPENING && !force || props.state !== STATE_OPENING && props.options.onBeforeOpen && props.options.onBeforeOpen.call(props.ins) === false) {
+    traceLog.push('CANCEL', '</open>'); // [DEBUG/]
+    return false;
+  }
+  /*
+    Cases:
+      - STATE_CLOSED or STATE_CLOSING, regardless of `force`
+      - STATE_OPENING and `force`
+  */
+
+  // [DEBUG]
+  traceLog.push('openCloseEffectProps:' + (openCloseEffectProps ? openCloseEffectProps._id : 'NONE'));
+  // [/DEBUG]
+  if (props.state === STATE_CLOSED) {
+    if (openCloseEffectProps) {
+      fixOpenClose(openCloseEffectProps);
+    }
+    openCloseEffectProps = props;
+
+    if (shownProps.length) {
+      // [DEBUG]
+      if (shownProps.indexOf(props) !== -1) {
+        throw new Error('`shownProps` is broken.');
+      }
+      // [/DEBUG]
+      props.parentProps = shownProps[shownProps.length - 1];
+      traceLog.push('parentProps(LINK):' + props.parentProps._id); // [DEBUG/]
+    }
+    shownProps.push(props);
+    // [DEBUG]
+    traceLog.push('shownProps:' + (shownProps.length ? shownProps.map(function (props) {
+      return props._id;
+    }).join(',') : 'NONE'));
+    // [/DEBUG]
+
+    Object(m_class_list__WEBPACK_IMPORTED_MODULE_1__["default"])(props.elmOverlay).add(STYLE_CLASS_OVERLAY_FORCE).remove(STYLE_CLASS_OVERLAY_HIDE);
+    // [DEBUG]
+    traceLog.push('elmOverlay.CLASS_FORCE:' + Object(m_class_list__WEBPACK_IMPORTED_MODULE_1__["default"])(props.elmOverlay).contains(STYLE_CLASS_OVERLAY_FORCE));
+    traceLog.push('elmOverlay.CLASS_HIDE:' + Object(m_class_list__WEBPACK_IMPORTED_MODULE_1__["default"])(props.elmOverlay).contains(STYLE_CLASS_OVERLAY_HIDE));
+    // [/DEBUG]
+  }
+
+  execOpening(props, force);
+  traceLog.push('_id:' + props._id, '</open>'); // [DEBUG/]
+  return true;
+}
+
+/**
+ * @param {props} props - `props` of instance.
+ * @param {boolean} [force] - Skip effect.
+ * @returns {void}
+ */
+function _close(props, force) {
+  traceLog.push('<close>', '_id:' + props._id, 'state:' + STATE_TEXT[props.state]); // [DEBUG/]
+  if (props.state === STATE_CLOSED || props.state === STATE_CLOSING && !force || props.state !== STATE_CLOSING && props.options.onBeforeClose && props.options.onBeforeClose.call(props.ins) === false) {
+    traceLog.push('CANCEL', '</close>'); // [DEBUG/]
+    return false;
+  }
+  /*
+    Cases:
+      - Other than STATE_CLOSED and STATE_CLOSING, regardless of `force`
+      - STATE_CLOSING and `force`
+  */
+
+  // [DEBUG]
+  traceLog.push('openCloseEffectProps:' + (openCloseEffectProps ? openCloseEffectProps._id : 'NONE'));
+  // [/DEBUG]
+  if (openCloseEffectProps && openCloseEffectProps !== props) {
+    fixOpenClose(openCloseEffectProps);
+    openCloseEffectProps = null;
+  }
+  /*
+    Cases:
+      - STATE_OPENED, STATE_OPENING or STATE_INACTIVATED, regardless of `force`
+      - STATE_CLOSING and `force`
+  */
+  if (props.state === STATE_INACTIVATED) {
+    // -> STATE_OPENED
+    // [DEBUG]
+    var i = shownProps.indexOf(props);
+    if (i === -1 || i === shownProps.length - 1) {
+      throw new Error('`shownProps` is broken.');
+    }
+    traceLog.push('shownProps:' + (shownProps.length ? shownProps.map(function (props) {
+      return props._id;
+    }).join(',') : 'NONE'));
+    // [/DEBUG]
+    var topProps = void 0;
+    while ((topProps = shownProps[shownProps.length - 1]) !== props) {
+      // [DEBUG]
+      if (topProps.state !== STATE_OPENED) {
+        throw new Error('`shownProps` is broken.');
+      }
+      traceLog.push('topProps._id:' + topProps._id, 'topProps.state:' + STATE_TEXT[topProps.state]);
+      // [/DEBUG]
+      execClosing(topProps, true, true);
+    }
+  }
+  /*
+    Cases:
+      - STATE_OPENED or STATE_OPENING, regardless of `force`
+      - STATE_CLOSING and `force`
+  */
+
+  if (props.state === STATE_OPENED) {
+    if (openCloseEffectProps) {
+      throw new Error('`openCloseEffectProps` is broken.');
+    } // [DEBUG/]
+    openCloseEffectProps = props;
+  }
+
+  execClosing(props, force);
+  traceLog.push('_id:' + props._id, '</close>'); // [DEBUG/]
+  return true;
 }
 
 /**
@@ -3756,203 +3931,175 @@ function mousedown(props, event) {
  * @returns {void}
  */
 function _setOptions(props, newOptions) {
-  var options = props.options;
-  var needsInitBBox = void 0;
+  var options = props.options,
+      plainOverlay = props.plainOverlay;
 
-  // containment
-  if (newOptions.containment) {
-    var bBox = void 0;
-    if (isElement(newOptions.containment)) {
-      // Specific element
-      if (newOptions.containment !== options.containment) {
-        // Restore
-        props.scrollElements.forEach(function (element) {
-          element.removeEventListener('scroll', props.handleScroll, false);
-        });
-        props.scrollElements = [];
-        window.removeEventListener('scroll', props.handleScroll, false);
-        // Parse tree
-        var element = newOptions.containment,
-            fixedElement = void 0;
-        while (element && element !== body) {
-          if (element.nodeType === Node.ELEMENT_NODE) {
-            var cmpStyle = window.getComputedStyle(element, '');
-            // Scrollable element
-            if (!(element instanceof SVGElement) && (cmpStyle.overflow !== 'visible' || cmpStyle.overflowX !== 'visible' || cmpStyle.overflowY !== 'visible' // `hidden` also is scrollable.
-            )) {
-              element.addEventListener('scroll', props.handleScroll, false);
-              props.scrollElements.push(element);
-            }
-            // Element that is re-positioned (document based) when window scrolled.
-            if (cmpStyle.position === 'fixed') {
-              fixedElement = true;
-            }
-          }
-          element = element.parentNode;
-        }
-        if (fixedElement) {
-          window.addEventListener('scroll', props.handleScroll, false);
-        }
+  // closeButton
+  if (newOptions.hasOwnProperty('closeButton') && (newOptions.closeButton = isElement(newOptions.closeButton) ? newOptions.closeButton : newOptions.closeButton == null ? void 0 : false) !== false && newOptions.closeButton !== options.closeButton) {
+    if (options.closeButton) {
+      // Remove
+      options.closeButton.removeEventListener('click', props.handleClose, false);
+    }
+    options.closeButton = newOptions.closeButton;
+    if (options.closeButton) {
+      // Add
+      options.closeButton.addEventListener('click', props.handleClose, false);
+    }
+  }
 
-        options.containment = newOptions.containment;
-        props.containmentIsBBox = false;
-        needsInitBBox = true;
+  // duration
+  // Check by PlainOverlay
+  plainOverlay.duration = newOptions.duration;
+  options.duration = plainOverlay.duration;
+
+  // overlayBlur
+  // Check by PlainOverlay
+  plainOverlay.blur = newOptions.overlayBlur;
+  options.overlayBlur = plainOverlay.blur;
+
+  // [DRAG]
+  // dragHandle
+  if (newOptions.hasOwnProperty('dragHandle') && (newOptions.dragHandle = isElement(newOptions.dragHandle) ? newOptions.dragHandle : newOptions.dragHandle == null ? void 0 : false) !== false && newOptions.dragHandle !== options.dragHandle) {
+    options.dragHandle = newOptions.dragHandle;
+    if (options.dragHandle) {
+      if (!props.plainDraggable) {
+        props.plainDraggable = new plain_draggable__WEBPACK_IMPORTED_MODULE_4__["default"](props.elmContent);
       }
-    } else if ((bBox = validPPBBox(copyTree(newOptions.containment))) && // bBox
-    hasChanged(bBox, options.containment)) {
-      options.containment = bBox;
-      props.containmentIsBBox = true;
-      needsInitBBox = true;
+      props.plainDraggable.handle = options.dragHandle;
     }
+    switchDraggable(props);
   }
+  // [/DRAG]
 
-  if (needsInitBBox) {
-    initBBox(props);
-  }
-
-  // Gecko, Trident pick drag-event of some elements such as img, a, etc.
-  function dragstart(event) {
-    event.preventDefault();
-  }
-
-  // handle
-  if (isElement(newOptions.handle) && newOptions.handle !== options.handle) {
-    if (options.handle) {
-      // Restore
-      options.handle.style.cursor = props.orgCursor;
-      if (cssPropUserSelect) {
-        options.handle.style[cssPropUserSelect] = props.orgUserSelect;
-      }
-      options.handle.removeEventListener('dragstart', dragstart, false);
-      options.handle.removeEventListener('mousedown', props.handleMousedown, false);
-    }
-    var handle = options.handle = newOptions.handle;
-    props.orgCursor = handle.style.cursor;
-    setDraggableCursor(handle, props.orgCursor);
-    if (cssPropUserSelect) {
-      props.orgUserSelect = handle.style[cssPropUserSelect];
-      handle.style[cssPropUserSelect] = 'none';
-    }
-    handle.addEventListener('dragstart', dragstart, false);
-    handle.addEventListener('mousedown', props.handleMousedown, false);
-  }
-
-  // zIndex
-  if (isFinite(newOptions.zIndex) || newOptions.zIndex === false) {
-    options.zIndex = newOptions.zIndex;
-    if (props === activeItem) {
-      props.elementStyle.zIndex = options.zIndex === false ? props.orgZIndex : options.zIndex;
-    }
-  }
-
-  // left/top
-  var position = { left: props.elementBBox.left, top: props.elementBBox.top };
-  var needsMove = void 0;
-  if (isFinite(newOptions.left) && newOptions.left !== position.left) {
-    position.left = newOptions.left;
-    needsMove = true;
-  }
-  if (isFinite(newOptions.top) && newOptions.top !== position.top) {
-    position.top = newOptions.top;
-    needsMove = true;
-  }
-  if (needsMove) {
-    move(props, position);
-  }
-
-  // Event listeners
-  ['onDrag', 'onMove', 'onMoveStart', 'onDragEnd'].forEach(function (option) {
+  // effect functions and event listeners
+  ['openEffect', 'closeEffect', 'onOpen', 'onClose', 'onBeforeOpen', 'onBeforeClose'].forEach(function (option) {
     if (typeof newOptions[option] === 'function') {
       options[option] = newOptions[option];
-      props[option] = options[option].bind(props.ins);
     } else if (newOptions.hasOwnProperty(option) && newOptions[option] == null) {
-      options[option] = props[option] = void 0;
+      options[option] = void 0;
     }
   });
 }
 
-var PlainDraggable = function () {
+var PlainModal = function () {
   /**
-   * Create a `PlainDraggable` instance.
-   * @param {Element} element - Target element.
+   * Create a `PlainModal` instance.
+   * @param {Element} content - An element that is shown as the content of the modal window.
    * @param {Object} [options] - Options.
    */
-  function PlainDraggable(element, options) {
-    _classCallCheck(this, PlainDraggable);
+  function PlainModal(content, options) {
+    _classCallCheck(this, PlainModal);
 
     var props = {
       ins: this,
       options: { // Initial options (not default)
-        zIndex: ZINDEX // Initial state.
+        closeButton: void 0,
+        duration: DURATION,
+        dragHandle: void 0, // [DRAG/]
+        overlayBlur: false
       },
-      disabled: false
+      state: STATE_CLOSED,
+      effectFinished: { plainOverlay: false, option: false }
     };
 
     Object.defineProperty(this, '_id', { value: ++insId });
     props._id = this._id;
     insProps[this._id] = props;
 
-    if (!isElement(element) || element === body) {
-      throw new Error('This element is not accepted.');
+    if (!content.nodeType || content.nodeType !== Node.ELEMENT_NODE || content.ownerDocument.defaultView !== window) {
+      throw new Error('This `content` is not accepted.');
     }
+    props.elmContent = content;
     if (!options) {
       options = {};
     } else if (!isObject(options)) {
       throw new Error('Invalid options.');
     }
 
-    var gpuTrigger = true;
-    var cssPropWillChange = __WEBPACK_IMPORTED_MODULE_0_cssprefix__["a" /* default */].getName('willChange');
-    if (cssPropWillChange) {
-      gpuTrigger = false;
+    // Setup window
+    if (!document.getElementById(STYLE_ELEMENT_ID)) {
+      var head = document.getElementsByTagName('head')[0] || document.documentElement,
+          sheet = head.insertBefore(document.createElement('style'), head.firstChild);
+      sheet.type = 'text/css';
+      sheet.id = STYLE_ELEMENT_ID;
+      sheet.textContent = _default_scss__WEBPACK_IMPORTED_MODULE_3___default.a;
+      if (IS_TRIDENT || IS_EDGE) {
+        forceReflow(sheet);
+      } // Trident bug
+
+      // for closeByEscKey
+      window.addEventListener('keydown', function (event) {
+        var key = void 0,
+            topProps = void 0;
+        if (closeByEscKey && ((key = event.key.toLowerCase()) === 'escape' || key === 'esc') && (topProps = shownProps.length && shownProps[shownProps.length - 1]) && (traceLog.push('<keydown/>', 'CLOSE', '_id:' + topProps._id), true) && // [DEBUG/]
+        _close(topProps)) {
+          event.preventDefault();
+          event.stopImmediatePropagation(); // preventDefault stops other listeners, maybe.
+          event.stopPropagation();
+        }
+      }, true);
     }
 
-    if (!options.leftTop && cssPropTransform) {
-      // translate
-      if (cssPropWillChange) {
-        element.style[cssPropWillChange] = 'transform';
+    Object(m_class_list__WEBPACK_IMPORTED_MODULE_1__["default"])(content).add(STYLE_CLASS_CONTENT);
+    // Overlay
+    props.plainOverlay = new plain_overlay__WEBPACK_IMPORTED_MODULE_2__["default"]({
+      face: content,
+      onShow: function onShow() {
+        finishOpenEffect(props, 'plainOverlay');
+      },
+      onHide: function onHide() {
+        finishCloseEffect(props, 'plainOverlay');
       }
-      props.initElm = initTranslate;
-      props.moveElm = moveTranslate;
-    } else {
-      // left and top
-      throw new Error('`transform` is not supported.');
-    }
-
-    props.element = initAnim(element, gpuTrigger);
-    props.elementStyle = element.style;
-    props.orgZIndex = props.elementStyle.zIndex;
-    if (draggableClass) {
-      Object(__WEBPACK_IMPORTED_MODULE_2_m_class_list__["a" /* default */])(element).add(draggableClass);
-    }
-    // Prepare removable event listeners for each instance.
-    props.handleMousedown = function (event) {
-      mousedown(props, event);
-    };
-    props.handleScroll = __WEBPACK_IMPORTED_MODULE_1_anim_event__["a" /* default */].add(function () {
-      initBBox(props);
     });
-    props.scrollElements = [];
+    // The `content` is now contained into PlainOverlay, and update `display`.
+    if (window.getComputedStyle(content, '').display === 'none') {
+      content.style.display = 'block';
+    }
+    // Trident can not get parent of SVG by parentElement.
+    var elmPlainOverlayBody = content.parentNode; // elmOverlayBody of PlainOverlay
+    Object(m_class_list__WEBPACK_IMPORTED_MODULE_1__["default"])(elmPlainOverlayBody.parentNode).add(STYLE_CLASS); // elmOverlay of PlainOverlay
 
-    // Default options
-    if (!options.containment) {
-      var parent = void 0;
-      options.containment = (parent = element.parentNode) && isElement(parent) ? parent : body;
-    }
-    if (!options.handle) {
-      options.handle = element;
-    }
+    // elmOverlay (own overlay)
+    var elmOverlay = props.elmOverlay = elmPlainOverlayBody.appendChild(document.createElement('div'));
+    elmOverlay.className = STYLE_CLASS_OVERLAY;
+    // for closeByOverlay
+    elmOverlay.addEventListener('click', function (event) {
+      if (event.target === elmOverlay && closeByOverlay) {
+        traceLog.push('<overlayClick/>', 'CLOSE', '_id:' + props._id); // [DEBUG/]
+        _close(props);
+      }
+    }, true);
+
+    // Prepare removable event listeners for each instance.
+    props.handleClose = function () {
+      _close(props);
+    };
+    // Callback functions for additional effects, prepare these to allow to be used as listener.
+    props.openEffectDone = function () {
+      finishOpenEffect(props, 'option');
+    };
+    props.closeEffectDone = function () {
+      finishCloseEffect(props, 'option');
+    };
+    props.effectDone = function () {
+      traceLog.push('<effectDone/>', '_id:' + props._id, 'state:' + STATE_TEXT[props.state]); // [DEBUG/]
+      if (props.state === STATE_OPENING) {
+        finishOpenEffect(props, 'option');
+      } else if (props.state === STATE_CLOSING) {
+        finishCloseEffect(props, 'option');
+      }
+    };
 
     _setOptions(props, options);
   }
 
   /**
    * @param {Object} options - New options.
-   * @returns {PlainDraggable} Current instance itself.
+   * @returns {PlainModal} Current instance itself.
    */
 
 
-  _createClass(PlainDraggable, [{
+  _createClass(PlainModal, [{
     key: 'setOptions',
     value: function setOptions(options) {
       if (isObject(options)) {
@@ -3960,307 +4107,213 @@ var PlainDraggable = function () {
       }
       return this;
     }
+
+    /**
+     * Open the modal window.
+     * @param {boolean} [force] - Show it immediately without effect.
+     * @param {Object} [options] - New options.
+     * @returns {PlainModal} Current instance itself.
+     */
+
   }, {
-    key: 'position',
-    value: function position() {
-      initBBox(insProps[this._id]);
+    key: 'open',
+    value: function open(force, options) {
+      if (arguments.length < 2 && typeof force !== 'boolean') {
+        options = force;
+        force = false;
+      }
+
+      this.setOptions(options);
+      _open(insProps[this._id], force);
+      return this;
+    }
+
+    /**
+     * Close the modal window.
+     * @param {boolean} [force] - Close it immediately without effect.
+     * @returns {PlainModal} Current instance itself.
+     */
+
+  }, {
+    key: 'close',
+    value: function close(force) {
+      _close(insProps[this._id], force);
       return this;
     }
   }, {
-    key: 'disabled',
+    key: 'state',
     get: function get() {
-      return insProps[this._id].disabled;
+      return insProps[this._id].state;
+    }
+  }, {
+    key: 'closeButton',
+    get: function get() {
+      return insProps[this._id].options.closeButton;
     },
     set: function set(value) {
-      var props = insProps[this._id];
-      if ((value = !!value) !== props.disabled) {
-        props.disabled = value;
-        if (props.disabled) {
-          if (props === activeItem) {
-            dragEnd(props);
-          }
-          props.options.handle.style.cursor = props.orgCursor;
-          if (cssPropUserSelect) {
-            props.options.handle.style[cssPropUserSelect] = props.orgUserSelect;
-          }
-          if (draggableClass) {
-            Object(__WEBPACK_IMPORTED_MODULE_2_m_class_list__["a" /* default */])(props.element).remove(draggableClass);
-          }
-        } else {
-          setDraggableCursor(props.options.handle, props.orgCursor);
-          if (cssPropUserSelect) {
-            props.options.handle.style[cssPropUserSelect] = 'none';
-          }
-          if (draggableClass) {
-            Object(__WEBPACK_IMPORTED_MODULE_2_m_class_list__["a" /* default */])(props.element).add(draggableClass);
-          }
-        }
-      }
+      _setOptions(insProps[this._id], { closeButton: value });
     }
   }, {
-    key: 'element',
+    key: 'duration',
     get: function get() {
-      return insProps[this._id].element;
-    }
-  }, {
-    key: 'rect',
-    get: function get() {
-      return copyTree(insProps[this._id].elementBBox);
-    }
-  }, {
-    key: 'left',
-    get: function get() {
-      return insProps[this._id].elementBBox.left;
+      return insProps[this._id].options.duration;
     },
     set: function set(value) {
-      _setOptions(insProps[this._id], { left: value });
+      _setOptions(insProps[this._id], { duration: value });
     }
   }, {
-    key: 'top',
+    key: 'overlayBlur',
     get: function get() {
-      return insProps[this._id].elementBBox.top;
+      return insProps[this._id].options.overlayBlur;
     },
     set: function set(value) {
-      _setOptions(insProps[this._id], { top: value });
+      _setOptions(insProps[this._id], { overlayBlur: value });
+    }
+
+    // [DRAG]
+
+  }, {
+    key: 'dragHandle',
+    get: function get() {
+      return insProps[this._id].options.dragHandle;
+    },
+    set: function set(value) {
+      _setOptions(insProps[this._id], { dragHandle: value });
+    }
+    // [/DRAG]
+
+  }, {
+    key: 'openEffect',
+    get: function get() {
+      return insProps[this._id].options.openEffect;
+    },
+    set: function set(value) {
+      _setOptions(insProps[this._id], { openEffect: value });
     }
   }, {
-    key: 'containment',
+    key: 'closeEffect',
     get: function get() {
-      var props = insProps[this._id];
-      return props.containmentIsBBox ? ppBBox2OptionObject(props.options.containment) : props.options.containment;
+      return insProps[this._id].options.closeEffect;
     },
     set: function set(value) {
-      _setOptions(insProps[this._id], { containment: value });
+      _setOptions(insProps[this._id], { closeEffect: value });
     }
   }, {
-    key: 'handle',
+    key: 'effectDone',
     get: function get() {
-      return insProps[this._id].options.handle;
-    },
-    set: function set(value) {
-      _setOptions(insProps[this._id], { handle: value });
+      return insProps[this._id].effectDone;
     }
   }, {
-    key: 'zIndex',
+    key: 'onOpen',
     get: function get() {
-      return insProps[this._id].options.zIndex;
+      return insProps[this._id].options.onOpen;
     },
     set: function set(value) {
-      _setOptions(insProps[this._id], { zIndex: value });
+      _setOptions(insProps[this._id], { onOpen: value });
     }
   }, {
-    key: 'onDrag',
+    key: 'onClose',
     get: function get() {
-      return insProps[this._id].options.onDrag;
+      return insProps[this._id].options.onClose;
     },
     set: function set(value) {
-      _setOptions(insProps[this._id], { onDrag: value });
+      _setOptions(insProps[this._id], { onClose: value });
     }
   }, {
-    key: 'onMove',
+    key: 'onBeforeOpen',
     get: function get() {
-      return insProps[this._id].options.onMove;
+      return insProps[this._id].options.onBeforeOpen;
     },
     set: function set(value) {
-      _setOptions(insProps[this._id], { onMove: value });
+      _setOptions(insProps[this._id], { onBeforeOpen: value });
     }
   }, {
-    key: 'onMoveStart',
+    key: 'onBeforeClose',
     get: function get() {
-      return insProps[this._id].options.onMoveStart;
+      return insProps[this._id].options.onBeforeClose;
     },
     set: function set(value) {
-      _setOptions(insProps[this._id], { onMoveStart: value });
-    }
-  }, {
-    key: 'onDragEnd',
-    get: function get() {
-      return insProps[this._id].options.onDragEnd;
-    },
-    set: function set(value) {
-      _setOptions(insProps[this._id], { onDragEnd: value });
+      _setOptions(insProps[this._id], { onBeforeClose: value });
     }
   }], [{
-    key: 'draggableCursor',
+    key: 'closeByEscKey',
     get: function get() {
-      return cssWantedValueDraggableCursor;
+      return closeByEscKey;
     },
     set: function set(value) {
-      if (cssWantedValueDraggableCursor !== value) {
-        cssWantedValueDraggableCursor = value;
-        cssValueDraggableCursor = null; // Reset
-        Object.keys(insProps).forEach(function (id) {
-          var props = insProps[id];
-          if (props.disabled || props === activeItem && cssValueDraggingCursor !== false) {
-            return;
-          }
-          setDraggableCursor(props.options.handle, props.orgCursor);
-          if (props === activeItem) {
-            // Since cssValueDraggingCursor is `false`, copy cursor again.
-            body.style.cursor = cssOrgValueBodyCursor;
-            body.style.cursor = window.getComputedStyle(props.options.handle, '').cursor;
-          }
-        });
+      if (typeof value === 'boolean') {
+        closeByEscKey = value;
       }
     }
   }, {
-    key: 'draggingCursor',
+    key: 'closeByOverlay',
     get: function get() {
-      return cssWantedValueDraggingCursor;
+      return closeByOverlay;
     },
     set: function set(value) {
-      if (cssWantedValueDraggingCursor !== value) {
-        cssWantedValueDraggingCursor = value;
-        cssValueDraggingCursor = null; // Reset
-        if (activeItem) {
-          setDraggingCursor(activeItem.options.handle);
-          if (cssValueDraggingCursor === false) {
-            setDraggableCursor(activeItem.options.handle, activeItem.orgCursor); // draggableCursor
-            body.style.cursor = cssOrgValueBodyCursor;
-          }
-          body.style.cursor = cssValueDraggingCursor || // If it is `false` or `''`
-          window.getComputedStyle(activeItem.options.handle, '').cursor;
-        }
+      if (typeof value === 'boolean') {
+        closeByOverlay = value;
       }
     }
   }, {
-    key: 'draggableClass',
+    key: 'STATE_CLOSED',
     get: function get() {
-      return draggableClass;
-    },
-    set: function set(value) {
-      value = value ? value + '' : void 0;
-      if (value !== draggableClass) {
-        Object.keys(insProps).forEach(function (id) {
-          var props = insProps[id];
-          if (!props.disabled) {
-            var classList = Object(__WEBPACK_IMPORTED_MODULE_2_m_class_list__["a" /* default */])(props.element);
-            if (draggableClass) {
-              classList.remove(draggableClass);
-            }
-            if (value) {
-              classList.add(value);
-            }
-          }
-        });
-        draggableClass = value;
-      }
+      return STATE_CLOSED;
     }
   }, {
-    key: 'draggingClass',
+    key: 'STATE_OPENING',
     get: function get() {
-      return draggingClass;
-    },
-    set: function set(value) {
-      value = value ? value + '' : void 0;
-      if (value !== draggingClass) {
-        if (activeItem) {
-          var classList = Object(__WEBPACK_IMPORTED_MODULE_2_m_class_list__["a" /* default */])(activeItem.element);
-          if (draggingClass) {
-            classList.remove(draggingClass);
-          }
-          if (value) {
-            classList.add(value);
-          }
-        }
-        draggingClass = value;
-      }
+      return STATE_OPENING;
     }
   }, {
-    key: 'movingClass',
+    key: 'STATE_OPENED',
     get: function get() {
-      return movingClass;
-    },
-    set: function set(value) {
-      value = value ? value + '' : void 0;
-      if (value !== movingClass) {
-        if (activeItem && hasMoved) {
-          var classList = Object(__WEBPACK_IMPORTED_MODULE_2_m_class_list__["a" /* default */])(activeItem.element);
-          if (movingClass) {
-            classList.remove(movingClass);
-          }
-          if (value) {
-            classList.add(value);
-          }
-        }
-        movingClass = value;
-      }
+      return STATE_OPENED;
+    }
+  }, {
+    key: 'STATE_CLOSING',
+    get: function get() {
+      return STATE_CLOSING;
+    }
+  }, {
+    key: 'STATE_INACTIVATING',
+    get: function get() {
+      return STATE_INACTIVATING;
+    }
+  }, {
+    key: 'STATE_INACTIVATED',
+    get: function get() {
+      return STATE_INACTIVATED;
+    }
+  }, {
+    key: 'STATE_ACTIVATING',
+    get: function get() {
+      return STATE_ACTIVATING;
     }
   }]);
 
-  return PlainDraggable;
+  return PlainModal;
 }();
 
-document.addEventListener('mousemove', __WEBPACK_IMPORTED_MODULE_1_anim_event__["a" /* default */].add(function (event) {
-  if (activeItem && move(activeItem, {
-    left: event.pageX + pointerOffset.left,
-    top: event.pageY + pointerOffset.top
-  }, activeItem.onDrag)) {
+/* [DRAG/]
+PlainModal.limit = true;
+[DRAG/] */
 
-    if (!hasMoved) {
-      hasMoved = true;
-      if (movingClass) {
-        Object(__WEBPACK_IMPORTED_MODULE_2_m_class_list__["a" /* default */])(activeItem.element).add(movingClass);
-      }
-      if (activeItem.onMoveStart) {
-        activeItem.onMoveStart();
-      }
-    }
-    if (activeItem.onMove) {
-      activeItem.onMove();
-    }
-  }
-}), false);
-
-document.addEventListener('mouseup', function () {
-  // It might occur outside body.
-  if (activeItem) {
-    dragEnd(activeItem);
-  }
-}, false);
-
-{
-  var initDoc = function initDoc() {
-    cssPropTransform = __WEBPACK_IMPORTED_MODULE_0_cssprefix__["a" /* default */].getName('transform');
-    cssOrgValueBodyCursor = body.style.cursor;
-    if (cssPropUserSelect = __WEBPACK_IMPORTED_MODULE_0_cssprefix__["a" /* default */].getName('userSelect')) {
-      cssOrgValueBodyUserSelect = body.style[cssPropUserSelect];
-    }
-
-    // Gecko bug, multiple calling (parallel) by `requestAnimationFrame`.
-    window.addEventListener('resize', __WEBPACK_IMPORTED_MODULE_1_anim_event__["a" /* default */].add(function () {
-      if (resizing) {
-        return;
-      }
-      resizing = true;
-      Object.keys(insProps).forEach(function (id) {
-        if (insProps[id].initElm) {
-          // Easy checking for instance without errors.
-          initBBox(insProps[id]);
-        }
-        // eslint-disable-next-line brace-style
-      });
-      resizing = false;
-    }), true);
-  };
-
-  var resizing = false;
+// [DEBUG]
 
 
-  if (body = document.body) {
-    initDoc();
-  } else {
-    document.addEventListener('DOMContentLoaded', function () {
-      body = document.body;
-      initDoc();
-    }, false);
-  }
-}
+PlainModal.insProps = insProps;
+PlainModal.traceLog = traceLog;
+PlainModal.shownProps = shownProps;
+PlainModal.STATE_TEXT = STATE_TEXT;
+PlainModal.IS_TRIDENT = IS_TRIDENT;
+PlainModal.IS_EDGE = IS_EDGE;
+window.PlainOverlay = plain_overlay__WEBPACK_IMPORTED_MODULE_2__["default"];
+// [/DEBUG]
 
-PlainDraggable.limit = true;
-
-/* harmony default export */ __webpack_exports__["a"] = (PlainDraggable);
+/* harmony default export */ __webpack_exports__["default"] = (PlainModal);
 
 /***/ })
-/******/ ])["default"];
+
+/******/ })["default"];
 //# sourceMappingURL=plain-modal.js.map
