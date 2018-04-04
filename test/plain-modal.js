@@ -72,12 +72,12 @@ var PlainModal =
 /************************************************************************/
 /******/ ({
 
-/***/ "./node_modules/anim-event/anim-event.mjs":
-/*!************************************************!*\
-  !*** ./node_modules/anim-event/anim-event.mjs ***!
-  \************************************************/
+/***/ "./node_modules/anim-event/anim-event.esm.js":
+/*!***************************************************!*\
+  !*** ./node_modules/anim-event/anim-event.esm.js ***!
+  \***************************************************/
 /*! exports provided: default */
-/***/ (function(__webpack_module__, __webpack_exports__, __webpack_require__) {
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -193,12 +193,12 @@ var AnimEvent = {
 
 /***/ }),
 
-/***/ "./node_modules/cssprefix/cssprefix.mjs":
-/*!**********************************************!*\
-  !*** ./node_modules/cssprefix/cssprefix.mjs ***!
-  \**********************************************/
+/***/ "./node_modules/cssprefix/cssprefix.esm.js":
+/*!*************************************************!*\
+  !*** ./node_modules/cssprefix/cssprefix.esm.js ***!
+  \*************************************************/
 /*! exports provided: default */
-/***/ (function(__webpack_module__, __webpack_exports__, __webpack_require__) {
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -379,12 +379,12 @@ var CSSPrefix = {
 
 /***/ }),
 
-/***/ "./node_modules/m-class-list/m-class-list.mjs":
-/*!****************************************************!*\
-  !*** ./node_modules/m-class-list/m-class-list.mjs ***!
-  \****************************************************/
+/***/ "./node_modules/m-class-list/m-class-list.esm.js":
+/*!*******************************************************!*\
+  !*** ./node_modules/m-class-list/m-class-list.esm.js ***!
+  \*******************************************************/
 /*! exports provided: default */
-/***/ (function(__webpack_module__, __webpack_exports__, __webpack_require__) {
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -502,18 +502,18 @@ mClassList.methodChain = true;
 
 /***/ }),
 
-/***/ "./node_modules/plain-draggable/plain-draggable-limit.mjs":
-/*!****************************************************************!*\
-  !*** ./node_modules/plain-draggable/plain-draggable-limit.mjs ***!
-  \****************************************************************/
+/***/ "./node_modules/plain-draggable/plain-draggable-limit.esm.js":
+/*!*******************************************************************!*\
+  !*** ./node_modules/plain-draggable/plain-draggable-limit.esm.js ***!
+  \*******************************************************************/
 /*! exports provided: default */
-/***/ (function(__webpack_module__, __webpack_exports__, __webpack_require__) {
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var cssprefix__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! cssprefix */ "./node_modules/cssprefix/cssprefix.mjs");
-/* harmony import */ var anim_event__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! anim-event */ "./node_modules/anim-event/anim-event.mjs");
-/* harmony import */ var m_class_list__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! m-class-list */ "./node_modules/m-class-list/m-class-list.mjs");
+/* harmony import */ var cssprefix__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! cssprefix */ "./node_modules/cssprefix/cssprefix.esm.js");
+/* harmony import */ var anim_event__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! anim-event */ "./node_modules/anim-event/anim-event.esm.js");
+/* harmony import */ var m_class_list__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! m-class-list */ "./node_modules/m-class-list/m-class-list.esm.js");
 /* ================================================
         DON'T MANUALLY EDIT THIS FILE
 ================================================ */
@@ -1531,19 +1531,19 @@ PlainDraggable.limit = true;
 
 /***/ }),
 
-/***/ "./node_modules/plain-overlay/plain-overlay-limit-sync-debug.mjs":
-/*!***********************************************************************!*\
-  !*** ./node_modules/plain-overlay/plain-overlay-limit-sync-debug.mjs ***!
-  \***********************************************************************/
+/***/ "./node_modules/plain-overlay/plain-overlay-limit-sync-debug.esm.js":
+/*!**************************************************************************!*\
+  !*** ./node_modules/plain-overlay/plain-overlay-limit-sync-debug.esm.js ***!
+  \**************************************************************************/
 /*! exports provided: default */
-/***/ (function(__webpack_module__, __webpack_exports__, __webpack_require__) {
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var cssprefix__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! cssprefix */ "./node_modules/cssprefix/cssprefix.mjs");
-/* harmony import */ var anim_event__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! anim-event */ "./node_modules/anim-event/anim-event.mjs");
-/* harmony import */ var m_class_list__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! m-class-list */ "./node_modules/m-class-list/m-class-list.mjs");
-/* harmony import */ var timed_transition__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! timed-transition */ "./node_modules/timed-transition/timed-transition.mjs");
+/* harmony import */ var cssprefix__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! cssprefix */ "./node_modules/cssprefix/cssprefix.esm.js");
+/* harmony import */ var anim_event__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! anim-event */ "./node_modules/anim-event/anim-event.esm.js");
+/* harmony import */ var m_class_list__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! m-class-list */ "./node_modules/m-class-list/m-class-list.esm.js");
+/* harmony import */ var timed_transition__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! timed-transition */ "./node_modules/timed-transition/timed-transition.esm.js");
 /* ================================================
         DON'T MANUALLY EDIT THIS FILE
 ================================================ */
@@ -2880,16 +2880,16 @@ PlainOverlay.IS_GECKO = IS_GECKO;
 
 /***/ }),
 
-/***/ "./node_modules/timed-transition/timed-transition.mjs":
-/*!************************************************************!*\
-  !*** ./node_modules/timed-transition/timed-transition.mjs ***!
-  \************************************************************/
+/***/ "./node_modules/timed-transition/timed-transition.esm.js":
+/*!***************************************************************!*\
+  !*** ./node_modules/timed-transition/timed-transition.esm.js ***!
+  \***************************************************************/
 /*! exports provided: default */
-/***/ (function(__webpack_module__, __webpack_exports__, __webpack_require__) {
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var cssprefix__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! cssprefix */ "./node_modules/cssprefix/cssprefix.mjs");
+/* harmony import */ var cssprefix__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! cssprefix */ "./node_modules/cssprefix/cssprefix.esm.js");
 /* ================================================
         DON'T MANUALLY EDIT THIS FILE
 ================================================ */
@@ -3419,12 +3419,12 @@ module.exports = ".plainmodal .plainmodal-overlay{-webkit-tap-highlight-color:tr
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var cssprefix__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! cssprefix */ "./node_modules/cssprefix/cssprefix.mjs");
-/* harmony import */ var m_class_list__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! m-class-list */ "./node_modules/m-class-list/m-class-list.mjs");
-/* harmony import */ var plain_overlay__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! plain-overlay */ "./node_modules/plain-overlay/plain-overlay-limit-sync-debug.mjs");
+/* harmony import */ var cssprefix__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! cssprefix */ "./node_modules/cssprefix/cssprefix.esm.js");
+/* harmony import */ var m_class_list__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! m-class-list */ "./node_modules/m-class-list/m-class-list.esm.js");
+/* harmony import */ var plain_overlay__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! plain-overlay */ "./node_modules/plain-overlay/plain-overlay-limit-sync-debug.esm.js");
 /* harmony import */ var _default_scss__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./default.scss */ "./src/default.scss");
 /* harmony import */ var _default_scss__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(_default_scss__WEBPACK_IMPORTED_MODULE_3__);
-/* harmony import */ var plain_draggable__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! plain-draggable */ "./node_modules/plain-draggable/plain-draggable-limit.mjs");
+/* harmony import */ var plain_draggable__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! plain-draggable */ "./node_modules/plain-draggable/plain-draggable-limit.esm.js");
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }

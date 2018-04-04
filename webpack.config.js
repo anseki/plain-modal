@@ -45,7 +45,6 @@ module.exports = {
     libraryExport: 'default'
   },
   resolve: {
-    mainFields: ['module', 'jsnext:main', 'browser', 'main'],
     alias: {
       // {EDITION: 'limit', SYNC: 'yes'}
       'plain-overlay': `plain-overlay/plain-overlay-limit-sync${BUILD_MODE ? '' : '-debug'}.esm.js`,
