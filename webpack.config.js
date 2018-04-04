@@ -48,19 +48,13 @@ module.exports = {
     mainFields: ['module', 'jsnext:main', 'browser', 'main'],
     alias: {
       // {EDITION: 'limit', SYNC: 'yes'}
-      'plain-overlay': `plain-overlay/plain-overlay-limit-sync${BUILD_MODE ? '' : '-debug'}.mjs`,
+      'plain-overlay': `plain-overlay/plain-overlay-limit-sync${BUILD_MODE ? '' : '-debug'}.esm.js`,
       // {EDITION: 'limit'}
-      'plain-draggable': 'plain-draggable/plain-draggable-limit.mjs'
+      'plain-draggable': 'plain-draggable/plain-draggable-limit.esm.js'
     }
   },
   module: {
     rules: [
-      // https://github.com/webpack/webpack/issues/6796
-      // For nested importing
-      {
-        test: path.resolve(__dirname, 'node_modules'),
-        resolve: {mainFields: ['module', 'jsnext:main', 'browser', 'main']}
-      },
       {
         resource: {and: [SRC_DIR_PATH, /\.js$/]},
         use: [
@@ -71,7 +65,7 @@ module.exports = {
               procedure(content) {
                 if (this.resourcePath === ENTRY_PATH) {
                   STATIC_ESM_FILES.push(
-                    {fileName: `${BUILD_BASE_NAME}${BUILD_MODE ? '' : '-debug'}.mjs`, content});
+                    {fileName: `${BUILD_BASE_NAME}${BUILD_MODE ? '' : '-debug'}.esm.js`, content});
                 }
                 return content;
               }

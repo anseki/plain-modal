@@ -15,10 +15,10 @@
     "window"
   ],
   "main": "plain-modal.min.js",
-  "module": "plain-modal.mjs",
-  "jsnext:main": "plain-modal.mjs",
+  "module": "plain-modal.esm.js",
+  "jsnext:main": "plain-modal.esm.js",
   "files": [
-    "plain-modal?(-limit)?(-debug).@(min.js|mjs)",
+    "plain-modal?(-limit)?(-debug).@(min.js|esm.js)",
     "bower.json"
   ],
   "devDependencies": {
