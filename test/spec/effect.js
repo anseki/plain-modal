@@ -1,9 +1,9 @@
-
 describe('openEffect, closeEffect', function() {
   'use strict';
 
-  var window, document, utils, PlainModal, traceLog, pageDone,
-    modal1, modal2, modal3, allModals, lastDone = {};
+  var lastDone = {},
+    window, document, utils, PlainModal, traceLog, pageDone,
+    modal1, modal2, modal3, allModals;
 
   function cbChangeClose(modal) { modal.close(true); }
 

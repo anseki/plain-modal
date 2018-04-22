@@ -1,4 +1,3 @@
-
 describe('closeButton', function() {
   'use strict';
 

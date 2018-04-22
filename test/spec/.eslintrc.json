@@ -2,6 +2,8 @@
   "env": {"browser": true, "jasmine": true},
   "globals": {"loadPage": false},
   "rules": {
+    "no-var": "off",
+    "prefer-arrow-callback": "off",
     "no-underscore-dangle": [2, {"allow": ["_id"]}]
   }
 }

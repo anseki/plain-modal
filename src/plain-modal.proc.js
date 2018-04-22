@@ -28,8 +28,13 @@ const
   STYLE_CLASS_OVERLAY_HIDE = `${STYLE_CLASS_OVERLAY}-hide`,
   STYLE_CLASS_OVERLAY_FORCE = `${STYLE_CLASS_OVERLAY}-force`,
 
-  STATE_CLOSED = 0, STATE_OPENING = 1, STATE_OPENED = 2, STATE_CLOSING = 3,
-  STATE_INACTIVATING = 4, STATE_INACTIVATED = 5, STATE_ACTIVATING = 6,
+  STATE_CLOSED = 0,
+  STATE_OPENING = 1,
+  STATE_OPENED = 2,
+  STATE_CLOSING = 3,
+  STATE_INACTIVATING = 4,
+  STATE_INACTIVATED = 5,
+  STATE_ACTIVATING = 6,
   DURATION = 200, // COPY from PlainOverlay
 
   IS_TRIDENT = !!document.uniqueID,
@@ -37,7 +42,8 @@ const
     '-ms-ime-align' in document.documentElement.style && !window.navigator.msPointerEnabled,
 
   isObject = (() => {
-    const toString = {}.toString, fnToString = {}.hasOwnProperty.toString,
+    const toString = {}.toString,
+      fnToString = {}.hasOwnProperty.toString,
       objFnString = fnToString.call(Object);
     return obj => {
       let proto, constr;
@@ -71,15 +77,18 @@ const
    */
   shownProps = [];
 
-let insId = 0,
-  openCloseEffectProps, // A `props` that is running the "open/close" effect now.
-  closeByEscKey = true, closeByOverlay = true;
+let
+  closeByEscKey = true,
+  closeByOverlay = true,
+  insId = 0,
+  openCloseEffectProps; // A `props` that is running the "open/close" effect now.
 
 
 function forceReflow(target) {
   // Trident and Blink bug (reflow like `offsetWidth` can't update)
   setTimeout(() => {
-    const parent = target.parentNode, next = target.nextSibling;
+    const parent = target.parentNode,
+      next = target.nextSibling;
     // It has to be removed first for Blink.
     parent.insertBefore(parent.removeChild(target), next);
   }, 0);
@@ -174,7 +183,8 @@ function execOpening(props, force) {
         - STATE_OPENED or STATE_ACTIVATING, regardless of force
         - STATE_INACTIVATING and force
     */
-    const parentProps = props.parentProps, elmOverlay = parentProps.elmOverlay;
+    const parentProps = props.parentProps,
+      elmOverlay = parentProps.elmOverlay;
     if (parentProps.state === STATE_OPENED) {
       elmOverlay.style[CSSPrefix.getName('transitionDuration')] =
         props.options.duration === DURATION ? '' : `${props.options.duration}ms`;
@@ -216,7 +226,8 @@ function execClosing(props, force, sync) {
         - STATE_INACTIVATED or STATE_INACTIVATING, regardless of `force`
         - STATE_ACTIVATING and `force`
     */
-    const parentProps = props.parentProps, elmOverlay = parentProps.elmOverlay;
+    const parentProps = props.parentProps,
+      elmOverlay = parentProps.elmOverlay;
     if (parentProps.state === STATE_INACTIVATED) {
       elmOverlay.style[CSSPrefix.getName('transitionDuration')] =
         props.options.duration === DURATION ? '' : `${props.options.duration}ms`;
@@ -344,12 +355,13 @@ function close(props, force) {
  * @returns {void}
  */
 function setOptions(props, newOptions) {
-  const options = props.options, plainOverlay = props.plainOverlay;
+  const options = props.options,
+    plainOverlay = props.plainOverlay;
 
   // closeButton
   if (newOptions.hasOwnProperty('closeButton') &&
       (newOptions.closeButton = isElement(newOptions.closeButton) ? newOptions.closeButton :
-        newOptions.closeButton == null ? void 0 : false) !== false &&
+      newOptions.closeButton == null ? void 0 : false) !== false &&
       newOptions.closeButton !== options.closeButton) {
     if (options.closeButton) { // Remove
       options.closeButton.removeEventListener('click', props.handleClose, false);
@@ -374,7 +386,7 @@ function setOptions(props, newOptions) {
   // dragHandle
   if (newOptions.hasOwnProperty('dragHandle') &&
       (newOptions.dragHandle = isElement(newOptions.dragHandle) ? newOptions.dragHandle :
-        newOptions.dragHandle == null ? void 0 : false) !== false &&
+      newOptions.dragHandle == null ? void 0 : false) !== false &&
       newOptions.dragHandle !== options.dragHandle) {
     options.dragHandle = newOptions.dragHandle;
     if (options.dragHandle) {

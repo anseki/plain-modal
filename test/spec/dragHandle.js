@@ -1,4 +1,3 @@
-
 describe('dragHandle', function() {
   'use strict';
 

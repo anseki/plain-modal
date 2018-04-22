@@ -1,4 +1,3 @@
-
 describe('display', function() {
   'use strict';
 

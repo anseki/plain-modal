@@ -1,10 +1,9 @@
-
 describe('flow', function() {
   'use strict';
 
-  var window, document, utils, PlainModal, traceLog, pageDone,
-    modal, modalCh,
-    cbChangeFncs = {}, timer;
+  var cbChangeFncs = {},
+    window, document, utils, PlainModal, traceLog, pageDone,
+    modal, modalCh, timer;
 
   beforeAll(function(beforeDone) {
     loadPage('spec/common.html', function(pageWindow, pageDocument, pageBody, done) {
@@ -399,7 +398,7 @@ describe('flow', function() {
 
               '_id:' + modal._id, '</execOpening>',
 
-              '_id:' + modal._id, '</open>',
+              '_id:' + modal._id, '</open>'
               // DONE: open
             ]);
 
@@ -453,7 +452,7 @@ describe('flow', function() {
 
               '_id:' + modal._id, '</execOpening>',
 
-              '_id:' + modal._id, '</open>',
+              '_id:' + modal._id, '</open>'
               // DONE: open
             ]);
 
@@ -534,7 +533,7 @@ describe('flow', function() {
 
                   '_id:' + modal._id, '</execOpening>',
 
-                  '_id:' + modal._id, '</open>',
+                  '_id:' + modal._id, '</open>'
                   // DONE: open
                 ]);
 

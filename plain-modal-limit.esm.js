@@ -75,11 +75,11 @@ insProps = {},
  */
 shownProps = [];
 
-var insId = 0,
-    openCloseEffectProps = void 0,
-    // A `props` that is running the "open/close" effect now.
-closeByEscKey = true,
-    closeByOverlay = true;
+var closeByEscKey = true,
+    closeByOverlay = true,
+    insId = 0,
+    openCloseEffectProps = void 0; // A `props` that is running the "open/close" effect now.
+
 
 function forceReflow(target) {
   // Trident and Blink bug (reflow like `offsetWidth` can't update)

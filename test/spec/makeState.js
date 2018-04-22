@@ -1,4 +1,3 @@
-
 describe('makeState', function() {
   'use strict';
 

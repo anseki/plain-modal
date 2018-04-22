@@ -1,4 +1,3 @@
-
 describe('closeByOverlay', function() {
   'use strict';
 

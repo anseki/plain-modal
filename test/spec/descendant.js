@@ -1,4 +1,3 @@
-
 describe('descendant', function() {
   'use strict';
 

@@ -1,4 +1,3 @@
-
 describe('closeByEscKey', function() {
   'use strict';
 
