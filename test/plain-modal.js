@@ -218,7 +218,7 @@ function ucf(text) {
   return text.substr(0, 1).toUpperCase() + text.substr(1);
 }
 
-var PREFIXES = ['webkit', 'ms', 'moz', 'o'],
+var PREFIXES = ['webkit', 'moz', 'ms', 'o'],
     NAME_PREFIXES = PREFIXES.reduce(function (prefixes, prefix) {
   prefixes.push(prefix);
   prefixes.push(ucf(prefix));
@@ -270,7 +270,7 @@ normalizeName = function () {
 normalizeValue = function () {
   var rePrefixedValue = new RegExp('^(?:' + VALUE_PREFIXES.join('|') + ')', 'i');
   return function (propValue) {
-    return (propValue + '').replace(/\s/g, '').replace(rePrefixedValue, '');
+    return (propValue != null ? propValue + '' : '').replace(/\s/g, '').replace(rePrefixedValue, '');
   };
 }(),
 
@@ -279,24 +279,31 @@ normalizeValue = function () {
  * Polyfill for `CSS.supports`.
  * @param {string} propName - A name.
  * @param {string} propValue - A value.
+ *     Since `CSSStyleDeclaration.setProperty` might return unexpected result,
+ *     the `propValue` should be checked before the `cssSupports` is called.
  * @returns {boolean} `true` if given pair is accepted.
  */
 cssSupports = function () {
-  // return window.CSS && window.CSS.supports || ((propName, propValue) => {
-  // `CSS.supports` doesn't find prefixed property.
-  return function (propName, propValue) {
-    var declaration = getDeclaration();
-    // In some browsers, `declaration[prop] = value` updates any property.
-    propName = propName.replace(/[A-Z]/g, function (str) {
-      return '-' + str.toLowerCase();
-    }); // kebab-case
-    declaration.setProperty(propName, propValue);
-    return declaration.getPropertyValue(propName) === propValue;
-  };
+  return (
+    // return window.CSS && window.CSS.supports || ((propName, propValue) => {
+    // `CSS.supports` doesn't find prefixed property.
+    function (propName, propValue) {
+      var declaration = getDeclaration();
+      // In some browsers, `declaration[prop] = value` updates any property.
+      propName = propName.replace(/[A-Z]/g, function (str) {
+        return '-' + str.toLowerCase();
+      }); // kebab-case
+      declaration.setProperty(propName, propValue);
+      return declaration[propName] != null && // Because getPropertyValue returns '' if it is unsupported
+      declaration.getPropertyValue(propName) === propValue;
+    }
+  );
 }(),
-    propNames = {},
-    propValues = {}; // Cache
 
+
+// Cache
+propNames = {},
+    propValues = {};
 
 function getName(propName) {
   propName = normalizeName(propName);
@@ -340,9 +347,8 @@ function getValue(propName, propValue) {
       if (propValues[propName][propValue] !== false) {
         res = propValues[propName][propValue];
         return true;
-      } else {
-        return false; // Continue to next value
       }
+      return false; // Continue to next value
     }
 
     if (cssSupports(propName, propValue)) {
@@ -441,14 +447,13 @@ function _toggle(list, element, token, force) {
     list.splice(i, 1);
     applyList(list, element);
     return false;
-  } else {
-    if (force === false) {
-      return false;
-    }
-    list.push(token);
-    applyList(list, element);
-    return true;
   }
+  if (force === false) {
+    return false;
+  }
+  list.push(token);
+  applyList(list, element);
+  return true;
 }
 
 function _replace(list, element, token, newToken) {
@@ -484,6 +489,7 @@ function mClassList(element) {
         _remove(list, element, Array.prototype.slice.call(arguments));
         return mClassList.methodChain ? ins : void 0;
       },
+
       toggle: function toggle(token, force) {
         return _toggle(list, element, token, force);
       },
@@ -666,7 +672,7 @@ function validPPValue(value) {
 
   // Get PPValue from string (all `/s` were already removed)
   function string2PPValue(inString) {
-    var matches = /^(.+?)(\%)?$/.exec(inString);
+    var matches = /^(.+?)(%)?$/.exec(inString);
     var value = void 0,
         isRatio = void 0;
     return matches && isFinite(value = parseFloat(matches[1])) ? { value: (isRatio = !!(matches[2] && value)) ? value / 100 : value, isRatio: isRatio } : null; // 0% -> 0
@@ -1505,8 +1511,7 @@ document.addEventListener('mouseup', function () {
         if (insProps[id].initElm) {
           // Easy checking for instance without errors.
           initBBox(insProps[id]);
-        }
-        // eslint-disable-next-line brace-style
+        } // eslint-disable-line brace-style
       });
       resizing = false;
     }), true);
@@ -1714,35 +1719,29 @@ window.getBBox = getBBox; // [DEBUG/]
 
 function scrollLeft(element, isDoc, window, value) {
   if (isDoc) {
-    var target = window;
     if (value != null) {
-      target.scrollTo(value, target.pageYOffset);
+      window.scrollTo(value, window.pageYOffset);
     }
-    return target.pageXOffset;
-  } else {
-    var _target = element;
-    if (value != null) {
-      _target.scrollLeft = value;
-    }
-    return _target.scrollLeft;
+    return window.pageXOffset;
   }
+  if (value != null) {
+    element.scrollLeft = value;
+  }
+  return element.scrollLeft;
 }
 window.scrollLeft = scrollLeft; // [DEBUG/]
 
 function scrollTop(element, isDoc, window, value) {
   if (isDoc) {
-    var target = window;
     if (value != null) {
-      target.scrollTo(target.pageXOffset, value);
+      window.scrollTo(window.pageXOffset, value);
     }
-    return target.pageYOffset;
-  } else {
-    var _target2 = element;
-    if (value != null) {
-      _target2.scrollTop = value;
-    }
-    return _target2.scrollTop;
+    return window.pageYOffset;
   }
+  if (value != null) {
+    element.scrollTop = value;
+  }
+  return element.scrollTop;
 }
 window.scrollTop = scrollTop; // [DEBUG/]
 
@@ -1816,9 +1815,8 @@ function getDocClientWH(props) {
     direction = targetBodyCmpStyle.direction;
     return wMode === 'tb-rl' || wMode === 'bt-rl' || wMode === 'tb-lr' || wMode === 'bt-lr' || IS_EDGE && (direction === 'ltr' && (wMode === 'vertical-rl' || wMode === 'vertical-lr') || direction === 'rtl' && (wMode === 'vertical-rl' || wMode === 'vertical-lr')) ? { width: height, height: width } : // interchange
     { width: width, height: height };
-  } else {
-    return { width: width, height: height };
   }
+  return { width: width, height: height };
 }
 window.getDocClientWH = getDocClientWH; // [DEBUG/]
 
@@ -1841,14 +1839,13 @@ function restoreScroll(props, element) {
       return false;
     }) ? (traceLog.push('DONE:ELEMENT', '_id:' + props._id, '</restoreScroll>'), true) : ( // [DEBUG/]
     traceLog.push('NotInTarget', '_id:' + props._id, '</restoreScroll>'), false) // [DEBUG/]
-    ;
-  } else {
-    props.savedElementsScroll.forEach(function (elementScroll) {
-      scrollElement(elementScroll.element, elementScroll.isDoc, elementScroll.left, elementScroll.top);
-    });
-    traceLog.push('DONE:ALL', '_id:' + props._id, '</restoreScroll>'); // [DEBUG/]
-    return true;
+    ; // eslint-disable-line semi-style
   }
+  props.savedElementsScroll.forEach(function (elementScroll) {
+    scrollElement(elementScroll.element, elementScroll.isDoc, elementScroll.left, elementScroll.top);
+  });
+  traceLog.push('DONE:ALL', '_id:' + props._id, '</restoreScroll>'); // [DEBUG/]
+  return true;
 }
 
 function restoreAccKeys(props) {
@@ -1957,8 +1954,8 @@ function avoidSelect(props) {
     traceLog.push('NoRange');
   }
   // [/DEBUG]
-  if (selection.rangeCount && (props.isDoc ? !nodeContainsSel(props.elmOverlayBody, selection) : selection.containsNode && (!IS_BLINK || !selection.isCollapsed) ? // Blink bug, fails with empty string.
-  selection.containsNode(props.elmTargetBody, true) : selContainsNode(selection, props.elmTargetBody, true))) {
+  if (selection.rangeCount && (props.isDoc ? !nodeContainsSel(props.elmOverlayBody, selection) : selection.containsNode && (!IS_BLINK || !selection.isCollapsed) // Blink bug, fails with empty string.
+  ? selection.containsNode(props.elmTargetBody, true) : selContainsNode(selection, props.elmTargetBody, true))) {
     try {
       selection.removeAllRanges(); // Trident bug?, `Error:800a025e` comes sometime
     } catch (error) {/* ignore */}
@@ -2043,10 +2040,9 @@ function disableDocBars(props) {
     // `overflow: 'hidden'` might change scroll.
     restoreScroll(props, elmTarget);
     return true;
-  } else {
-    restoreStyle(elmTarget, props.savedStyleTarget, ['overflow']);
-    return false;
   }
+  restoreStyle(elmTarget, props.savedStyleTarget, ['overflow']);
+  return false;
 }
 window.disableDocBars = disableDocBars; // [DEBUG/]
 
@@ -2071,7 +2067,7 @@ function _position(props, targetBodyBBox) {
     width: targetBodyBBox.width - borders.left - borders.right + 'px',
     height: targetBodyBBox.height - borders.top - borders.bottom + 'px'
   },
-      reValue = /^([\d\.]+)(px|%)$/;
+      reValue = /^([\d.]+)(px|%)$/;
 
   // border-radius
   [{ prop: 'TopLeft', hBorder: 'left', vBorder: 'top' }, { prop: 'TopRight', hBorder: 'right', vBorder: 'top' }, { prop: 'BottomRight', hBorder: 'right', vBorder: 'bottom' }, { prop: 'BottomLeft', hBorder: 'left', vBorder: 'bottom' }].forEach(function (corner) {
@@ -2232,8 +2228,7 @@ function _show(props, force) {
       var isDoc = fromDoc && i === 0;
       if (elementCanScroll(element, isDoc)) {
         elementsScroll.push({
-          element: element,
-          isDoc: isDoc,
+          element: element, isDoc: isDoc,
           left: scrollLeft(element, isDoc, props.window),
           top: scrollTop(element, isDoc, props.window)
         });
@@ -2324,6 +2319,7 @@ function _show(props, force) {
 /**
  * @param {props} props - `props` of instance.
  * @param {boolean} [force] - Skip effect.
+ * @param {boolean} [sync] - sync-mode
  * @returns {void}
  */
 function _hide(props, force, sync) {
@@ -2421,7 +2417,9 @@ function _setOptions(props, newOptions) {
 
 function scroll(props, target, dirLeft, value) {
   var isDoc = void 0,
-      curValue = void 0;
+
+  // To return undefined
+  curValue = void 0; // eslint-disable-line prefer-const
 
   if (target) {
     var targetElements = getTargetElements(props);
@@ -2715,6 +2713,7 @@ var PlainOverlay = function () {
     /**
      * Hide the overlay.
      * @param {boolean} [force] - Hide it immediately without effect.
+     * @param {boolean} [sync] - sync-mode
      * @returns {PlainOverlay} Current instance itself.
      */
 
