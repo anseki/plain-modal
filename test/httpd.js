@@ -11,8 +11,6 @@ const
     'test-page-loader'
   ],
 
-  http = require('http'),
-  staticAlias = require('node-static-alias'),
   logger = (() => {
     const log4js = require('log4js');
     log4js.configure({
@@ -36,66 +34,66 @@ const
 
   EXT_DIR = path.resolve(__dirname, '../../test-ext'),
 
-  SLOW_RESPONSE = 10000;
+  SLOW_RESPONSE = 10000,
 
-http.createServer((request, response) => {
+  staticAlias = new (require('node-static-alias')).Server(DOC_ROOT, {
+    cache: false,
+    headers: {'Cache-Control': 'no-cache, must-revalidate'},
+    alias:
+      MODULE_PACKAGES.map(packageName =>
+        ({ // node_modules
+          match: new RegExp(`^/${packageName}/.+`),
+          serve: `${require.resolve(packageName).replace(
+            // Include `packageName` for nested `node_modules`
+            new RegExp(`^(.*[/\\\\]node_modules)[/\\\\]${packageName}[/\\\\].*$`), '$1')}<% reqPath %>`,
+          allowOutside: true
+        })
+      ).concat([
+        // limited-function script
+        {
+          match: /^\/plain-modal\.js$/,
+          serve: params =>
+            (/\bLIMIT=true\b/.test(params.cookie)
+              ? params.absPath.replace(/\.js$/, '-limit.js') : params.absPath)
+        },
+
+        // test-ext
+        {
+          match: /^\/ext\/.+/,
+          serve: params => params.reqPath.replace(/^\/ext/, EXT_DIR),
+          allowOutside: true
+        },
+        // test-ext index
+        {
+          match: /^\/ext\/?$/,
+          serve: () => {
+            const indexPath = path.join(EXT_DIR, '.index.html');
+            fs.writeFileSync(indexPath,
+              `<html><head><meta name="viewport" content="user-scalable=no, width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1"></head><body><ul>${
+                filelist.getSync(EXT_DIR, {
+                  filter: stats => /^[^.].*\.html$/.test(stats.name),
+                  listOf: 'fullPath'
+                }).sort().map(fullPath => { // abs URL for '/ext' (no trailing slash)
+                  const htmlPath = `/ext/${path.relative(EXT_DIR, fullPath).replace(/\\/g, '/')}`;
+                  return `<li><a href="${htmlPath}">${htmlPath}</a></li>`;
+                }).join('')
+              }</ul></body></html>`);
+            return indexPath;
+          },
+          allowOutside: true
+        }
+      ]),
+    logger
+  });
+
+require('http').createServer((request, response) => {
   request.addListener('end', () => {
-    const server = new staticAlias.Server(DOC_ROOT, {
-      cache: false,
-      headers: {'Cache-Control': 'no-cache, must-revalidate'},
-      alias:
-        MODULE_PACKAGES.map(packageName =>
-          ({ // node_modules
-            match: new RegExp(`^/${packageName}/.+`),
-            serve: `${require.resolve(packageName).replace(
-              // Include `packageName` for nested `node_modules`
-              new RegExp(`^(.*[/\\\\]node_modules)[/\\\\]${packageName}[/\\\\].*$`), '$1')}<% reqPath %>`,
-            allowOutside: true
-          })
-        ).concat([
-          // limited-function script
-          {
-            match: /^\/plain-modal\.js$/,
-            serve: params =>
-              (/\bLIMIT=true\b/.test(params.cookie)
-                ? params.absPath.replace(/\.js$/, '-limit.js') : params.absPath)
-          },
-
-          // test-ext
-          {
-            match: /^\/ext\/.+/,
-            serve: params => params.reqPath.replace(/^\/ext/, EXT_DIR),
-            allowOutside: true
-          },
-          // test-ext index
-          {
-            match: /^\/ext\/?$/,
-            serve: () => {
-              const indexPath = path.join(EXT_DIR, '.index.html');
-              fs.writeFileSync(indexPath,
-                `<html><head><meta name="viewport" content="user-scalable=no, width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1"></head><body><ul>${
-                  filelist.getSync(EXT_DIR, {
-                    filter: stats => /^[^.].*\.html$/.test(stats.name),
-                    listOf: 'fullPath'
-                  }).sort().map(fullPath => { // abs URL for '/ext' (no trailing slash)
-                    const htmlPath = `/ext/${path.relative(EXT_DIR, fullPath).replace(/\\/g, '/')}`;
-                    return `<li><a href="${htmlPath}">${htmlPath}</a></li>`;
-                  }).join('')
-                }</ul></body></html>`);
-              return indexPath;
-            },
-            allowOutside: true
-          }
-        ]),
-      logger
-    });
-
     function serve() {
-      server.serve(request, response, e => {
-        if (e) {
-          response.writeHead(e.status, e.headers);
+      staticAlias.serve(request, response, error => {
+        if (error) {
+          response.writeHead(error.status, error.headers);
           logger.error('(%s) %s', request.url, response.statusCode);
-          if (e.status === 404) {
+          if (error.status === 404) {
             response.end('Not Found');
           }
         } else {
