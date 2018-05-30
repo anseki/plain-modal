@@ -37,17 +37,32 @@ var PlainModal =
 /******/ 	// define getter function for harmony exports
 /******/ 	__webpack_require__.d = function(exports, name, getter) {
 /******/ 		if(!__webpack_require__.o(exports, name)) {
-/******/ 			Object.defineProperty(exports, name, {
-/******/ 				configurable: false,
-/******/ 				enumerable: true,
-/******/ 				get: getter
-/******/ 			});
+/******/ 			Object.defineProperty(exports, name, { enumerable: true, get: getter });
 /******/ 		}
 /******/ 	};
 /******/
 /******/ 	// define __esModule on exports
 /******/ 	__webpack_require__.r = function(exports) {
+/******/ 		if(typeof Symbol !== 'undefined' && Symbol.toStringTag) {
+/******/ 			Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
+/******/ 		}
 /******/ 		Object.defineProperty(exports, '__esModule', { value: true });
+/******/ 	};
+/******/
+/******/ 	// create a fake namespace object
+/******/ 	// mode & 1: value is a module id, require it
+/******/ 	// mode & 2: merge all properties of value into the ns
+/******/ 	// mode & 4: return value when already ns object
+/******/ 	// mode & 8|1: behave like require
+/******/ 	__webpack_require__.t = function(value, mode) {
+/******/ 		if(mode & 1) value = __webpack_require__(value);
+/******/ 		if(mode & 8) return value;
+/******/ 		if((mode & 4) && typeof value === 'object' && value && value.__esModule) return value;
+/******/ 		var ns = Object.create(null);
+/******/ 		__webpack_require__.r(ns);
+/******/ 		Object.defineProperty(ns, 'default', { enumerable: true, value: value });
+/******/ 		if(mode & 2 && typeof value != 'string') for(var key in value) __webpack_require__.d(ns, key, function(key) { return value[key]; }.bind(null, key));
+/******/ 		return ns;
 /******/ 	};
 /******/
 /******/ 	// getDefaultExport function for compatibility with non-harmony modules
@@ -561,18 +576,19 @@ var ZINDEX = 9000,
 
 
 /** @type {Object.<_id: number, props>} */
-insProps = {};
+insProps = {},
+    pointerOffset = {};
 
 var insId = 0,
     activeItem = void 0,
     hasMoved = void 0,
-    pointerOffset = void 0,
     body = void 0,
 
 // CSS property/value
 cssValueDraggableCursor = void 0,
     cssValueDraggingCursor = void 0,
     cssOrgValueBodyCursor = void 0,
+    cssPropTransitionProperty = void 0,
     cssPropTransform = void 0,
     cssPropUserSelect = void 0,
     cssOrgValueBodyUserSelect = void 0,
@@ -585,6 +601,116 @@ cssWantedValueDraggableCursor = IS_WEBKIT ? ['all-scroll', 'move'] : ['grab', 'a
 draggableClass = 'plain-draggable',
     draggingClass = 'plain-draggable-dragging',
     movingClass = 'plain-draggable-moving';
+
+// Event Controler for mouse and touch interfaces
+var pointerEvent = {};
+{
+
+  // Gecko, Trident pick drag-event of some elements such as img, a, etc.
+  var dragstart = function dragstart(event) {
+    event.preventDefault();
+  };
+
+  /**
+   * @param {Element} element - A target element.
+   * @param {number} handlerId - An ID which was returned by regStartHandler.
+   * @returns {void}
+   */
+
+
+  /** @type {{clientX, clientY}} */
+  var lastPointerXY = { clientX: 0, clientY: 0 },
+      startHandlers = {},
+      DUPLICATE_INTERVAL = 400; // For avoiding mouse event that fired by touch interface
+  var handlerId = 0,
+      lastStartTime = 0,
+      curPointerClass = void 0,
+      curMoveHandler = void 0;
+
+  /**
+   * @param {function} startHandler - This is called with pointerXY when it starts. This returns boolean.
+   * @returns {number} handlerId which is used for adding/removing to element.
+   */
+  pointerEvent.regStartHandler = function (startHandler) {
+    startHandlers[++handlerId] = function (event) {
+      var pointerClass = event.type === 'mousedown' ? 'mouse' : 'touch',
+          pointerXY = pointerClass === 'mouse' ? event : event.targetTouches[0] || event.touches[0],
+          now = Date.now();
+      if (curPointerClass && pointerClass !== curPointerClass && now - lastStartTime < DUPLICATE_INTERVAL) {
+        return;
+      }
+      if (startHandler(pointerXY)) {
+        curPointerClass = pointerClass;
+        lastPointerXY.clientX = pointerXY.clientX;
+        lastPointerXY.clientY = pointerXY.clientY;
+        lastStartTime = now;
+        event.preventDefault();
+      }
+    };
+    return handlerId;
+  };pointerEvent.addStartHandler = function (element, handlerId) {
+    element.addEventListener('mousedown', startHandlers[handlerId], false);
+    element.addEventListener('touchstart', startHandlers[handlerId], false);
+    element.addEventListener('dragstart', dragstart, false);
+  };
+
+  /**
+   * @param {Element} element - A target element.
+   * @param {number} handlerId - An ID which was returned by regStartHandler.
+   * @returns {void}
+   */
+  pointerEvent.removeStartHandler = function (element, handlerId) {
+    element.removeEventListener('mousedown', startHandlers[handlerId], false);
+    element.removeEventListener('touchstart', startHandlers[handlerId], false);
+    element.removeEventListener('dragstart', dragstart, false);
+  };
+
+  /**
+   * @param {Element} element - A target element.
+   * @param {function} moveHandler - This is called with pointerXY when it moves.
+   * @returns {void}
+   */
+  pointerEvent.addMoveHandler = function (element, moveHandler) {
+    function pointerMove(event) {
+      var pointerClass = event.type === 'mousemove' ? 'mouse' : 'touch',
+          pointerXY = pointerClass === 'mouse' ? event : event.targetTouches[0] || event.touches[0];
+      if (pointerClass === curPointerClass) {
+        moveHandler(pointerXY);
+        lastPointerXY.clientX = pointerXY.clientX;
+        lastPointerXY.clientY = pointerXY.clientY;
+        event.preventDefault();
+      }
+    }
+    element.addEventListener('mousemove', pointerMove, false);
+    element.addEventListener('touchmove', pointerMove, false);
+    curMoveHandler = moveHandler;
+  };
+
+  /**
+   * @param {Element} element - A target element.
+   * @param {function} endHandler - This is called when it ends.
+   * @returns {void}
+   */
+  pointerEvent.addEndHandler = function (element, endHandler) {
+    function pointerEnd(event) {
+      var pointerClass = event.type === 'mouseup' ? 'mouse' : 'touch';
+      if (pointerClass === curPointerClass) {
+        endHandler();
+        curPointerClass = null;
+        event.preventDefault();
+      }
+    }
+    element.addEventListener('mouseup', pointerEnd, false);
+    element.addEventListener('touchend', pointerEnd, false);
+    element.addEventListener('touchcancel', pointerEnd, false);
+  };
+
+  pointerEvent.callMoveHandler = function () {
+    if (curMoveHandler) {
+      curMoveHandler(lastPointerXY);
+    }
+  };
+}
 
 function copyTree(obj) {
   return !obj ? obj : isObject(obj) ? Object.keys(obj).reduce(function (copyObj, key) {
@@ -895,7 +1021,7 @@ function move(props, position, cbCheck) {
 /**
  * Initialize HTMLElement for `translate`, and get `offset` that is used by `moveTranslate`.
  * @param {props} props - `props` of instance.
- * @returns {void}
+ * @returns {BBox} Current BBox without animation, i.e. left/top properties.
  */
 function initTranslate(props) {
   var element = props.element,
@@ -904,6 +1030,11 @@ function initTranslate(props) {
       // Get BBox before change style.
   RESTORE_PROPS = ['display', 'marginTop', 'marginBottom', 'width', 'height'];
   RESTORE_PROPS.unshift(cssPropTransform);
+
+  // Reset `transition-property` every time because it might be changed frequently.
+  var orgTransitionProperty = elementStyle[cssPropTransitionProperty];
+  elementStyle[cssPropTransitionProperty] = 'none'; // Disable animation
+  var fixPosition = getBBox(element);
 
   if (!props.orgStyle) {
     props.orgStyle = RESTORE_PROPS.reduce(function (orgStyle, prop) {
@@ -952,6 +1083,16 @@ function initTranslate(props) {
     }
     props.lastStyle[prop] = elementStyle[prop];
   });
+
+  // Restore `transition-property`
+  element.offsetWidth; /* force reflow */ // eslint-disable-line no-unused-expressions
+  elementStyle[cssPropTransitionProperty] = orgTransitionProperty;
+  if (fixPosition.left !== curPosition.left || fixPosition.top !== curPosition.top) {
+    // It seems that it is moving.
+    elementStyle[cssPropTransform] = 'translate(' + (fixPosition.left + offset.left) + 'px, ' + (fixPosition.top + offset.top) + 'px)';
+  }
+
+  return fixPosition;
 }
 
 /**
@@ -960,11 +1101,10 @@ function initTranslate(props) {
  * @returns {void}
  */
 function initBBox(props) {
-  props.initElm(props);
-
   var docBBox = getBBox(document.documentElement),
-      elementBBox = props.elementBBox = getBBox(props.element),
-      containmentBBox = props.containmentBBox = props.containmentIsBBox ? resolvePPBBox(props.options.containment, docBBox) || docBBox : getBBox(props.options.containment, true);
+      elementBBox = props.elementBBox = props.initElm(props),
+      // reset offset etc.
+  containmentBBox = props.containmentBBox = props.containmentIsBBox ? resolvePPBBox(props.options.containment, docBBox) || docBBox : getBBox(props.options.containment, true);
   props.minLeft = containmentBBox.left;
   props.maxLeft = containmentBBox.right - elementBBox.width;
   props.minTop = containmentBBox.top;
@@ -973,6 +1113,10 @@ function initBBox(props) {
   move(props, { left: elementBBox.left, top: elementBBox.top });
 }
 
+/**
+ * @param {props} props - `props` of instance.
+ * @returns {void}
+ */
 function dragEnd(props) {
   setDraggableCursor(props.options.handle, props.orgCursor);
   body.style.cursor = cssOrgValueBodyCursor;
@@ -997,13 +1141,18 @@ function dragEnd(props) {
   }
 }
 
-function mousedown(props, event) {
+/**
+ * @param {props} props - `props` of instance.
+ * @param {{clientX, clientY}} pointerXY - This might be MouseEvent, Touch of TouchEvent or Object.
+ * @returns {boolean} `true` if it started.
+ */
+function dragStart(props, pointerXY) {
   if (props.disabled) {
-    return;
+    return false;
   }
   if (activeItem) {
     dragEnd(activeItem);
-  } // activeItem is normally null by `mouseup`.
+  } // activeItem is normally null by pointerEvent.end.
 
   setDraggingCursor(props.options.handle);
   body.style.cursor = cssValueDraggingCursor || // If it is `false` or `''`
@@ -1021,7 +1170,9 @@ function mousedown(props, event) {
 
   activeItem = props;
   hasMoved = false;
-  pointerOffset = { left: props.elementBBox.left - event.pageX, top: props.elementBBox.top - event.pageY };
+  pointerOffset.left = props.elementBBox.left - (pointerXY.clientX + window.pageXOffset);
+  pointerOffset.top = props.elementBBox.top - (pointerXY.clientY + window.pageYOffset);
+  return true;
 }
 
 /**
@@ -1039,35 +1190,6 @@ function _setOptions(props, newOptions) {
     if (isElement(newOptions.containment)) {
       // Specific element
       if (newOptions.containment !== options.containment) {
-        // Restore
-        props.scrollElements.forEach(function (element) {
-          element.removeEventListener('scroll', props.handleScroll, false);
-        });
-        props.scrollElements = [];
-        window.removeEventListener('scroll', props.handleScroll, false);
-        // Parse tree
-        var element = newOptions.containment,
-            fixedElement = void 0;
-        while (element && element !== body) {
-          if (element.nodeType === Node.ELEMENT_NODE) {
-            var cmpStyle = window.getComputedStyle(element, '');
-            // Scrollable element
-            if (!(element instanceof SVGElement) && (cmpStyle.overflow !== 'visible' || cmpStyle.overflowX !== 'visible' || cmpStyle.overflowY !== 'visible' // `hidden` also is scrollable.
-            )) {
-              element.addEventListener('scroll', props.handleScroll, false);
-              props.scrollElements.push(element);
-            }
-            // Element that is re-positioned (document based) when window scrolled.
-            if (cmpStyle.position === 'fixed') {
-              fixedElement = true;
-            }
-          }
-          element = element.parentNode;
-        }
-        if (fixedElement) {
-          window.addEventListener('scroll', props.handleScroll, false);
-        }
-
         options.containment = newOptions.containment;
         props.containmentIsBBox = false;
         needsInitBBox = true;
@@ -1084,11 +1206,6 @@ function _setOptions(props, newOptions) {
     initBBox(props);
   }
 
-  // Gecko, Trident pick drag-event of some elements such as img, a, etc.
-  function dragstart(event) {
-    event.preventDefault();
-  }
-
   // handle
   if (isElement(newOptions.handle) && newOptions.handle !== options.handle) {
     if (options.handle) {
@@ -1097,8 +1214,8 @@ function _setOptions(props, newOptions) {
       if (cssPropUserSelect) {
         options.handle.style[cssPropUserSelect] = props.orgUserSelect;
       }
-      options.handle.removeEventListener('dragstart', dragstart, false);
-      options.handle.removeEventListener('mousedown', props.handleMousedown, false);
+      // pointerEvent remove startHandler
+      pointerEvent.removeStartHandler(options.handle, props.pointerEventHandlerId);
     }
     var handle = options.handle = newOptions.handle;
     props.orgCursor = handle.style.cursor;
@@ -1107,8 +1224,8 @@ function _setOptions(props, newOptions) {
       props.orgUserSelect = handle.style[cssPropUserSelect];
       handle.style[cssPropUserSelect] = 'none';
     }
-    handle.addEventListener('dragstart', dragstart, false);
-    handle.addEventListener('mousedown', props.handleMousedown, false);
+    // pointerEvent add startHandler
+    pointerEvent.addStartHandler(handle, props.pointerEventHandlerId);
   }
 
   // zIndex
@@ -1199,14 +1316,10 @@ var PlainDraggable = function () {
     if (draggableClass) {
       Object(m_class_list__WEBPACK_IMPORTED_MODULE_2__["default"])(element).add(draggableClass);
     }
-    // Prepare removable event listeners for each instance.
-    props.handleMousedown = function (event) {
-      mousedown(props, event);
-    };
-    props.handleScroll = anim_event__WEBPACK_IMPORTED_MODULE_1__["default"].add(function () {
-      initBBox(props);
+    // pointerEvent new startHandler
+    props.pointerEventHandlerId = pointerEvent.regStartHandler(function (pointerXY) {
+      return dragStart(props, pointerXY);
     });
-    props.scrollElements = [];
 
     // Default options
     if (!options.containment) {
@@ -1465,10 +1578,13 @@ var PlainDraggable = function () {
   return PlainDraggable;
 }();
 
-document.addEventListener('mousemove', anim_event__WEBPACK_IMPORTED_MODULE_1__["default"].add(function (event) {
+// pointerEvent add moveHandler
+
+
+pointerEvent.addMoveHandler(document, anim_event__WEBPACK_IMPORTED_MODULE_1__["default"].add(function (pointerXY) {
   if (activeItem && move(activeItem, {
-    left: event.pageX + pointerOffset.left,
-    top: event.pageY + pointerOffset.top
+    left: pointerXY.clientX + window.pageXOffset + pointerOffset.left,
+    top: pointerXY.clientY + window.pageYOffset + pointerOffset.top
   }, activeItem.onDrag)) {
 
     if (!hasMoved) {
@@ -1484,41 +1600,67 @@ document.addEventListener('mousemove', anim_event__WEBPACK_IMPORTED_MODULE_1__["
       activeItem.onMove();
     }
   }
-}), false);
+}));
 
-document.addEventListener('mouseup', function () {
-  // It might occur outside body.
+// pointerEvent add endHandler
+pointerEvent.addEndHandler(document, function () {
   if (activeItem) {
     dragEnd(activeItem);
   }
-}, false);
+});
 
 {
   var initDoc = function initDoc() {
+    cssPropTransitionProperty = cssprefix__WEBPACK_IMPORTED_MODULE_0__["default"].getName('transitionProperty');
     cssPropTransform = cssprefix__WEBPACK_IMPORTED_MODULE_0__["default"].getName('transform');
     cssOrgValueBodyCursor = body.style.cursor;
     if (cssPropUserSelect = cssprefix__WEBPACK_IMPORTED_MODULE_0__["default"].getName('userSelect')) {
       cssOrgValueBodyUserSelect = body.style[cssPropUserSelect];
     }
 
-    // Gecko bug, multiple calling (parallel) by `requestAnimationFrame`.
-    window.addEventListener('resize', anim_event__WEBPACK_IMPORTED_MODULE_1__["default"].add(function () {
-      if (resizing) {
+    // Init active item when layout is changed, and init others later.
+
+    var LAZY_INIT_DELAY = 200;
+    var initDoneItems = {},
+        lazyInitTimer = void 0;
+
+    function checkInitBBox(props) {
+      if (props.initElm) {
+        // Easy checking for instance without errors.
+        initBBox(props);
+      } // eslint-disable-line brace-style
+    }
+
+    function initAll() {
+      clearTimeout(lazyInitTimer);
+      Object.keys(insProps).forEach(function (id) {
+        if (!initDoneItems[id]) {
+          checkInitBBox(insProps[id]);
+        }
+      });
+      initDoneItems = {};
+    }
+
+    var layoutChanging = false; // Multiple calling (parallel) by `requestAnimationFrame`.
+    var layoutChange = anim_event__WEBPACK_IMPORTED_MODULE_1__["default"].add(function () {
+      if (layoutChanging) {
         return;
       }
-      resizing = true;
-      Object.keys(insProps).forEach(function (id) {
-        if (insProps[id].initElm) {
-          // Easy checking for instance without errors.
-          initBBox(insProps[id]);
-        } // eslint-disable-line brace-style
-      });
-      resizing = false;
-    }), true);
+      layoutChanging = true;
+
+      if (activeItem) {
+        checkInitBBox(activeItem);
+        pointerEvent.callMoveHandler();
+        initDoneItems[activeItem._id] = true;
+      }
+      clearTimeout(lazyInitTimer);
+      lazyInitTimer = setTimeout(initAll, LAZY_INIT_DELAY);
+
+      layoutChanging = false;
+    });
+    window.addEventListener('resize', layoutChange, true);
+    window.addEventListener('scroll', layoutChange, true);
   };
-
-  var resizing = false;
-
 
   if (body = document.body) {
     initDoc();
@@ -2936,7 +3078,7 @@ var STATE_STOPPED = 0,
  * @typedef {Object} props
  * @property {Object} options - Options.
  * @property {Element} element - Target element.
- * @property {Window} window - Window that conatins target element.
+ * @property {Window} window - Window that contains target element.
  * @property {number} duration - Milliseconds from `transition-duration`.
  * @property {number} delay - Milliseconds from `transition-delay`.
  * @property {number} state - Current state.
@@ -3168,8 +3310,8 @@ function _setOptions(props, newOptions) {
   var options = props.options;
 
   function parseAsCss(option) {
-    var optionValue = typeof newOptions[option] === 'number' ? // From CSS
-    (props.window.getComputedStyle(props.element, '')[cssprefix__WEBPACK_IMPORTED_MODULE_0__["default"].getName('transition-' + option)] || '').split(',')[newOptions[option]] : newOptions[option];
+    var optionValue = typeof newOptions[option] === 'number' // From CSS
+    ? (props.window.getComputedStyle(props.element, '')[cssprefix__WEBPACK_IMPORTED_MODULE_0__["default"].getName('transition-' + option)] || '').split(',')[newOptions[option]] : newOptions[option];
     return typeof optionValue === 'string' ? optionValue.trim() : null;
   }
 
@@ -3192,7 +3334,7 @@ function _setOptions(props, newOptions) {
     if (typeof value === 'string') {
       var matches = void 0,
           timeValue = void 0;
-      if (/^[0\.]+$/.test(value)) {
+      if (/^[0.]+$/.test(value)) {
         // This is invalid for CSS.
         options[option] = '0s';
         props[option] = 0;
@@ -3242,12 +3384,12 @@ var TimedTransition = function () {
       throw new Error('This `element` is not accepted.');
     }
     props.element = element;
-    props.window = element.ownerDocument.defaultView;
     if (!options) {
       options = {};
     } else if (!isObject(options)) {
       throw new Error('Invalid options.');
     }
+    props.window = element.ownerDocument.defaultView || options.window || window;
 
     // Default options
     if (!options.hasOwnProperty('property')) {
