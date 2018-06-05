@@ -45,7 +45,7 @@
     "test-page-loader": "^1.0.7",
     "timed-transition": "^1.2.0",
     "webpack": "^4.10.2",
-    "webpack-cli": "^2.1.4"
+    "webpack-cli": "^3.0.2"
   },
   "scripts": {
     "build": "cross-env NODE_ENV=production webpack --verbose",
