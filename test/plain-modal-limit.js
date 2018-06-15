@@ -2251,13 +2251,20 @@ var TimedTransition = function () {
     finishAll(props);
   }
 
-  /**
-   * @param {Object} options - New options.
-   * @returns {TimedTransition} Current instance itself.
-   */
-
-
   _createClass(TimedTransition, [{
+    key: 'remove',
+    value: function remove() {
+      var props = insProps[this._id];
+      clearTimeout(props.timer);
+      delete insProps[this._id];
+    }
+
+    /**
+     * @param {Object} options - New options.
+     * @returns {TimedTransition} Current instance itself.
+     */
+
+  }, {
     key: 'setOptions',
     value: function setOptions(options) {
       if (isObject(options)) {
