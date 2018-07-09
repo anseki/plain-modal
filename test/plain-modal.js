@@ -2989,8 +2989,11 @@ function dragstart(event) {
 var PointerEvent = function () {
   /**
    * Create a `PointerEvent` instance.
+   * @param {Object} [options] - Options
    */
-  function PointerEvent() {
+  function PointerEvent(options) {
+    var _this = this;
+
     _classCallCheck(this, PointerEvent);
 
     this.startHandlers = {};
@@ -2998,6 +3001,19 @@ var PointerEvent = function () {
     this.curPointerClass = null;
     this.lastPointerXY = { clientX: 0, clientY: 0 };
     this.lastStartTime = 0;
+
+    // Options
+    this.options = { // Default
+      preventDefault: true,
+      stopImmediatePropagation: true
+    };
+    if (options) {
+      ['preventDefault', 'stopImmediatePropagation'].forEach(function (option) {
+        if (typeof options[option] === 'boolean') {
+          _this.options[option] = options[option];
+        }
+      });
+    }
   }
 
   /**
@@ -3022,7 +3038,12 @@ var PointerEvent = function () {
           that.lastPointerXY.clientX = pointerXY.clientX;
           that.lastPointerXY.clientY = pointerXY.clientY;
           that.lastStartTime = now;
-          event.preventDefault();
+          if (that.options.preventDefault) {
+            event.preventDefault();
+          }
+          if (that.options.stopImmediatePropagation) {
+            event.stopImmediatePropagation();
+          }
         }
       };
       return that.lastHandlerId;
@@ -3090,7 +3111,12 @@ var PointerEvent = function () {
             pointerXY = pointerClass === 'mouse' ? event : event.targetTouches[0] || event.touches[0];
         if (pointerClass === that.curPointerClass) {
           that.move(pointerXY);
-          event.preventDefault();
+          if (that.options.preventDefault) {
+            event.preventDefault();
+          }
+          if (that.options.stopImmediatePropagation) {
+            event.stopImmediatePropagation();
+          }
         }
       });
       addEventListenerWithOptions(element, 'mousemove', wrappedHandler, { capture: false, passive: false });
@@ -3130,7 +3156,12 @@ var PointerEvent = function () {
         var pointerClass = event.type === 'mouseup' ? 'mouse' : 'touch';
         if (pointerClass === that.curPointerClass) {
           that.end();
-          event.preventDefault();
+          if (that.options.preventDefault) {
+            event.preventDefault();
+          }
+          if (that.options.stopImmediatePropagation) {
+            event.stopImmediatePropagation();
+          }
         }
       }
       addEventListenerWithOptions(element, 'mouseup', wrappedHandler, { capture: false, passive: false });
