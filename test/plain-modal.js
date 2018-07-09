@@ -3005,10 +3005,10 @@ var PointerEvent = function () {
     // Options
     this.options = { // Default
       preventDefault: true,
-      stopImmediatePropagation: true
+      stopPropagation: true
     };
     if (options) {
-      ['preventDefault', 'stopImmediatePropagation'].forEach(function (option) {
+      ['preventDefault', 'stopPropagation'].forEach(function (option) {
         if (typeof options[option] === 'boolean') {
           _this.options[option] = options[option];
         }
@@ -3041,8 +3041,8 @@ var PointerEvent = function () {
           if (that.options.preventDefault) {
             event.preventDefault();
           }
-          if (that.options.stopImmediatePropagation) {
-            event.stopImmediatePropagation();
+          if (that.options.stopPropagation) {
+            event.stopPropagation();
           }
         }
       };
@@ -3114,8 +3114,8 @@ var PointerEvent = function () {
           if (that.options.preventDefault) {
             event.preventDefault();
           }
-          if (that.options.stopImmediatePropagation) {
-            event.stopImmediatePropagation();
+          if (that.options.stopPropagation) {
+            event.stopPropagation();
           }
         }
       });
@@ -3159,8 +3159,8 @@ var PointerEvent = function () {
           if (that.options.preventDefault) {
             event.preventDefault();
           }
-          if (that.options.stopImmediatePropagation) {
-            event.stopImmediatePropagation();
+          if (that.options.stopPropagation) {
+            event.stopPropagation();
           }
         }
       }
