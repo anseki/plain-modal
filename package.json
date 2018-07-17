@@ -35,7 +35,7 @@
     "node-sass": "^4.9.2",
     "node-static-alias": "^1.1.2",
     "plain-draggable": "^2.5.7",
-    "plain-overlay": "^1.4.11",
+    "plain-overlay": "^1.4.12",
     "pointer-event": "^0.5.2",
     "post-compile-webpack-plugin": "^0.1.2",
     "pre-proc": "^1.0.2",
@@ -44,8 +44,8 @@
     "skeleton-loader": "^2.0.0",
     "stats-filelist": "^1.0.1",
     "test-page-loader": "^1.0.7",
-    "timed-transition": "^1.5.1",
-    "webpack": "^4.16.0",
+    "timed-transition": "^1.5.2",
+    "webpack": "^4.16.1",
     "webpack-cli": "^3.0.8"
   },
   "scripts": {
