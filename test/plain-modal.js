@@ -2968,7 +2968,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 
 
-var DUPLICATE_INTERVAL = 400; // For avoiding mouse event that fired by touch interface
+var MOUSE_EMU_INTERVAL = 400; // Avoid mouse events emulation
 
 
 // Support options for addEventListener
@@ -3014,7 +3014,7 @@ var PointerEvent = function () {
     this.lastHandlerId = 0;
     this.curPointerClass = null;
     this.lastPointerXY = { clientX: 0, clientY: 0 };
-    this.lastStartTime = 0;
+    this.lastTouchTime = 0;
 
     // Options
     this.options = { // Default
@@ -3044,14 +3044,18 @@ var PointerEvent = function () {
         var pointerClass = event.type === 'mousedown' ? 'mouse' : 'touch',
             pointerXY = pointerClass === 'mouse' ? event : event.targetTouches[0] || event.touches[0],
             now = Date.now();
-        if (that.curPointerClass && pointerClass !== that.curPointerClass && now - that.lastStartTime < DUPLICATE_INTERVAL) {
+
+        // Avoid mouse events emulation
+        if (pointerClass === 'touch') {
+          that.lastTouchTime = now;
+        } else if (now - that.lastTouchTime < MOUSE_EMU_INTERVAL) {
           return;
         }
+
         if (startHandler.call(that, pointerXY)) {
           that.curPointerClass = pointerClass;
           that.lastPointerXY.clientX = pointerXY.clientX;
           that.lastPointerXY.clientY = pointerXY.clientY;
-          that.lastStartTime = now;
           if (that.options.preventDefault) {
             event.preventDefault();
           }
@@ -3123,6 +3127,12 @@ var PointerEvent = function () {
       var wrappedHandler = anim_event__WEBPACK_IMPORTED_MODULE_0__["default"].add(function (event) {
         var pointerClass = event.type === 'mousemove' ? 'mouse' : 'touch',
             pointerXY = pointerClass === 'mouse' ? event : event.targetTouches[0] || event.touches[0];
+
+        // Avoid mouse events emulation
+        if (pointerClass === 'touch') {
+          that.lastTouchTime = Date.now();
+        }
+
         if (pointerClass === that.curPointerClass) {
           that.move(pointerXY);
           if (that.options.preventDefault) {
@@ -3168,6 +3178,12 @@ var PointerEvent = function () {
       function wrappedHandler(event) {
         var pointerClass = event.type === 'mouseup' ? 'mouse' : 'touch',
             pointerXY = pointerClass === 'mouse' ? event : event.targetTouches[0] || event.touches[0];
+
+        // Avoid mouse events emulation
+        if (pointerClass === 'touch') {
+          that.lastTouchTime = Date.now();
+        }
+
         if (pointerClass === that.curPointerClass) {
           that.end(pointerXY);
           if (that.options.preventDefault) {
@@ -3216,6 +3232,10 @@ var PointerEvent = function () {
           Now, this is fired by touchcancel only, but it might be fired even if curPointerClass is mouse.
         */
         // const pointerClass = 'touch';
+
+        // Avoid mouse events emulation
+        that.lastTouchTime = Date.now();
+
         // if (pointerClass === that.curPointerClass) {
         that.cancel();
         // }
