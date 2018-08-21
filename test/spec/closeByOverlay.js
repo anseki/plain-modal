@@ -495,130 +495,129 @@ describe('closeByOverlay', function() {
         traceLog.length = 0;
         PlainModal.closeByOverlay = true;
 
-        expect(clickTopOverlay()).toBe(true); // 1
+        utils.intervalExec([
+          // ====================================
+          function() {
+            expect(clickTopOverlay()).toBe(true); // 1
+          },
+          // ====================================
+          100, function() {
+            expect(modal3.state).toBe(PlainModal.STATE_OPENED);
+            expect(modal1.state).toBe(PlainModal.STATE_CLOSED);
+            expect(modal2.state).toBe(PlainModal.STATE_CLOSED);
+            expect(shownProps.map(function(props) { return props.ins; })).toEqual([modal3]);
 
-        setTimeout(function() {
-
-          expect(modal3.state).toBe(PlainModal.STATE_OPENED);
-          expect(modal1.state).toBe(PlainModal.STATE_CLOSED);
-          expect(modal2.state).toBe(PlainModal.STATE_CLOSED);
-          expect(shownProps.map(function(props) { return props.ins; }))
-            .toEqual([modal3]);
-
-          expect(clickTopOverlay()).toBe(true); // 3
-
-          setTimeout(function() {
-
+            expect(clickTopOverlay()).toBe(true); // 3
+          },
+          // ====================================
+          100, function() {
             expect(modal3.state).toBe(PlainModal.STATE_CLOSED);
             expect(modal1.state).toBe(PlainModal.STATE_CLOSED);
             expect(modal2.state).toBe(PlainModal.STATE_CLOSED);
             expect(shownProps).toEqual([]);
 
             expect(clickTopOverlay()).toBe(false); // No modal
+          },
+          // ====================================
+          50, function() {
+            expect(modal3.state).toBe(PlainModal.STATE_CLOSED);
+            expect(modal1.state).toBe(PlainModal.STATE_CLOSED);
+            expect(modal2.state).toBe(PlainModal.STATE_CLOSED);
+            expect(shownProps).toEqual([]);
 
-            setTimeout(function() {
+            expect(clickTopOverlay()).toBe(false); // No modal
+          },
+          // ====================================
+          50, function() {
+            expect(modal3.state).toBe(PlainModal.STATE_CLOSED);
+            expect(modal1.state).toBe(PlainModal.STATE_CLOSED);
+            expect(modal2.state).toBe(PlainModal.STATE_CLOSED);
+            expect(shownProps).toEqual([]);
 
-              expect(modal3.state).toBe(PlainModal.STATE_CLOSED);
-              expect(modal1.state).toBe(PlainModal.STATE_CLOSED);
-              expect(modal2.state).toBe(PlainModal.STATE_CLOSED);
-              expect(shownProps).toEqual([]);
+            expect(traceLog).toEqual([
+              '<overlayClick/>', 'CLOSE', '_id:' + modal1._id,
 
-              expect(clickTopOverlay()).toBe(false); // No modal
+              // 1 START: close
+              '<close>', '_id:' + modal1._id, 'state:STATE_OPENED',
+              'openCloseEffectProps:NONE',
 
-              setTimeout(function() {
+              '<execClosing>', '_id:' + modal1._id, 'state:STATE_OPENED',
+              'force:false', 'sync:false',
 
-                expect(modal3.state).toBe(PlainModal.STATE_CLOSED);
-                expect(modal1.state).toBe(PlainModal.STATE_CLOSED);
-                expect(modal2.state).toBe(PlainModal.STATE_CLOSED);
-                expect(shownProps).toEqual([]);
+              'parentProps._id:' + modal3._id, 'parentProps.state:STATE_INACTIVATED',
+              'elmOverlay.duration:50ms',
+              'elmOverlay.CLASS_FORCE:false', 'elmOverlay.CLASS_HIDE:false',
+              'parentProps.state:STATE_ACTIVATING',
+              'state:STATE_CLOSING',
 
-                expect(traceLog).toEqual([
-                  '<overlayClick/>', 'CLOSE', '_id:' + modal1._id,
+              '<switchDraggable>', '_id:' + modal1._id, 'state:STATE_CLOSING',
+              'plainDraggable:NONE',
+              '</switchDraggable>',
 
-                  // 1 START: close
-                  '<close>', '_id:' + modal1._id, 'state:STATE_OPENED',
-                  'openCloseEffectProps:NONE',
+              // PlainOverlay.hide()
+              '_id:' + modal1._id, '</execClosing>',
 
-                  '<execClosing>', '_id:' + modal1._id, 'state:STATE_OPENED',
-                  'force:false', 'sync:false',
+              '_id:' + modal1._id, '</close>',
+              // DONE: close
 
-                  'parentProps._id:' + modal3._id, 'parentProps.state:STATE_INACTIVATED',
-                  'elmOverlay.duration:50ms',
-                  'elmOverlay.CLASS_FORCE:false', 'elmOverlay.CLASS_HIDE:false',
-                  'parentProps.state:STATE_ACTIVATING',
-                  'state:STATE_CLOSING',
+              '<finishCloseEffect>', '_id:' + modal1._id, 'state:STATE_CLOSING',
+              'effectKey:plainOverlay',
+              'effectFinished.plainOverlay:true',
+              'effectFinished.option:false', 'closeEffect:NO',
 
-                  '<switchDraggable>', '_id:' + modal1._id, 'state:STATE_CLOSING',
-                  'plainDraggable:NONE',
-                  '</switchDraggable>',
+              '<finishClosing>', '_id:' + modal1._id, 'state:STATE_CLOSING',
+              'shownProps:' + modal3._id,
+              'state:STATE_CLOSED',
 
-                  // PlainOverlay.hide()
-                  '_id:' + modal1._id, '</execClosing>',
+              'parentProps._id:' + modal3._id, 'parentProps.state:STATE_ACTIVATING',
+              'parentProps.state:STATE_OPENED',
 
-                  '_id:' + modal1._id, '</close>',
-                  // DONE: close
+              '<switchDraggable>', '_id:' + modal3._id, 'state:STATE_OPENED',
+              'plainDraggable:NONE',
+              '</switchDraggable>',
 
-                  '<finishCloseEffect>', '_id:' + modal1._id, 'state:STATE_CLOSING',
-                  'effectKey:plainOverlay',
-                  'effectFinished.plainOverlay:true',
-                  'effectFinished.option:false', 'closeEffect:NO',
+              'parentProps(UNLINK):' + modal3._id,
 
-                  '<finishClosing>', '_id:' + modal1._id, 'state:STATE_CLOSING',
-                  'shownProps:' + modal3._id,
-                  'state:STATE_CLOSED',
+              '</finishClosing>',
 
-                  'parentProps._id:' + modal3._id, 'parentProps.state:STATE_ACTIVATING',
-                  'parentProps.state:STATE_OPENED',
+              '_id:' + modal1._id, '</finishCloseEffect>',
 
-                  '<switchDraggable>', '_id:' + modal3._id, 'state:STATE_OPENED',
-                  'plainDraggable:NONE',
-                  '</switchDraggable>',
+              '<overlayClick/>', 'CLOSE', '_id:' + modal3._id,
 
-                  'parentProps(UNLINK):' + modal3._id,
+              // 3 START: close
+              '<close>', '_id:' + modal3._id, 'state:STATE_OPENED',
+              'openCloseEffectProps:NONE',
 
-                  '</finishClosing>',
+              '<execClosing>', '_id:' + modal3._id, 'state:STATE_OPENED',
+              'force:false', 'sync:false',
+              'state:STATE_CLOSING',
 
-                  '_id:' + modal1._id, '</finishCloseEffect>',
+              '<switchDraggable>', '_id:' + modal3._id, 'state:STATE_CLOSING',
+              'plainDraggable:NONE',
+              '</switchDraggable>',
 
-                  '<overlayClick/>', 'CLOSE', '_id:' + modal3._id,
+              // PlainOverlay.hide()
+              '_id:' + modal3._id, '</execClosing>',
 
-                  // 3 START: close
-                  '<close>', '_id:' + modal3._id, 'state:STATE_OPENED',
-                  'openCloseEffectProps:NONE',
+              '_id:' + modal3._id, '</close>',
+              // DONE: close
 
-                  '<execClosing>', '_id:' + modal3._id, 'state:STATE_OPENED',
-                  'force:false', 'sync:false',
-                  'state:STATE_CLOSING',
+              '<finishCloseEffect>', '_id:' + modal3._id, 'state:STATE_CLOSING',
+              'effectKey:plainOverlay',
+              'effectFinished.plainOverlay:true',
+              'effectFinished.option:false', 'closeEffect:NO',
 
-                  '<switchDraggable>', '_id:' + modal3._id, 'state:STATE_CLOSING',
-                  'plainDraggable:NONE',
-                  '</switchDraggable>',
+              '<finishClosing>', '_id:' + modal3._id, 'state:STATE_CLOSING',
+              'shownProps:NONE',
+              'state:STATE_CLOSED',
+              '</finishClosing>',
 
-                  // PlainOverlay.hide()
-                  '_id:' + modal3._id, '</execClosing>',
-
-                  '_id:' + modal3._id, '</close>',
-                  // DONE: close
-
-                  '<finishCloseEffect>', '_id:' + modal3._id, 'state:STATE_CLOSING',
-                  'effectKey:plainOverlay',
-                  'effectFinished.plainOverlay:true',
-                  'effectFinished.option:false', 'closeEffect:NO',
-
-                  '<finishClosing>', '_id:' + modal3._id, 'state:STATE_CLOSING',
-                  'shownProps:NONE',
-                  'state:STATE_CLOSED',
-                  '</finishClosing>',
-
-                  '_id:' + modal3._id, '</finishCloseEffect>'
-                ]);
-
-                done();
-
-              }, 50);
-            }, 50);
-          }, 100);
-        }, 100);
+              '_id:' + modal3._id, '</finishCloseEffect>'
+            ]);
+          },
+          // ====================================
+          0, done
+        ]);
       }
     );
   });

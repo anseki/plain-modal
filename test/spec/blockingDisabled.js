@@ -174,41 +174,46 @@ describe('blockingDisabled', function() {
       PlainModal.STATE_CLOSED,
       function(modal) { modal.close(true); },
       function() {
+        var selection;
         reset();
-        setTimeout(function() {
-
-          // scroll
-          expect(divInDoc.scrollTop).toBe(0);
-          divInDoc.scrollTop = SCROLL_DOC;
-          setTimeout(function() {
+        utils.intervalExec([
+          // ====================================
+          20, function() {
+            // scroll
+            expect(divInDoc.scrollTop).toBe(0);
+            divInDoc.scrollTop = SCROLL_DOC;
+          },
+          // ====================================
+          20, function() {
             expect(divInDoc.scrollTop).toBe(SCROLL_DOC);
 
             // focus
             expect(document.activeElement).not.toBe(textInDoc);
             textInDoc.focus();
-            setTimeout(function() {
-              expect(document.activeElement).toBe(textInDoc);
+          },
+          // ====================================
+          function() {
+            expect(document.activeElement).toBe(textInDoc);
 
-              // select
-              var selection;
-              setSelection(pInDoc, 1, pInDoc, 10);
-              selection = ('getSelection' in window ? window : document).getSelection();
-              expect(selection.rangeCount).toBe(1);
-              expect(selection.toString()).toBe('0rem ipsum');
-              setTimeout(function() {
-                fireKeyup();
-                setTimeout(function() {
-                  selection = ('getSelection' in window ? window : document).getSelection();
-                  expect(selection.rangeCount).toBe(1);
-                  expect(selection.toString()).toBe('0rem ipsum');
-
-                  done();
-                }, 0);
-              }, 0);
-            }, 10);
-          }, 20);
-
-        }, 20);
+            // select
+            setSelection(pInDoc, 1, pInDoc, 10);
+            selection = ('getSelection' in window ? window : document).getSelection();
+            expect(selection.rangeCount).toBe(1);
+            expect(selection.toString()).toBe('0rem ipsum');
+          },
+          // ====================================
+          0, function() {
+            fireKeyup();
+          },
+          // ====================================
+          0, function() {
+            selection = ('getSelection' in window ? window : document).getSelection();
+            expect(selection.rangeCount).toBe(1);
+            expect(selection.toString()).toBe('0rem ipsum');
+          },
+          // ====================================
+          0, done
+        ]);
       }
     );
   });
@@ -228,63 +233,71 @@ describe('blockingDisabled', function() {
         return true;
       },
       function() {
+        var selection;
         clearTimeout(timer1);
-        setTimeout(function() {
+        utils.intervalExec([
+          // ====================================
+          20, function() {
+            expect(PlainModal.insProps[modal1._id].plainOverlay.blockingDisabled).toBe(false);
 
-          expect(PlainModal.insProps[modal1._id].plainOverlay.blockingDisabled).toBe(false);
-
-          // scroll
-          expect(divInDoc.scrollTop).toBe(0);
-          expect(divInFace1.scrollTop).toBe(0);
-          divInDoc.scrollTop = SCROLL_DOC;
-          divInFace1.scrollTop = SCROLL_FACE1;
-          setTimeout(function() {
+            // scroll
+            expect(divInDoc.scrollTop).toBe(0);
+            expect(divInFace1.scrollTop).toBe(0);
+            divInDoc.scrollTop = SCROLL_DOC;
+            divInFace1.scrollTop = SCROLL_FACE1;
+          },
+          // ====================================
+          20, function() {
             expect(divInDoc.scrollTop).toBe(0); // Avoided
             expect(divInFace1.scrollTop).toBe(SCROLL_FACE1);
 
             // focus
             expect(document.activeElement).not.toBe(textInDoc);
             textInDoc.focus();
-            setTimeout(function() {
-              expect(document.activeElement).not.toBe(textInDoc); // Avoided
-              textInFace1.focus();
-              setTimeout(function() {
-                expect(document.activeElement).toBe(textInFace1);
+          },
+          // ====================================
+          function() {
+            expect(document.activeElement).not.toBe(textInDoc); // Avoided
+            textInFace1.focus();
+          },
+          // ====================================
+          function() {
+            expect(document.activeElement).toBe(textInFace1);
 
-                // select
-                var selection;
-                setSelection(pInDoc, 1, pInDoc, 10);
-                selection = ('getSelection' in window ? window : document).getSelection();
-                expect(selection.rangeCount).toBe(1);
-                expect(selection.toString()).toBe('0rem ipsum');
-                setTimeout(function() {
-                  fireKeyup();
-                  setTimeout(function() {
-                    selection = ('getSelection' in window ? window : document).getSelection();
-                    expect(selection.rangeCount).toBe(0); // Avoided
-                    expect(selection.toString()).toBe('');
+            // select
+            setSelection(pInDoc, 1, pInDoc, 10);
+            selection = ('getSelection' in window ? window : document).getSelection();
+            expect(selection.rangeCount).toBe(1);
+            expect(selection.toString()).toBe('0rem ipsum');
+          },
+          // ====================================
+          0, function() {
+            fireKeyup();
+          },
+          // ====================================
+          0, function() {
+            selection = ('getSelection' in window ? window : document).getSelection();
+            expect(selection.rangeCount).toBe(0); // Avoided
+            expect(selection.toString()).toBe('');
 
-                    setSelection(pInFace1, 1, pInFace1, 10);
-                    selection = ('getSelection' in window ? window : document).getSelection();
-                    expect(selection.rangeCount).toBe(1);
-                    expect(selection.toString()).toBe('1rem ipsum');
-                    setTimeout(function() {
-                      fireKeyup();
-                      setTimeout(function() {
-                        selection = ('getSelection' in window ? window : document).getSelection();
-                        expect(selection.rangeCount).toBe(1);
-                        expect(selection.toString()).toBe('1rem ipsum');
-
-                        done();
-                      }, 0);
-                    }, 0);
-                  }, 0);
-                }, 0);
-              }, 10);
-            }, 10);
-          }, 20);
-
-        }, 20);
+            setSelection(pInFace1, 1, pInFace1, 10);
+            selection = ('getSelection' in window ? window : document).getSelection();
+            expect(selection.rangeCount).toBe(1);
+            expect(selection.toString()).toBe('1rem ipsum');
+          },
+          // ====================================
+          0, function() {
+            fireKeyup();
+          },
+          // ====================================
+          0, function() {
+            selection = ('getSelection' in window ? window : document).getSelection();
+            expect(selection.rangeCount).toBe(1);
+            expect(selection.toString()).toBe('1rem ipsum');
+          },
+          // ====================================
+          0, done
+        ]);
       }
     );
   });
@@ -307,20 +320,24 @@ describe('blockingDisabled', function() {
         return true;
       },
       function() {
+        var selection;
         clearTimeout(timer1);
-        setTimeout(function() {
+        utils.intervalExec([
+          // ====================================
+          20, function() {
+            expect(PlainModal.insProps[modal1._id].plainOverlay.blockingDisabled).toBe(true);
+            expect(PlainModal.insProps[modal2._id].plainOverlay.blockingDisabled).toBe(false);
 
-          expect(PlainModal.insProps[modal1._id].plainOverlay.blockingDisabled).toBe(true);
-          expect(PlainModal.insProps[modal2._id].plainOverlay.blockingDisabled).toBe(false);
-
-          // scroll
-          expect(divInDoc.scrollTop).toBe(0);
-          expect(divInFace1.scrollTop).toBe(0);
-          expect(divInFace2.scrollTop).toBe(0);
-          divInDoc.scrollTop = SCROLL_DOC;
-          divInFace1.scrollTop = SCROLL_FACE1;
-          divInFace2.scrollTop = SCROLL_FACE2;
-          setTimeout(function() {
+            // scroll
+            expect(divInDoc.scrollTop).toBe(0);
+            expect(divInFace1.scrollTop).toBe(0);
+            expect(divInFace2.scrollTop).toBe(0);
+            divInDoc.scrollTop = SCROLL_DOC;
+            divInFace1.scrollTop = SCROLL_FACE1;
+            divInFace2.scrollTop = SCROLL_FACE2;
+          },
+          // ====================================
+          20, function() {
             expect(divInDoc.scrollTop).toBe(0); // Avoided
             // blockingDisabled but scrolling in `face` is not avoided. It's ok because user can't that.
             expect(divInFace1.scrollTop).toBe(SCROLL_FACE1);
@@ -329,63 +346,70 @@ describe('blockingDisabled', function() {
             // focus
             expect(document.activeElement).not.toBe(textInDoc);
             textInDoc.focus();
-            setTimeout(function() {
-              expect(document.activeElement).not.toBe(textInDoc); // Avoided
-              textInFace1.focus();
-              setTimeout(function() {
-                expect(document.activeElement).not.toBe(textInFace1); // Avoided
-                textInFace2.focus();
-                setTimeout(function() {
-                  expect(document.activeElement).toBe(textInFace2);
+          },
+          // ====================================
+          function() {
+            expect(document.activeElement).not.toBe(textInDoc); // Avoided
+            textInFace1.focus();
+          },
+          // ====================================
+          function() {
+            expect(document.activeElement).not.toBe(textInFace1); // Avoided
+            textInFace2.focus();
+          },
+          // ====================================
+          function() {
+            expect(document.activeElement).toBe(textInFace2);
 
-                  // select
-                  var selection;
-                  setSelection(pInDoc, 1, pInDoc, 10);
-                  selection = ('getSelection' in window ? window : document).getSelection();
-                  expect(selection.rangeCount).toBe(1);
-                  expect(selection.toString()).toBe('0rem ipsum');
-                  setTimeout(function() {
-                    fireKeyup();
-                    setTimeout(function() {
-                      selection = ('getSelection' in window ? window : document).getSelection();
-                      expect(selection.rangeCount).toBe(0); // Avoided
-                      expect(selection.toString()).toBe('');
+            // select
+            setSelection(pInDoc, 1, pInDoc, 10);
+            selection = ('getSelection' in window ? window : document).getSelection();
+            expect(selection.rangeCount).toBe(1);
+            expect(selection.toString()).toBe('0rem ipsum');
+          },
+          // ====================================
+          0, function() {
+            fireKeyup();
+          },
+          // ====================================
+          0, function() {
+            selection = ('getSelection' in window ? window : document).getSelection();
+            expect(selection.rangeCount).toBe(0); // Avoided
+            expect(selection.toString()).toBe('');
 
-                      setSelection(pInFace1, 1, pInFace1, 10);
-                      selection = ('getSelection' in window ? window : document).getSelection();
-                      expect(selection.rangeCount).toBe(1);
-                      expect(selection.toString()).toBe('1rem ipsum');
-                      setTimeout(function() {
-                        fireKeyup();
-                        setTimeout(function() {
-                          selection = ('getSelection' in window ? window : document).getSelection();
-                          expect(selection.rangeCount).toBe(0); // Avoided
-                          expect(selection.toString()).toBe('');
+            setSelection(pInFace1, 1, pInFace1, 10);
+            selection = ('getSelection' in window ? window : document).getSelection();
+            expect(selection.rangeCount).toBe(1);
+            expect(selection.toString()).toBe('1rem ipsum');
+          },
+          // ====================================
+          0, function() {
+            fireKeyup();
+          },
+          // ====================================
+          0, function() {
+            selection = ('getSelection' in window ? window : document).getSelection();
+            expect(selection.rangeCount).toBe(0); // Avoided
+            expect(selection.toString()).toBe('');
 
-                          setSelection(pInFace2, 1, pInFace2, 10);
-                          selection = ('getSelection' in window ? window : document).getSelection();
-                          expect(selection.rangeCount).toBe(1);
-                          expect(selection.toString()).toBe('2rem ipsum');
-                          setTimeout(function() {
-                            fireKeyup();
-                            setTimeout(function() {
-                              selection = ('getSelection' in window ? window : document).getSelection();
-                              expect(selection.rangeCount).toBe(1);
-                              expect(selection.toString()).toBe('2rem ipsum');
-
-                              done();
-                            }, 0);
-                          }, 0);
-                        }, 0);
-                      }, 0);
-                    }, 0);
-                  }, 0);
-                }, 10);
-              }, 10);
-            }, 10);
-          }, 20);
-
-        }, 20);
+            setSelection(pInFace2, 1, pInFace2, 10);
+            selection = ('getSelection' in window ? window : document).getSelection();
+            expect(selection.rangeCount).toBe(1);
+            expect(selection.toString()).toBe('2rem ipsum');
+          },
+          // ====================================
+          0, function() {
+            fireKeyup();
+          },
+          // ====================================
+          0, function() {
+            selection = ('getSelection' in window ? window : document).getSelection();
+            expect(selection.rangeCount).toBe(1);
+            expect(selection.toString()).toBe('2rem ipsum');
+          },
+          // ====================================
+          0, done
+        ]);
       }
     );
   });
@@ -411,23 +435,27 @@ describe('blockingDisabled', function() {
         return true;
       },
       function() {
+        var selection;
         clearTimeout(timer1);
-        setTimeout(function() {
+        utils.intervalExec([
+          // ====================================
+          20, function() {
+            expect(PlainModal.insProps[modal1._id].plainOverlay.blockingDisabled).toBe(true);
+            expect(PlainModal.insProps[modal2._id].plainOverlay.blockingDisabled).toBe(true);
+            expect(PlainModal.insProps[modal3._id].plainOverlay.blockingDisabled).toBe(false);
 
-          expect(PlainModal.insProps[modal1._id].plainOverlay.blockingDisabled).toBe(true);
-          expect(PlainModal.insProps[modal2._id].plainOverlay.blockingDisabled).toBe(true);
-          expect(PlainModal.insProps[modal3._id].plainOverlay.blockingDisabled).toBe(false);
-
-          // scroll
-          expect(divInDoc.scrollTop).toBe(0);
-          expect(divInFace1.scrollTop).toBe(0);
-          expect(divInFace2.scrollTop).toBe(0);
-          expect(divInFace3.scrollTop).toBe(0);
-          divInDoc.scrollTop = SCROLL_DOC;
-          divInFace1.scrollTop = SCROLL_FACE1;
-          divInFace2.scrollTop = SCROLL_FACE2;
-          divInFace3.scrollTop = SCROLL_FACE3;
-          setTimeout(function() {
+            // scroll
+            expect(divInDoc.scrollTop).toBe(0);
+            expect(divInFace1.scrollTop).toBe(0);
+            expect(divInFace2.scrollTop).toBe(0);
+            expect(divInFace3.scrollTop).toBe(0);
+            divInDoc.scrollTop = SCROLL_DOC;
+            divInFace1.scrollTop = SCROLL_FACE1;
+            divInFace2.scrollTop = SCROLL_FACE2;
+            divInFace3.scrollTop = SCROLL_FACE3;
+          },
+          // ====================================
+          20, function() {
             expect(divInDoc.scrollTop).toBe(0); // Avoided
             // blockingDisabled but scrolling in `face` is not avoided. It's ok because user can't that.
             expect(divInFace1.scrollTop).toBe(SCROLL_FACE1);
@@ -437,80 +465,90 @@ describe('blockingDisabled', function() {
             // focus
             expect(document.activeElement).not.toBe(textInDoc);
             textInDoc.focus();
-            setTimeout(function() {
-              expect(document.activeElement).not.toBe(textInDoc); // Avoided
-              textInFace1.focus();
-              setTimeout(function() {
-                expect(document.activeElement).not.toBe(textInFace1); // Avoided
-                textInFace2.focus();
-                setTimeout(function() {
-                  expect(document.activeElement).not.toBe(textInFace2); // Avoided
-                  textInFace3.focus();
-                  setTimeout(function() {
-                    expect(document.activeElement).toBe(textInFace3);
+          },
+          // ====================================
+          function() {
+            expect(document.activeElement).not.toBe(textInDoc); // Avoided
+            textInFace1.focus();
+          },
+          // ====================================
+          function() {
+            expect(document.activeElement).not.toBe(textInFace1); // Avoided
+            textInFace2.focus();
+          },
+          // ====================================
+          function() {
+            expect(document.activeElement).not.toBe(textInFace2); // Avoided
+            textInFace3.focus();
+          },
+          // ====================================
+          function() {
+            expect(document.activeElement).toBe(textInFace3);
 
-                    // select
-                    var selection;
-                    setSelection(pInDoc, 1, pInDoc, 10);
-                    selection = ('getSelection' in window ? window : document).getSelection();
-                    expect(selection.rangeCount).toBe(1);
-                    expect(selection.toString()).toBe('0rem ipsum');
-                    setTimeout(function() {
-                      fireKeyup();
-                      setTimeout(function() {
-                        selection = ('getSelection' in window ? window : document).getSelection();
-                        expect(selection.rangeCount).toBe(0); // Avoided
-                        expect(selection.toString()).toBe('');
+            // select
+            setSelection(pInDoc, 1, pInDoc, 10);
+            selection = ('getSelection' in window ? window : document).getSelection();
+            expect(selection.rangeCount).toBe(1);
+            expect(selection.toString()).toBe('0rem ipsum');
+          },
+          // ====================================
+          0, function() {
+            fireKeyup();
+          },
+          // ====================================
+          0, function() {
+            selection = ('getSelection' in window ? window : document).getSelection();
+            expect(selection.rangeCount).toBe(0); // Avoided
+            expect(selection.toString()).toBe('');
 
-                        setSelection(pInFace1, 1, pInFace1, 10);
-                        selection = ('getSelection' in window ? window : document).getSelection();
-                        expect(selection.rangeCount).toBe(1);
-                        expect(selection.toString()).toBe('1rem ipsum');
-                        setTimeout(function() {
-                          fireKeyup();
-                          setTimeout(function() {
-                            selection = ('getSelection' in window ? window : document).getSelection();
-                            expect(selection.rangeCount).toBe(0); // Avoided
-                            expect(selection.toString()).toBe('');
+            setSelection(pInFace1, 1, pInFace1, 10);
+            selection = ('getSelection' in window ? window : document).getSelection();
+            expect(selection.rangeCount).toBe(1);
+            expect(selection.toString()).toBe('1rem ipsum');
+          },
+          // ====================================
+          0, function() {
+            fireKeyup();
+          },
+          // ====================================
+          0, function() {
+            selection = ('getSelection' in window ? window : document).getSelection();
+            expect(selection.rangeCount).toBe(0); // Avoided
+            expect(selection.toString()).toBe('');
 
-                            setSelection(pInFace2, 1, pInFace2, 10);
-                            selection = ('getSelection' in window ? window : document).getSelection();
-                            expect(selection.rangeCount).toBe(1);
-                            expect(selection.toString()).toBe('2rem ipsum');
-                            setTimeout(function() {
-                              fireKeyup();
-                              setTimeout(function() {
-                                selection = ('getSelection' in window ? window : document).getSelection();
-                                expect(selection.rangeCount).toBe(0); // Avoided
-                                expect(selection.toString()).toBe('');
+            setSelection(pInFace2, 1, pInFace2, 10);
+            selection = ('getSelection' in window ? window : document).getSelection();
+            expect(selection.rangeCount).toBe(1);
+            expect(selection.toString()).toBe('2rem ipsum');
+          },
+          // ====================================
+          0, function() {
+            fireKeyup();
+          },
+          // ====================================
+          0, function() {
+            selection = ('getSelection' in window ? window : document).getSelection();
+            expect(selection.rangeCount).toBe(0); // Avoided
+            expect(selection.toString()).toBe('');
 
-                                setSelection(pInFace3, 1, pInFace3, 10);
-                                selection = ('getSelection' in window ? window : document).getSelection();
-                                expect(selection.rangeCount).toBe(1);
-                                expect(selection.toString()).toBe('3rem ipsum');
-                                setTimeout(function() {
-                                  fireKeyup();
-                                  setTimeout(function() {
-                                    selection = ('getSelection' in window ? window : document).getSelection();
-                                    expect(selection.rangeCount).toBe(1);
-                                    expect(selection.toString()).toBe('3rem ipsum');
-
-                                    done();
-                                  }, 0);
-                                }, 0);
-                              }, 0);
-                            }, 0);
-                          }, 0);
-                        }, 0);
-                      }, 0);
-                    }, 0);
-                  }, 10);
-                }, 10);
-              }, 10);
-            }, 10);
-          }, 20);
-
-        }, 20);
+            setSelection(pInFace3, 1, pInFace3, 10);
+            selection = ('getSelection' in window ? window : document).getSelection();
+            expect(selection.rangeCount).toBe(1);
+            expect(selection.toString()).toBe('3rem ipsum');
+          },
+          // ====================================
+          0, function() {
+            fireKeyup();
+          },
+          // ====================================
+          0, function() {
+            selection = ('getSelection' in window ? window : document).getSelection();
+            expect(selection.rangeCount).toBe(1);
+            expect(selection.toString()).toBe('3rem ipsum');
+          },
+          // ====================================
+          0, done
+        ]);
       }
     );
   });
@@ -550,26 +588,30 @@ describe('blockingDisabled', function() {
         return true;
       },
       function() {
+        var selection;
         clearTimeout(timer1);
         reset();
         modal3.close(true);
-        setTimeout(function() {
+        utils.intervalExec([
+          // ====================================
+          20, function() {
+            expect(modal1.state).toBe(PlainModal.STATE_INACTIVATED);
+            expect(modal2.state).toBe(PlainModal.STATE_OPENED);
+            expect(modal3.state).toBe(PlainModal.STATE_CLOSED);
 
-          expect(modal1.state).toBe(PlainModal.STATE_INACTIVATED);
-          expect(modal2.state).toBe(PlainModal.STATE_OPENED);
-          expect(modal3.state).toBe(PlainModal.STATE_CLOSED);
+            expect(PlainModal.insProps[modal1._id].plainOverlay.blockingDisabled).toBe(true);
+            expect(PlainModal.insProps[modal2._id].plainOverlay.blockingDisabled).toBe(false);
 
-          expect(PlainModal.insProps[modal1._id].plainOverlay.blockingDisabled).toBe(true);
-          expect(PlainModal.insProps[modal2._id].plainOverlay.blockingDisabled).toBe(false);
-
-          // scroll
-          expect(divInDoc.scrollTop).toBe(0);
-          expect(divInFace1.scrollTop).toBe(0);
-          expect(divInFace2.scrollTop).toBe(0);
-          divInDoc.scrollTop = SCROLL_DOC;
-          divInFace1.scrollTop = SCROLL_FACE1;
-          divInFace2.scrollTop = SCROLL_FACE2;
-          setTimeout(function() {
+            // scroll
+            expect(divInDoc.scrollTop).toBe(0);
+            expect(divInFace1.scrollTop).toBe(0);
+            expect(divInFace2.scrollTop).toBe(0);
+            divInDoc.scrollTop = SCROLL_DOC;
+            divInFace1.scrollTop = SCROLL_FACE1;
+            divInFace2.scrollTop = SCROLL_FACE2;
+          },
+          // ====================================
+          20, function() {
             expect(divInDoc.scrollTop).toBe(0); // Avoided
             // blockingDisabled but scrolling in `face` is not avoided. It's ok because user can't that.
             expect(divInFace1.scrollTop).toBe(SCROLL_FACE1);
@@ -578,63 +620,70 @@ describe('blockingDisabled', function() {
             // focus
             expect(document.activeElement).not.toBe(textInDoc);
             textInDoc.focus();
-            setTimeout(function() {
-              expect(document.activeElement).not.toBe(textInDoc); // Avoided
-              textInFace1.focus();
-              setTimeout(function() {
-                expect(document.activeElement).not.toBe(textInFace1); // Avoided
-                textInFace2.focus();
-                setTimeout(function() {
-                  expect(document.activeElement).toBe(textInFace2);
+          },
+          // ====================================
+          function() {
+            expect(document.activeElement).not.toBe(textInDoc); // Avoided
+            textInFace1.focus();
+          },
+          // ====================================
+          function() {
+            expect(document.activeElement).not.toBe(textInFace1); // Avoided
+            textInFace2.focus();
+          },
+          // ====================================
+          function() {
+            expect(document.activeElement).toBe(textInFace2);
 
-                  // select
-                  var selection;
-                  setSelection(pInDoc, 1, pInDoc, 10);
-                  selection = ('getSelection' in window ? window : document).getSelection();
-                  expect(selection.rangeCount).toBe(1);
-                  expect(selection.toString()).toBe('0rem ipsum');
-                  setTimeout(function() {
-                    fireKeyup();
-                    setTimeout(function() {
-                      selection = ('getSelection' in window ? window : document).getSelection();
-                      expect(selection.rangeCount).toBe(0); // Avoided
-                      expect(selection.toString()).toBe('');
+            // select
+            setSelection(pInDoc, 1, pInDoc, 10);
+            selection = ('getSelection' in window ? window : document).getSelection();
+            expect(selection.rangeCount).toBe(1);
+            expect(selection.toString()).toBe('0rem ipsum');
+          },
+          // ====================================
+          0, function() {
+            fireKeyup();
+          },
+          // ====================================
+          0, function() {
+            selection = ('getSelection' in window ? window : document).getSelection();
+            expect(selection.rangeCount).toBe(0); // Avoided
+            expect(selection.toString()).toBe('');
 
-                      setSelection(pInFace1, 1, pInFace1, 10);
-                      selection = ('getSelection' in window ? window : document).getSelection();
-                      expect(selection.rangeCount).toBe(1);
-                      expect(selection.toString()).toBe('1rem ipsum');
-                      setTimeout(function() {
-                        fireKeyup();
-                        setTimeout(function() {
-                          selection = ('getSelection' in window ? window : document).getSelection();
-                          expect(selection.rangeCount).toBe(0); // Avoided
-                          expect(selection.toString()).toBe('');
+            setSelection(pInFace1, 1, pInFace1, 10);
+            selection = ('getSelection' in window ? window : document).getSelection();
+            expect(selection.rangeCount).toBe(1);
+            expect(selection.toString()).toBe('1rem ipsum');
+          },
+          // ====================================
+          0, function() {
+            fireKeyup();
+          },
+          // ====================================
+          0, function() {
+            selection = ('getSelection' in window ? window : document).getSelection();
+            expect(selection.rangeCount).toBe(0); // Avoided
+            expect(selection.toString()).toBe('');
 
-                          setSelection(pInFace2, 1, pInFace2, 10);
-                          selection = ('getSelection' in window ? window : document).getSelection();
-                          expect(selection.rangeCount).toBe(1);
-                          expect(selection.toString()).toBe('2rem ipsum');
-                          setTimeout(function() {
-                            fireKeyup();
-                            setTimeout(function() {
-                              selection = ('getSelection' in window ? window : document).getSelection();
-                              expect(selection.rangeCount).toBe(1);
-                              expect(selection.toString()).toBe('2rem ipsum');
-
-                              done();
-                            }, 0);
-                          }, 0);
-                        }, 0);
-                      }, 0);
-                    }, 0);
-                  }, 0);
-                }, 10);
-              }, 10);
-            }, 10);
-          }, 20);
-
-        }, 20);
+            setSelection(pInFace2, 1, pInFace2, 10);
+            selection = ('getSelection' in window ? window : document).getSelection();
+            expect(selection.rangeCount).toBe(1);
+            expect(selection.toString()).toBe('2rem ipsum');
+          },
+          // ====================================
+          0, function() {
+            fireKeyup();
+          },
+          // ====================================
+          0, function() {
+            selection = ('getSelection' in window ? window : document).getSelection();
+            expect(selection.rangeCount).toBe(1);
+            expect(selection.toString()).toBe('2rem ipsum');
+          },
+          // ====================================
+          0, done
+        ]);
       }
     );
   });

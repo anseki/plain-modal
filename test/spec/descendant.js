@@ -517,33 +517,34 @@ describe('descendant', function() {
         expect(modal5.state).toBe(PlainModal.STATE_CLOSED);
         expect(shownProps).toEqual([]);
 
-        setTimeout(function() {
-          expect(modal1.state).toBe(PlainModal.STATE_OPENING);
-          expect(modal2.state).toBe(PlainModal.STATE_CLOSED);
-          expect(modal3.state).toBe(PlainModal.STATE_CLOSED);
-          expect(shownProps.map(function(props) { return props.ins; }))
-            .toEqual([modal1]);
-          traceLog.length = 0;
-          modal2.open();
+        utils.intervalExec([
+          // ====================================
+          50, function() {
+            expect(modal1.state).toBe(PlainModal.STATE_OPENING);
+            expect(modal2.state).toBe(PlainModal.STATE_CLOSED);
+            expect(modal3.state).toBe(PlainModal.STATE_CLOSED);
+            expect(shownProps.map(function(props) { return props.ins; })).toEqual([modal1]);
 
-          setTimeout(function() {
+            traceLog.length = 0;
+            modal2.open();
+          },
+          // ====================================
+          50, function() {
             expect(modal1.state).toBe(PlainModal.STATE_INACTIVATING);
             expect(modal2.state).toBe(PlainModal.STATE_OPENING);
             expect(modal3.state).toBe(PlainModal.STATE_CLOSED);
-            expect(shownProps.map(function(props) { return props.ins; }))
-              .toEqual([modal1, modal2]);
+            expect(shownProps.map(function(props) { return props.ins; })).toEqual([modal1, modal2]);
             modal3.open();
-
-            setTimeout(function() {
-              expect(modal1.state).toBe(PlainModal.STATE_INACTIVATED);
-              expect(modal2.state).toBe(PlainModal.STATE_INACTIVATING);
-              expect(modal3.state).toBe(PlainModal.STATE_OPENING);
-              expect(shownProps.map(function(props) { return props.ins; }))
-                .toEqual([modal1, modal2, modal3]);
-              doneTimeout = true; // To check that these tests were done.
-            }, 50);
-          }, 50);
-        }, 50);
+          },
+          // ====================================
+          50, function() {
+            expect(modal1.state).toBe(PlainModal.STATE_INACTIVATED);
+            expect(modal2.state).toBe(PlainModal.STATE_INACTIVATING);
+            expect(modal3.state).toBe(PlainModal.STATE_OPENING);
+            expect(shownProps.map(function(props) { return props.ins; })).toEqual([modal1, modal2, modal3]);
+            doneTimeout = true; // To check that these tests were done.
+          }
+        ]);
 
         modal3.onOpen = function() {
           setTimeout(function() {
