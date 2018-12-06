@@ -1,6 +1,6 @@
 {
   "name": "plain-modal",
-  "version": "1.0.28",
+  "version": "1.0.29",
   "title": "PlainModal",
   "description": "The simple library for customizable modal window.",
   "keywords": [
@@ -24,7 +24,7 @@
   "devDependencies": {
     "anim-event": "^1.0.16",
     "babel-core": "^6.26.3",
-    "babel-loader": "^8.0.4",
+    "babel-loader": "^7.1.5",
     "babel-preset-es2015": "^6.24.1",
     "compass-mixins": "^0.12.10",
     "cross-env": "^5.2.0",
