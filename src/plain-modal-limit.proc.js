@@ -34,9 +34,9 @@ const
   STATE_ACTIVATING = 6,
   DURATION = 200, // COPY from PlainOverlay
 
-  IS_TRIDENT = !!document.uniqueID,
   IS_EDGE = '-ms-scroll-limit' in document.documentElement.style &&
     '-ms-ime-align' in document.documentElement.style && !window.navigator.msPointerEnabled,
+  IS_TRIDENT = !IS_EDGE && !!document.uniqueID, // Future Edge might support `document.uniqueID`.
 
   isObject = (() => {
     const toString = {}.toString,
