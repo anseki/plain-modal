@@ -1,5 +1,3 @@
-@import "compass";
-@import "animation/core";
 @import "common";
 
 $media: "";
@@ -35,9 +33,9 @@ $overlay-bg: rgba(136, 136, 136, 0.6);
   background-color: $overlay-bg;
 
   @extend %anim-init#{$media};
-  @include transition-property(opacity);
-  @include transition-duration($duration);
-  @include transition-timing-function(linear);
+  transition-property: opacity;
+  transition-duration: $duration;
+  transition-timing-function: linear;
   opacity: 1;
 
   &.#{$app-overlay-hide} {
@@ -45,6 +43,6 @@ $overlay-bg: rgba(136, 136, 136, 0.6);
   }
 
   &.#{$app-overlay-force} {
-    @include transition-property(none); // Disable animation
+    transition-property: none; // Disable animation
   }
 }
