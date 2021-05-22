@@ -3897,7 +3897,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
  * PlainModal
  * https://anseki.github.io/plain-modal/
  *
- * Copyright (c) 2018 anseki
+ * Copyright (c) 2021 anseki
  * Licensed under the MIT license.
  */
 
