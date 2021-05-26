@@ -12,6 +12,7 @@ const
 
   DOC_ROOT = __dirname,
   PORT = 8080,
+  SLOW_RESPONSE = 10000,
 
   MODULE_PACKAGES = [
     'jasmine-core',
@@ -21,22 +22,12 @@ const
   EXT_DIR = pathUtil.resolve(__dirname, '../../test-ext'),
 
   logger = (() => {
-    log4js.configure({
-      appenders: {
-        out: {
-          type: 'console',
-          layout: {
-            type: 'pattern',
-            pattern: '%[[%r]%] %m' // Super simple format
-          }
-        }
-      },
+    log4js.configure({ // Super simple format
+      appenders: {out: {type: 'stdout', layout: {type: 'pattern', pattern: '%[[%r]%] %m'}}},
       categories: {default: {appenders: ['out'], level: 'info'}}
     });
     return log4js.getLogger('node-static-alias');
   })(),
-
-  SLOW_RESPONSE = 10000,
 
   staticAlias = new nodeStaticAlias.Server(DOC_ROOT, {
     cache: false,
@@ -90,6 +81,7 @@ const
 
 http.createServer((request, response) => {
   request.addListener('end', () => {
+
     function serve() {
       staticAlias.serve(request, response, error => {
         if (error) {
@@ -110,6 +102,7 @@ http.createServer((request, response) => {
     } else {
       serve();
     }
+
   }).resume();
 }).listen(PORT);
 
