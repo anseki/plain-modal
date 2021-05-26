@@ -30,7 +30,7 @@
     "cross-env": "^7.0.3",
     "cssprefix": "^2.0.16",
     "fibers": "^5.0.0",
-    "jasmine-core": "^3.3.0",
+    "jasmine-core": "^3.7.1",
     "log4js": "^3.0.6",
     "m-class-list": "^1.1.9",
     "node-static-alias": "^1.1.2",
