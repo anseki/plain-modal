@@ -104,14 +104,12 @@ __webpack_require__.r(__webpack_exports__);
  * AnimEvent
  * https://github.com/anseki/anim-event
  *
- * Copyright (c) 2018 anseki
+ * Copyright (c) 2021 anseki
  * Licensed under the MIT license.
  */
-
 var MSPF = 1000 / 60,
     // ms/frame (FPS: 60)
 KEEP_LOOP = 500,
-
 
 /**
  * @typedef {Object} task
@@ -130,11 +128,10 @@ var requestAnim = window.requestAnimationFrame || window.mozRequestAnimationFram
 };
 
 var lastFrameTime = Date.now(),
-    requestID = void 0;
+    requestID;
 
 function step() {
-  var called = void 0,
-      next = void 0;
+  var called, next;
 
   if (requestID) {
     cancelAnim.call(window, requestID);
@@ -142,9 +139,11 @@ function step() {
   }
 
   tasks.forEach(function (task) {
-    var event = void 0;
+    var event;
+
     if (event = task.event) {
       task.event = null; // Clear it before `task.listener()` because that might fire another event.
+
       task.listener(event);
       called = true;
     }
@@ -157,6 +156,7 @@ function step() {
     // Go on for a while
     next = true;
   }
+
   if (next) {
     requestID = requestAnim.call(window, step);
   }
@@ -169,6 +169,7 @@ function indexOfTasks(listener) {
       index = i;
       return true;
     }
+
     return false;
   });
   return index;
@@ -180,22 +181,29 @@ var AnimEvent = {
    * @returns {(function|null)} A wrapped event listener.
    */
   add: function add(listener) {
-    var task = void 0;
+    var task;
+
     if (indexOfTasks(listener) === -1) {
-      tasks.push(task = { listener: listener });
+      tasks.push(task = {
+        listener: listener
+      });
       return function (event) {
         task.event = event;
+
         if (!requestID) {
           step();
         }
       };
     }
+
     return null;
   },
   remove: function remove(listener) {
-    var iRemove = void 0;
+    var iRemove;
+
     if ((iRemove = indexOfTasks(listener)) > -1) {
       tasks.splice(iRemove, 1);
+
       if (!tasks.length && requestID) {
         cancelAnim.call(window, requestID);
         requestID = null;
@@ -203,7 +211,6 @@ var AnimEvent = {
     }
   }
 };
-
 /* harmony default export */ __webpack_exports__["default"] = (AnimEvent);
 
 /***/ }),
@@ -225,10 +232,9 @@ __webpack_require__.r(__webpack_exports__);
  * CSSPrefix
  * https://github.com/anseki/cssprefix
  *
- * Copyright (c) 2018 anseki
+ * Copyright (c) 2021 anseki
  * Licensed under the MIT license.
  */
-
 function ucf(text) {
   return text.substr(0, 1).toUpperCase() + text.substr(1);
 }
@@ -240,21 +246,19 @@ var PREFIXES = ['webkit', 'moz', 'ms', 'o'],
   return prefixes;
 }, []),
     VALUE_PREFIXES = PREFIXES.map(function (prefix) {
-  return '-' + prefix + '-';
+  return "-".concat(prefix, "-");
 }),
-
 
 /**
  * Get sample CSSStyleDeclaration.
  * @returns {CSSStyleDeclaration}
  */
 getDeclaration = function () {
-  var declaration = void 0;
+  var declaration;
   return function () {
     return declaration = declaration || document.createElement('div').style;
   };
 }(),
-
 
 /**
  * Normalize name.
@@ -276,7 +280,6 @@ normalizeName = function () {
   }; // For old CSSOM
 }(),
 
-
 /**
  * Normalize value.
  * @param {} propValue - A value that is normalized.
@@ -289,7 +292,6 @@ normalizeValue = function () {
   };
 }(),
 
-
 /**
  * Polyfill for `CSS.supports`.
  * @param {string} propName - A name.
@@ -299,29 +301,28 @@ normalizeValue = function () {
  * @returns {boolean} `true` if given pair is accepted.
  */
 cssSupports = function () {
-  return (
-    // return window.CSS && window.CSS.supports || ((propName, propValue) => {
+  return (// return window.CSS && window.CSS.supports || ((propName, propValue) => {
     // `CSS.supports` doesn't find prefixed property.
     function (propName, propValue) {
-      var declaration = getDeclaration();
-      // In some browsers, `declaration[prop] = value` updates any property.
+      var declaration = getDeclaration(); // In some browsers, `declaration[prop] = value` updates any property.
+
       propName = propName.replace(/[A-Z]/g, function (str) {
-        return '-' + str.toLowerCase();
+        return "-".concat(str.toLowerCase());
       }); // kebab-case
+
       declaration.setProperty(propName, propValue);
       return declaration[propName] != null && // Because getPropertyValue returns '' if it is unsupported
       declaration.getPropertyValue(propName) === propValue;
     }
   );
 }(),
-
-
-// Cache
+    // Cache
 propNames = {},
     propValues = {};
 
 function getName(propName) {
   propName = normalizeName(propName);
+
   if (propName && propNames[propName] == null) {
     var declaration = getDeclaration();
 
@@ -331,27 +332,32 @@ function getName(propName) {
     } else {
       // Try with prefixes
       var ucfName = ucf(propName);
+
       if (!NAME_PREFIXES.some(function (prefix) {
         var prefixed = prefix + ucfName;
+
         if (declaration[prefixed] != null) {
           propNames[propName] = prefixed;
           return true;
         }
+
         return false;
       })) {
         propNames[propName] = false;
       }
     }
   }
+
   return propNames[propName] || void 0;
 }
 
 function getValue(propName, propValue) {
-  var res = void 0;
+  var res;
 
   if (!(propName = getName(propName))) {
     return res;
   } // Invalid property
+
 
   propValues[propName] = propValues[propName] || {};
   (Array.isArray(propValue) ? propValue : [propValue]).some(function (propValue) {
@@ -363,6 +369,7 @@ function getValue(propName, propValue) {
         res = propValues[propName][propValue];
         return true;
       }
+
       return false; // Continue to next value
     }
 
@@ -375,10 +382,12 @@ function getValue(propName, propValue) {
     if (VALUE_PREFIXES.some(function (prefix) {
       // Try with prefixes
       var prefixed = prefix + propValue;
+
       if (cssSupports(propName, prefixed)) {
         res = propValues[propName][propValue] = prefixed;
         return true;
       }
+
       return false;
     })) {
       return true;
@@ -387,7 +396,6 @@ function getValue(propName, propValue) {
     propValues[propName][propValue] = false;
     return false; // Continue to next value
   });
-
   return typeof res === 'string' ? res : void 0; // It might be empty string.
 }
 
@@ -395,7 +403,6 @@ var CSSPrefix = {
   getName: getName,
   getValue: getValue
 };
-
 /* harmony default export */ __webpack_exports__["default"] = (CSSPrefix);
 
 /***/ }),
@@ -417,13 +424,14 @@ __webpack_require__.r(__webpack_exports__);
  * mClassList
  * https://github.com/anseki/m-class-list
  *
- * Copyright (c) 2018 anseki
+ * Copyright (c) 2021 anseki
  * Licensed under the MIT license.
  */
-
 function normalize(token) {
   return (token + '').trim();
 } // Not `||`
+
+
 function applyList(list, element) {
   element.setAttribute('class', list.join(' '));
 }
@@ -433,6 +441,7 @@ function _add(list, element, tokens) {
     if (!(token = normalize(token)) || list.indexOf(token) !== -1) {
       return false;
     }
+
     list.push(token);
     return true;
   }).length) {
@@ -442,10 +451,12 @@ function _add(list, element, tokens) {
 
 function _remove(list, element, tokens) {
   if (tokens.filter(function (token) {
-    var i = void 0;
+    var i;
+
     if (!(token = normalize(token)) || (i = list.indexOf(token)) === -1) {
       return false;
     }
+
     list.splice(i, 1);
     return true;
   }).length) {
@@ -455,31 +466,39 @@ function _remove(list, element, tokens) {
 
 function _toggle(list, element, token, force) {
   var i = list.indexOf(token = normalize(token));
+
   if (i !== -1) {
     if (force) {
       return true;
     }
+
     list.splice(i, 1);
     applyList(list, element);
     return false;
   }
+
   if (force === false) {
     return false;
   }
+
   list.push(token);
   applyList(list, element);
   return true;
 }
 
 function _replace(list, element, token, newToken) {
-  var i = void 0;
+  var i;
+
   if (!(token = normalize(token)) || !(newToken = normalize(newToken)) || token === newToken || (i = list.indexOf(token)) === -1) {
     return;
   }
+
   list.splice(i, 1);
+
   if (list.indexOf(newToken) === -1) {
     list.push(newToken);
   }
+
   applyList(list, element);
 }
 
@@ -498,18 +517,20 @@ function mClassList(element) {
       },
       add: function add() {
         _add(list, element, Array.prototype.slice.call(arguments));
+
         return mClassList.methodChain ? ins : void 0;
       },
       remove: function remove() {
         _remove(list, element, Array.prototype.slice.call(arguments));
+
         return mClassList.methodChain ? ins : void 0;
       },
-
       toggle: function toggle(token, force) {
         return _toggle(list, element, token, force);
       },
       replace: function replace(token, newToken) {
         _replace(list, element, token, newToken);
+
         return mClassList.methodChain ? ins : void 0;
       }
     };
@@ -518,7 +539,6 @@ function mClassList(element) {
 }
 
 mClassList.methodChain = true;
-
 /* harmony default export */ __webpack_exports__["default"] = (mClassList);
 
 /***/ }),
@@ -540,20 +560,21 @@ __webpack_require__.r(__webpack_exports__);
         DON'T MANUALLY EDIT THIS FILE
 ================================================ */
 
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
-
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
 /*
  * PlainDraggable
  * https://anseki.github.io/plain-draggable/
  *
- * Copyright (c) 2018 anseki
+ * Copyright (c) 2021 anseki
  * Licensed under the MIT license.
  */
-
 
 
 
@@ -564,7 +585,7 @@ var ZINDEX = 9000,
     IS_EDGE = '-ms-scroll-limit' in document.documentElement.style && '-ms-ime-align' in document.documentElement.style && !window.navigator.msPointerEnabled,
     IS_TRIDENT = !IS_EDGE && !!document.uniqueID,
     // Future Edge might support `document.uniqueID`.
-IS_GECKO = 'MozAppearance' in document.documentElement.style,
+IS_GECKO = ('MozAppearance' in document.documentElement.style),
     IS_BLINK = !IS_EDGE && !IS_GECKO && // Edge has `window.chrome`, and future Gecko might have that.
 !!window.chrome && !!window.CSS,
     IS_WEBKIT = !IS_EDGE && !IS_TRIDENT && !IS_GECKO && !IS_BLINK && // Some engines support `webkit-*` properties.
@@ -574,8 +595,7 @@ IS_GECKO = 'MozAppearance' in document.documentElement.style,
       fnToString = {}.hasOwnProperty.toString,
       objFnString = fnToString.call(Object);
   return function (obj) {
-    var proto = void 0,
-        constr = void 0;
+    var proto, constr;
     return obj && toString.call(obj) === '[object Object]' && (!(proto = Object.getPrototypeOf(obj)) || (constr = proto.hasOwnProperty('constructor') && proto.constructor) && typeof constr === 'function' && fnToString.call(constr) === objFnString);
   };
 }(),
@@ -583,31 +603,27 @@ IS_GECKO = 'MozAppearance' in document.documentElement.style,
   return typeof value === 'number' && window.isFinite(value);
 },
 
-
 /** @type {Object.<_id: number, props>} */
 insProps = {},
     pointerOffset = {},
     pointerEvent = new pointer_event__WEBPACK_IMPORTED_MODULE_0__["default"]();
 
 var insId = 0,
-    activeProps = void 0,
-    hasMoved = void 0,
-    body = void 0,
-
-// CSS property/value
-cssValueDraggableCursor = void 0,
-    cssValueDraggingCursor = void 0,
-    cssOrgValueBodyCursor = void 0,
-    cssPropTransitionProperty = void 0,
-    cssPropTransform = void 0,
-    cssPropUserSelect = void 0,
-    cssOrgValueBodyUserSelect = void 0,
-
-// Try to set `cursor` property.
+    activeProps,
+    hasMoved,
+    body,
+    // CSS property/value
+cssValueDraggableCursor,
+    cssValueDraggingCursor,
+    cssOrgValueBodyCursor,
+    cssPropTransitionProperty,
+    cssPropTransform,
+    cssPropUserSelect,
+    cssOrgValueBodyUserSelect,
+    // Try to set `cursor` property.
 cssWantedValueDraggableCursor = IS_WEBKIT ? ['all-scroll', 'move'] : ['grab', 'all-scroll', 'move'],
     cssWantedValueDraggingCursor = IS_WEBKIT ? 'move' : ['grabbing', 'move'],
-
-// class
+    // class
 draggableClass = 'plain-draggable',
     draggingClass = 'plain-draggable-dragging',
     movingClass = 'plain-draggable-moving';
@@ -620,25 +636,23 @@ function copyTree(obj) {
 }
 
 function hasChanged(a, b) {
-  var typeA = void 0,
-      keysA = void 0;
-  return (typeof a === 'undefined' ? 'undefined' : _typeof(a)) !== (typeof b === 'undefined' ? 'undefined' : _typeof(b)) || (typeA = isObject(a) ? 'obj' : Array.isArray(a) ? 'array' : '') !== (isObject(b) ? 'obj' : Array.isArray(b) ? 'array' : '') || (typeA === 'obj' ? hasChanged(keysA = Object.keys(a).sort(), Object.keys(b).sort()) || keysA.some(function (prop) {
+  var typeA, keysA;
+  return _typeof(a) !== _typeof(b) || (typeA = isObject(a) ? 'obj' : Array.isArray(a) ? 'array' : '') !== (isObject(b) ? 'obj' : Array.isArray(b) ? 'array' : '') || (typeA === 'obj' ? hasChanged(keysA = Object.keys(a).sort(), Object.keys(b).sort()) || keysA.some(function (prop) {
     return hasChanged(a[prop], b[prop]);
   }) : typeA === 'array' ? a.length !== b.length || a.some(function (aVal, i) {
     return hasChanged(aVal, b[i]);
   }) : a !== b);
 }
-
 /**
  * @param {Element} element - A target element.
  * @returns {boolean} `true` if connected element.
  */
+
+
 function isElement(element) {
-  return !!(element && element.nodeType === Node.ELEMENT_NODE &&
-  // element instanceof HTMLElement &&
+  return !!(element && element.nodeType === Node.ELEMENT_NODE && // element instanceof HTMLElement &&
   typeof element.getBoundingClientRect === 'function' && !(element.compareDocumentPosition(document) & Node.DOCUMENT_POSITION_DISCONNECTED));
 }
-
 /**
  * An object that simulates `DOMRect` to indicate a bounding-box.
  * @typedef {Object} BBox
@@ -656,16 +670,21 @@ function isElement(element) {
  * @param {Object} bBox - A target object.
  * @returns {(BBox|null)} A normalized `BBox`, or null if `bBox` is invalid.
  */
+
+
 function validBBox(bBox) {
   if (!isObject(bBox)) {
     return null;
   }
-  var value = void 0;
+
+  var value;
+
   if (isFinite(value = bBox.left) || isFinite(value = bBox.x)) {
     bBox.left = bBox.x = value;
   } else {
     return null;
   }
+
   if (isFinite(value = bBox.top) || isFinite(value = bBox.y)) {
     bBox.top = bBox.y = value;
   } else {
@@ -679,6 +698,7 @@ function validBBox(bBox) {
   } else {
     return null;
   }
+
   if (isFinite(bBox.height) && bBox.height >= 0) {
     bBox.bottom = bBox.top + bBox.height;
   } else if (isFinite(bBox.bottom) && bBox.bottom >= bBox.top) {
@@ -686,35 +706,39 @@ function validBBox(bBox) {
   } else {
     return null;
   }
+
   return bBox;
 }
-
 /**
  * A value that is Pixels or Ratio
  * @typedef {{value: number, isRatio: boolean}} PPValue
  */
 
-function validPPValue(value) {
 
+function validPPValue(value) {
   // Get PPValue from string (all `/s` were already removed)
   function string2PPValue(inString) {
     var matches = /^(.+?)(%)?$/.exec(inString);
-    var value = void 0,
-        isRatio = void 0;
-    return matches && isFinite(value = parseFloat(matches[1])) ? { value: (isRatio = !!(matches[2] && value)) ? value / 100 : value, isRatio: isRatio } : null; // 0% -> 0
+    var value, isRatio;
+    return matches && isFinite(value = parseFloat(matches[1])) ? {
+      value: (isRatio = !!(matches[2] && value)) ? value / 100 : value,
+      isRatio: isRatio
+    } : null; // 0% -> 0
   }
 
-  return isFinite(value) ? { value: value, isRatio: false } : typeof value === 'string' ? string2PPValue(value.replace(/\s/g, '')) : null;
+  return isFinite(value) ? {
+    value: value,
+    isRatio: false
+  } : typeof value === 'string' ? string2PPValue(value.replace(/\s/g, '')) : null;
 }
 
 function ppValue2OptionValue(ppValue) {
-  return ppValue.isRatio ? ppValue.value * 100 + '%' : ppValue.value;
+  return ppValue.isRatio ? "".concat(ppValue.value * 100, "%") : ppValue.value;
 }
 
 function resolvePPValue(ppValue, baseOrigin, baseSize) {
   return typeof ppValue === 'number' ? ppValue : baseOrigin + ppValue.value * (ppValue.isRatio ? baseSize : 1);
 }
-
 /**
  * An object that simulates BBox but properties are PPValue.
  * @typedef {Object} PPBBox
@@ -724,16 +748,21 @@ function resolvePPValue(ppValue, baseOrigin, baseSize) {
  * @param {Object} bBox - A target object.
  * @returns {(PPBBox|null)} A normalized `PPBBox`, or null if `bBox` is invalid.
  */
+
+
 function validPPBBox(bBox) {
   if (!isObject(bBox)) {
     return null;
   }
-  var ppValue = void 0;
+
+  var ppValue;
+
   if ((ppValue = validPPValue(bBox.left)) || (ppValue = validPPValue(bBox.x))) {
     bBox.left = bBox.x = ppValue;
   } else {
     return null;
   }
+
   if ((ppValue = validPPValue(bBox.top)) || (ppValue = validPPValue(bBox.y))) {
     bBox.top = bBox.y = ppValue;
   } else {
@@ -749,6 +778,7 @@ function validPPBBox(bBox) {
   } else {
     return null;
   }
+
   if ((ppValue = validPPValue(bBox.height)) && ppValue.value >= 0) {
     bBox.height = ppValue;
     delete bBox.bottom;
@@ -758,6 +788,7 @@ function validPPBBox(bBox) {
   } else {
     return null;
   }
+
   return bBox;
 }
 
@@ -766,30 +797,51 @@ function ppBBox2OptionObject(ppBBox) {
     obj[prop] = ppValue2OptionValue(ppBBox[prop]);
     return obj;
   }, {});
-}
+} // PPBBox -> BBox
 
-// PPBBox -> BBox
+
 function resolvePPBBox(ppBBox, baseBBox) {
-  var prop2Axis = { left: 'x', right: 'x', x: 'x', width: 'x',
-    top: 'y', bottom: 'y', y: 'y', height: 'y' },
-      baseOriginXY = { x: baseBBox.left, y: baseBBox.top },
-      baseSizeXY = { x: baseBBox.width, y: baseBBox.height };
+  var prop2Axis = {
+    left: 'x',
+    right: 'x',
+    x: 'x',
+    width: 'x',
+    top: 'y',
+    bottom: 'y',
+    y: 'y',
+    height: 'y'
+  },
+      baseOriginXY = {
+    x: baseBBox.left,
+    y: baseBBox.top
+  },
+      baseSizeXY = {
+    x: baseBBox.width,
+    y: baseBBox.height
+  };
   return validBBox(Object.keys(ppBBox).reduce(function (bBox, prop) {
     bBox[prop] = resolvePPValue(ppBBox[prop], prop === 'width' || prop === 'height' ? 0 : baseOriginXY[prop2Axis[prop]], baseSizeXY[prop2Axis[prop]]);
     return bBox;
   }, {}));
 }
-
 /**
  * @param {Element} element - A target element.
  * @param {?boolean} getPaddingBox - Get padding-box instead of border-box as bounding-box.
  * @returns {BBox} A bounding-box of `element`.
  */
+
+
 function getBBox(element, getPaddingBox) {
   var rect = element.getBoundingClientRect(),
-      bBox = { left: rect.left, top: rect.top, width: rect.width, height: rect.height };
+      bBox = {
+    left: rect.left,
+    top: rect.top,
+    width: rect.width,
+    height: rect.height
+  };
   bBox.left += window.pageXOffset;
   bBox.top += window.pageYOffset;
+
   if (getPaddingBox) {
     var style = window.getComputedStyle(element, ''),
         borderTop = parseFloat(style.borderTopWidth) || 0,
@@ -801,22 +853,24 @@ function getBBox(element, getPaddingBox) {
     bBox.width -= borderLeft + borderRight;
     bBox.height -= borderTop + borderBottom;
   }
+
   return validBBox(bBox);
 }
-
 /**
  * Optimize an element for animation.
  * @param {Element} element - A target element.
  * @param {?boolean} gpuTrigger - Initialize for SVGElement if `true`.
  * @returns {Element} A target element.
  */
+
+
 function initAnim(element, gpuTrigger) {
   var style = element.style;
-  style.webkitTapHighlightColor = 'transparent';
+  style.webkitTapHighlightColor = 'transparent'; // Only when it has no shadow
 
-  // Only when it has no shadow
   var cssPropBoxShadow = cssprefix__WEBPACK_IMPORTED_MODULE_1__["default"].getName('boxShadow'),
       boxShadow = window.getComputedStyle(element, '')[cssPropBoxShadow];
+
   if (!boxShadow || boxShadow === 'none') {
     style[cssPropBoxShadow] = '0 0 1px transparent';
   }
@@ -824,6 +878,7 @@ function initAnim(element, gpuTrigger) {
   if (gpuTrigger && cssPropTransform) {
     style[cssPropTransform] = 'translateZ(0)';
   }
+
   return element;
 }
 
@@ -831,13 +886,15 @@ function setDraggableCursor(element, orgCursor) {
   if (cssValueDraggableCursor == null) {
     if (cssWantedValueDraggableCursor !== false) {
       cssValueDraggableCursor = cssprefix__WEBPACK_IMPORTED_MODULE_1__["default"].getValue('cursor', cssWantedValueDraggableCursor);
-    }
-    // The wanted value was denied, or changing is not wanted.
+    } // The wanted value was denied, or changing is not wanted.
+
+
     if (cssValueDraggableCursor == null) {
       cssValueDraggableCursor = false;
     }
-  }
-  // Update it to change a state even if cssValueDraggableCursor is false.
+  } // Update it to change a state even if cssValueDraggableCursor is false.
+
+
   element.style.cursor = cssValueDraggableCursor === false ? orgCursor : cssValueDraggableCursor;
 }
 
@@ -845,33 +902,37 @@ function setDraggingCursor(element) {
   if (cssValueDraggingCursor == null) {
     if (cssWantedValueDraggingCursor !== false) {
       cssValueDraggingCursor = cssprefix__WEBPACK_IMPORTED_MODULE_1__["default"].getValue('cursor', cssWantedValueDraggingCursor);
-    }
-    // The wanted value was denied, or changing is not wanted.
+    } // The wanted value was denied, or changing is not wanted.
+
+
     if (cssValueDraggingCursor == null) {
       cssValueDraggingCursor = false;
     }
   }
+
   if (cssValueDraggingCursor !== false) {
     element.style.cursor = cssValueDraggingCursor;
   }
 }
-
 /**
  * Move by `translate`.
  * @param {props} props - `props` of instance.
  * @param {{left: number, top: number}} position - New position.
  * @returns {boolean} `true` if it was moved.
  */
+
+
 function moveTranslate(props, position) {
   var elementBBox = props.elementBBox;
+
   if (position.left !== elementBBox.left || position.top !== elementBBox.top) {
     var offset = props.htmlOffset;
-    props.elementStyle[cssPropTransform] = 'translate(' + (position.left + offset.left) + 'px, ' + (position.top + offset.top) + 'px)';
+    props.elementStyle[cssPropTransform] = "translate(".concat(position.left + offset.left, "px, ").concat(position.top + offset.top, "px)");
     return true;
   }
+
   return false;
 }
-
 /**
  * Set `props.element` position.
  * @param {props} props - `props` of instance.
@@ -879,6 +940,8 @@ function moveTranslate(props, position) {
  * @param {function} [cbCheck] - Callback that is called with valid position, cancel moving if it returns `false`.
  * @returns {boolean} `true` if it was moved.
  */
+
+
 function move(props, position, cbCheck) {
   var elementBBox = props.elementBBox;
 
@@ -891,6 +954,7 @@ function move(props, position, cbCheck) {
     } else if (position.left > props.maxLeft) {
       position.left = props.maxLeft;
     }
+
     if (props.minTop >= props.maxTop) {
       // Disabled
       position.top = elementBBox.top;
@@ -902,38 +966,47 @@ function move(props, position, cbCheck) {
   }
 
   fix();
+
   if (cbCheck) {
     if (cbCheck(position) === false) {
       return false;
     }
+
     fix(); // Again
   }
 
   var moved = props.moveElm(props, position);
+
   if (moved) {
     // Update elementBBox
-    props.elementBBox = validBBox({ left: position.left, top: position.top,
-      width: elementBBox.width, height: elementBBox.height });
+    props.elementBBox = validBBox({
+      left: position.left,
+      top: position.top,
+      width: elementBBox.width,
+      height: elementBBox.height
+    });
   }
+
   return moved;
 }
-
 /**
  * Initialize HTMLElement for `translate`, and get `offset` that is used by `moveTranslate`.
  * @param {props} props - `props` of instance.
  * @returns {BBox} Current BBox without animation, i.e. left/top properties.
  */
+
+
 function initTranslate(props) {
   var element = props.element,
       elementStyle = props.elementStyle,
       curPosition = getBBox(element),
       // Get BBox before change style.
   RESTORE_PROPS = ['display', 'marginTop', 'marginBottom', 'width', 'height'];
-  RESTORE_PROPS.unshift(cssPropTransform);
+  RESTORE_PROPS.unshift(cssPropTransform); // Reset `transition-property` every time because it might be changed frequently.
 
-  // Reset `transition-property` every time because it might be changed frequently.
   var orgTransitionProperty = elementStyle[cssPropTransitionProperty];
   elementStyle[cssPropTransitionProperty] = 'none'; // Disable animation
+
   var fixPosition = getBBox(element);
 
   if (!props.orgStyle) {
@@ -952,55 +1025,65 @@ function initTranslate(props) {
   }
 
   var orgSize = getBBox(element),
-      cmpStyle = window.getComputedStyle(element, '');
-  // https://www.w3.org/TR/css-transforms-1/#transformable-element
+      cmpStyle = window.getComputedStyle(element, ''); // https://www.w3.org/TR/css-transforms-1/#transformable-element
+
   if (cmpStyle.display === 'inline') {
     elementStyle.display = 'inline-block';
     ['Top', 'Bottom'].forEach(function (dirProp) {
-      var padding = parseFloat(cmpStyle['padding' + dirProp]);
-      // paddingTop/Bottom make padding but don't make space -> negative margin in inline-block
+      var padding = parseFloat(cmpStyle["padding".concat(dirProp)]); // paddingTop/Bottom make padding but don't make space -> negative margin in inline-block
       // marginTop/Bottom don't work in inline element -> `0` in inline-block
-      elementStyle['margin' + dirProp] = padding ? '-' + padding + 'px' : '0';
+
+      elementStyle["margin".concat(dirProp)] = padding ? "-".concat(padding, "px") : '0';
     });
   }
-  elementStyle[cssPropTransform] = 'translate(0, 0)';
-  // Get document offset.
-  var newBBox = getBBox(element);
-  var offset = props.htmlOffset = { left: newBBox.left ? -newBBox.left : 0, top: newBBox.top ? -newBBox.top : 0 }; // avoid `-0`
 
+  elementStyle[cssPropTransform] = 'translate(0, 0)'; // Get document offset.
+
+  var newBBox = getBBox(element);
+  var offset = props.htmlOffset = {
+    left: newBBox.left ? -newBBox.left : 0,
+    top: newBBox.top ? -newBBox.top : 0
+  }; // avoid `-0`
   // Restore position
-  elementStyle[cssPropTransform] = 'translate(' + (curPosition.left + offset.left) + 'px, ' + (curPosition.top + offset.top) + 'px)';
-  // Restore size
+
+  elementStyle[cssPropTransform] = "translate(".concat(curPosition.left + offset.left, "px, ").concat(curPosition.top + offset.top, "px)"); // Restore size
+
   ['width', 'height'].forEach(function (prop) {
     if (newBBox[prop] !== orgSize[prop]) {
       // Ignore `box-sizing`
       elementStyle[prop] = orgSize[prop] + 'px';
       newBBox = getBBox(element);
+
       if (newBBox[prop] !== orgSize[prop]) {
         // Retry
         elementStyle[prop] = orgSize[prop] - (newBBox[prop] - orgSize[prop]) + 'px';
       }
     }
-    props.lastStyle[prop] = elementStyle[prop];
-  });
 
-  // Restore `transition-property`
-  element.offsetWidth; /* force reflow */ // eslint-disable-line no-unused-expressions
+    props.lastStyle[prop] = elementStyle[prop];
+  }); // Restore `transition-property`
+
+  element.offsetWidth;
+  /* force reflow */
+  // eslint-disable-line no-unused-expressions
+
   elementStyle[cssPropTransitionProperty] = orgTransitionProperty;
+
   if (fixPosition.left !== curPosition.left || fixPosition.top !== curPosition.top) {
     // It seems that it is moving.
-    elementStyle[cssPropTransform] = 'translate(' + (fixPosition.left + offset.left) + 'px, ' + (fixPosition.top + offset.top) + 'px)';
+    elementStyle[cssPropTransform] = "translate(".concat(fixPosition.left + offset.left, "px, ").concat(fixPosition.top + offset.top, "px)");
   }
 
   return fixPosition;
 }
-
 /**
  * Set `elementBBox`, `containmentBBox`, `min/max``Left/Top` and `snapTargets`.
  * @param {props} props - `props` of instance.
  * @param {string} [eventType] - A type of event that kicked this method.
  * @returns {void}
  */
+
+
 function initBBox(props, eventType) {
   // eslint-disable-line no-unused-vars
   var docBBox = getBBox(document.documentElement),
@@ -1010,15 +1093,19 @@ function initBBox(props, eventType) {
   props.minLeft = containmentBBox.left;
   props.maxLeft = containmentBBox.right - elementBBox.width;
   props.minTop = containmentBBox.top;
-  props.maxTop = containmentBBox.bottom - elementBBox.height;
-  // Adjust position
-  move(props, { left: elementBBox.left, top: elementBBox.top });
-}
+  props.maxTop = containmentBBox.bottom - elementBBox.height; // Adjust position
 
+  move(props, {
+    left: elementBBox.left,
+    top: elementBBox.top
+  });
+}
 /**
  * @param {props} props - `props` of instance.
  * @returns {void}
  */
+
+
 function dragEnd(props) {
   setDraggableCursor(props.options.handle, props.orgCursor);
   body.style.cursor = cssOrgValueBodyCursor;
@@ -1026,39 +1113,51 @@ function dragEnd(props) {
   if (props.options.zIndex !== false) {
     props.elementStyle.zIndex = props.orgZIndex;
   }
+
   if (cssPropUserSelect) {
     body.style[cssPropUserSelect] = cssOrgValueBodyUserSelect;
   }
+
   var classList = Object(m_class_list__WEBPACK_IMPORTED_MODULE_3__["default"])(props.element);
+
   if (movingClass) {
     classList.remove(movingClass);
   }
+
   if (draggingClass) {
     classList.remove(draggingClass);
   }
 
   activeProps = null;
   pointerEvent.cancel(); // Reset pointer (activeProps must be null because this calls endHandler)
+
   if (props.onDragEnd) {
-    props.onDragEnd({ left: props.elementBBox.left, top: props.elementBBox.top });
+    props.onDragEnd({
+      left: props.elementBBox.left,
+      top: props.elementBBox.top
+    });
   }
 }
-
 /**
  * @param {props} props - `props` of instance.
  * @param {{clientX, clientY}} pointerXY - This might be MouseEvent, Touch of TouchEvent or Object.
  * @returns {boolean} `true` if it started.
  */
+
+
 function dragStart(props, pointerXY) {
   if (props.disabled) {
     return false;
   }
+
   if (props.onDragStart && props.onDragStart(pointerXY) === false) {
     return false;
   }
+
   if (activeProps) {
     dragEnd(activeProps);
   } // activeItem is normally null by pointerEvent.end.
+
 
   setDraggingCursor(props.options.handle);
   body.style.cursor = cssValueDraggingCursor || // If it is `false` or `''`
@@ -1067,9 +1166,11 @@ function dragStart(props, pointerXY) {
   if (props.options.zIndex !== false) {
     props.elementStyle.zIndex = props.options.zIndex;
   }
+
   if (cssPropUserSelect) {
     body.style[cssPropUserSelect] = 'none';
   }
+
   if (draggingClass) {
     Object(m_class_list__WEBPACK_IMPORTED_MODULE_3__["default"])(props.element).add(draggingClass);
   }
@@ -1080,19 +1181,20 @@ function dragStart(props, pointerXY) {
   pointerOffset.top = props.elementBBox.top - (pointerXY.clientY + window.pageYOffset);
   return true;
 }
-
 /**
  * @param {props} props - `props` of instance.
  * @param {Object} newOptions - New options.
  * @returns {void}
  */
+
+
 function _setOptions(props, newOptions) {
   var options = props.options;
-  var needsInitBBox = void 0;
+  var needsInitBBox; // containment
 
-  // containment
   if (newOptions.containment) {
-    var bBox = void 0;
+    var bBox;
+
     if (isElement(newOptions.containment)) {
       // Specific element
       if (newOptions.containment !== options.containment) {
@@ -1110,52 +1212,64 @@ function _setOptions(props, newOptions) {
 
   if (needsInitBBox) {
     initBBox(props);
-  }
+  } // handle
 
-  // handle
+
   if (isElement(newOptions.handle) && newOptions.handle !== options.handle) {
     if (options.handle) {
       // Restore
       options.handle.style.cursor = props.orgCursor;
+
       if (cssPropUserSelect) {
         options.handle.style[cssPropUserSelect] = props.orgUserSelect;
       }
+
       pointerEvent.removeStartHandler(options.handle, props.pointerEventHandlerId);
     }
+
     var handle = options.handle = newOptions.handle;
     props.orgCursor = handle.style.cursor;
     setDraggableCursor(handle, props.orgCursor);
+
     if (cssPropUserSelect) {
       props.orgUserSelect = handle.style[cssPropUserSelect];
       handle.style[cssPropUserSelect] = 'none';
     }
-    pointerEvent.addStartHandler(handle, props.pointerEventHandlerId);
-  }
 
-  // zIndex
+    pointerEvent.addStartHandler(handle, props.pointerEventHandlerId);
+  } // zIndex
+
+
   if (isFinite(newOptions.zIndex) || newOptions.zIndex === false) {
     options.zIndex = newOptions.zIndex;
+
     if (props === activeProps) {
       props.elementStyle.zIndex = options.zIndex === false ? props.orgZIndex : options.zIndex;
     }
-  }
+  } // left/top
 
-  // left/top
-  var position = { left: props.elementBBox.left, top: props.elementBBox.top };
-  var needsMove = void 0;
+
+  var position = {
+    left: props.elementBBox.left,
+    top: props.elementBBox.top
+  };
+  var needsMove;
+
   if (isFinite(newOptions.left) && newOptions.left !== position.left) {
     position.left = newOptions.left;
     needsMove = true;
   }
+
   if (isFinite(newOptions.top) && newOptions.top !== position.top) {
     position.top = newOptions.top;
     needsMove = true;
   }
+
   if (needsMove) {
     move(props, position);
-  }
+  } // Event listeners
 
-  // Event listeners
+
   ['onDrag', 'onMove', 'onDragStart', 'onMoveStart', 'onDragEnd'].forEach(function (option) {
     if (typeof newOptions[option] === 'function') {
       options[option] = newOptions[option];
@@ -1166,7 +1280,7 @@ function _setOptions(props, newOptions) {
   });
 }
 
-var PlainDraggable = function () {
+var PlainDraggable = /*#__PURE__*/function () {
   /**
    * Create a `PlainDraggable` instance.
    * @param {Element} element - Target element.
@@ -1177,19 +1291,23 @@ var PlainDraggable = function () {
 
     var props = {
       ins: this,
-      options: { // Initial options (not default)
+      options: {
+        // Initial options (not default)
         zIndex: ZINDEX // Initial state.
+
       },
       disabled: false
     };
-
-    Object.defineProperty(this, '_id', { value: ++insId });
+    Object.defineProperty(this, '_id', {
+      value: ++insId
+    });
     props._id = this._id;
     insProps[this._id] = props;
 
     if (!isElement(element) || element === body) {
       throw new Error('This element is not accepted.');
     }
+
     if (!options) {
       options = {};
     } else if (!isObject(options)) {
@@ -1198,6 +1316,7 @@ var PlainDraggable = function () {
 
     var gpuTrigger = true;
     var cssPropWillChange = cssprefix__WEBPACK_IMPORTED_MODULE_1__["default"].getName('willChange');
+
     if (cssPropWillChange) {
       gpuTrigger = false;
     }
@@ -1207,6 +1326,7 @@ var PlainDraggable = function () {
       if (cssPropWillChange) {
         element.style[cssPropWillChange] = 'transform';
       }
+
       props.initElm = initTranslate;
       props.moveElm = moveTranslate;
     } else {
@@ -1217,18 +1337,20 @@ var PlainDraggable = function () {
     props.element = initAnim(element, gpuTrigger);
     props.elementStyle = element.style;
     props.orgZIndex = props.elementStyle.zIndex;
+
     if (draggableClass) {
       Object(m_class_list__WEBPACK_IMPORTED_MODULE_3__["default"])(element).add(draggableClass);
     }
+
     props.pointerEventHandlerId = pointerEvent.regStartHandler(function (pointerXY) {
       return dragStart(props, pointerXY);
-    });
+    }); // Default options
 
-    // Default options
     if (!options.containment) {
-      var parent = void 0;
+      var parent;
       options.containment = (parent = element.parentNode) && isElement(parent) ? parent : body;
     }
+
     if (!options.handle) {
       options.handle = element;
     }
@@ -1237,58 +1359,66 @@ var PlainDraggable = function () {
   }
 
   _createClass(PlainDraggable, [{
-    key: 'remove',
+    key: "remove",
     value: function remove() {
       var props = insProps[this._id];
       this.disabled = true; // To restore element and reset pointer
+
       pointerEvent.unregStartHandler(pointerEvent.removeStartHandler(props.options.handle, props.pointerEventHandlerId));
       delete insProps[this._id];
     }
-
     /**
      * @param {Object} options - New options.
      * @returns {PlainDraggable} Current instance itself.
      */
 
   }, {
-    key: 'setOptions',
+    key: "setOptions",
     value: function setOptions(options) {
       if (isObject(options)) {
         _setOptions(insProps[this._id], options);
       }
+
       return this;
     }
   }, {
-    key: 'position',
+    key: "position",
     value: function position() {
       initBBox(insProps[this._id]);
       return this;
     }
   }, {
-    key: 'disabled',
+    key: "disabled",
     get: function get() {
       return insProps[this._id].disabled;
     },
     set: function set(value) {
       var props = insProps[this._id];
+
       if ((value = !!value) !== props.disabled) {
         props.disabled = value;
+
         if (props.disabled) {
           if (props === activeProps) {
             dragEnd(props);
           }
+
           props.options.handle.style.cursor = props.orgCursor;
+
           if (cssPropUserSelect) {
             props.options.handle.style[cssPropUserSelect] = props.orgUserSelect;
           }
+
           if (draggableClass) {
             Object(m_class_list__WEBPACK_IMPORTED_MODULE_3__["default"])(props.element).remove(draggableClass);
           }
         } else {
           setDraggableCursor(props.options.handle, props.orgCursor);
+
           if (cssPropUserSelect) {
             props.options.handle.style[cssPropUserSelect] = 'none';
           }
+
           if (draggableClass) {
             Object(m_class_list__WEBPACK_IMPORTED_MODULE_3__["default"])(props.element).add(draggableClass);
           }
@@ -1296,98 +1426,118 @@ var PlainDraggable = function () {
       }
     }
   }, {
-    key: 'element',
+    key: "element",
     get: function get() {
       return insProps[this._id].element;
     }
   }, {
-    key: 'rect',
+    key: "rect",
     get: function get() {
       return copyTree(insProps[this._id].elementBBox);
     }
   }, {
-    key: 'left',
+    key: "left",
     get: function get() {
       return insProps[this._id].elementBBox.left;
     },
     set: function set(value) {
-      _setOptions(insProps[this._id], { left: value });
+      _setOptions(insProps[this._id], {
+        left: value
+      });
     }
   }, {
-    key: 'top',
+    key: "top",
     get: function get() {
       return insProps[this._id].elementBBox.top;
     },
     set: function set(value) {
-      _setOptions(insProps[this._id], { top: value });
+      _setOptions(insProps[this._id], {
+        top: value
+      });
     }
   }, {
-    key: 'containment',
+    key: "containment",
     get: function get() {
       var props = insProps[this._id];
       return props.containmentIsBBox ? ppBBox2OptionObject(props.options.containment) : props.options.containment;
     },
     set: function set(value) {
-      _setOptions(insProps[this._id], { containment: value });
+      _setOptions(insProps[this._id], {
+        containment: value
+      });
     }
   }, {
-    key: 'handle',
+    key: "handle",
     get: function get() {
       return insProps[this._id].options.handle;
     },
     set: function set(value) {
-      _setOptions(insProps[this._id], { handle: value });
+      _setOptions(insProps[this._id], {
+        handle: value
+      });
     }
   }, {
-    key: 'zIndex',
+    key: "zIndex",
     get: function get() {
       return insProps[this._id].options.zIndex;
     },
     set: function set(value) {
-      _setOptions(insProps[this._id], { zIndex: value });
+      _setOptions(insProps[this._id], {
+        zIndex: value
+      });
     }
   }, {
-    key: 'onDrag',
+    key: "onDrag",
     get: function get() {
       return insProps[this._id].options.onDrag;
     },
     set: function set(value) {
-      _setOptions(insProps[this._id], { onDrag: value });
+      _setOptions(insProps[this._id], {
+        onDrag: value
+      });
     }
   }, {
-    key: 'onMove',
+    key: "onMove",
     get: function get() {
       return insProps[this._id].options.onMove;
     },
     set: function set(value) {
-      _setOptions(insProps[this._id], { onMove: value });
+      _setOptions(insProps[this._id], {
+        onMove: value
+      });
     }
   }, {
-    key: 'onDragStart',
+    key: "onDragStart",
     get: function get() {
       return insProps[this._id].options.onDragStart;
     },
     set: function set(value) {
-      _setOptions(insProps[this._id], { onDragStart: value });
+      _setOptions(insProps[this._id], {
+        onDragStart: value
+      });
     }
   }, {
-    key: 'onMoveStart',
+    key: "onMoveStart",
     get: function get() {
       return insProps[this._id].options.onMoveStart;
     },
     set: function set(value) {
-      _setOptions(insProps[this._id], { onMoveStart: value });
+      _setOptions(insProps[this._id], {
+        onMoveStart: value
+      });
     }
   }, {
-    key: 'onDragEnd',
+    key: "onDragEnd",
     get: function get() {
       return insProps[this._id].options.onDragEnd;
     },
     set: function set(value) {
-      _setOptions(insProps[this._id], { onDragEnd: value });
+      _setOptions(insProps[this._id], {
+        onDragEnd: value
+      });
     }
   }], [{
-    key: 'draggableCursor',
+    key: "draggableCursor",
     get: function get() {
       return cssWantedValueDraggableCursor;
     },
@@ -1395,12 +1545,16 @@ var PlainDraggable = function () {
       if (cssWantedValueDraggableCursor !== value) {
         cssWantedValueDraggableCursor = value;
         cssValueDraggableCursor = null; // Reset
+
         Object.keys(insProps).forEach(function (id) {
           var props = insProps[id];
+
           if (props.disabled || props === activeProps && cssValueDraggingCursor !== false) {
             return;
           }
+
           setDraggableCursor(props.options.handle, props.orgCursor);
+
           if (props === activeProps) {
             // Since cssValueDraggingCursor is `false`, copy cursor again.
             body.style.cursor = cssOrgValueBodyCursor;
@@ -1410,7 +1564,7 @@ var PlainDraggable = function () {
       }
     }
   }, {
-    key: 'draggingCursor',
+    key: "draggingCursor",
     get: function get() {
       return cssWantedValueDraggingCursor;
     },
@@ -1418,32 +1572,40 @@ var PlainDraggable = function () {
       if (cssWantedValueDraggingCursor !== value) {
         cssWantedValueDraggingCursor = value;
         cssValueDraggingCursor = null; // Reset
+
         if (activeProps) {
           setDraggingCursor(activeProps.options.handle);
+
           if (cssValueDraggingCursor === false) {
             setDraggableCursor(activeProps.options.handle, activeProps.orgCursor); // draggableCursor
+
             body.style.cursor = cssOrgValueBodyCursor;
           }
+
           body.style.cursor = cssValueDraggingCursor || // If it is `false` or `''`
           window.getComputedStyle(activeProps.options.handle, '').cursor;
         }
       }
     }
   }, {
-    key: 'draggableClass',
+    key: "draggableClass",
     get: function get() {
       return draggableClass;
     },
     set: function set(value) {
       value = value ? value + '' : void 0;
+
       if (value !== draggableClass) {
         Object.keys(insProps).forEach(function (id) {
           var props = insProps[id];
+
           if (!props.disabled) {
             var classList = Object(m_class_list__WEBPACK_IMPORTED_MODULE_3__["default"])(props.element);
+
             if (draggableClass) {
               classList.remove(draggableClass);
             }
+
             if (value) {
               classList.add(value);
             }
@@ -1453,42 +1615,50 @@ var PlainDraggable = function () {
       }
     }
   }, {
-    key: 'draggingClass',
+    key: "draggingClass",
     get: function get() {
       return draggingClass;
     },
     set: function set(value) {
       value = value ? value + '' : void 0;
+
       if (value !== draggingClass) {
         if (activeProps) {
           var classList = Object(m_class_list__WEBPACK_IMPORTED_MODULE_3__["default"])(activeProps.element);
+
           if (draggingClass) {
             classList.remove(draggingClass);
           }
+
           if (value) {
             classList.add(value);
           }
         }
+
         draggingClass = value;
       }
     }
   }, {
-    key: 'movingClass',
+    key: "movingClass",
     get: function get() {
       return movingClass;
     },
     set: function set(value) {
       value = value ? value + '' : void 0;
+
       if (value !== movingClass) {
         if (activeProps && hasMoved) {
           var classList = Object(m_class_list__WEBPACK_IMPORTED_MODULE_3__["default"])(activeProps.element);
+
           if (movingClass) {
             classList.remove(movingClass);
           }
+
           if (value) {
             classList.add(value);
           }
         }
+
         movingClass = value;
       }
     }
@@ -1501,58 +1671,61 @@ pointerEvent.addMoveHandler(document, function (pointerXY) {
   if (!activeProps) {
     return;
   }
+
   var position = {
     left: pointerXY.clientX + window.pageXOffset + pointerOffset.left,
     top: pointerXY.clientY + window.pageYOffset + pointerOffset.top
   };
-  if (move(activeProps, position, activeProps.onDrag)) {
 
+  if (move(activeProps, position, activeProps.onDrag)) {
     if (!hasMoved) {
       hasMoved = true;
+
       if (movingClass) {
         Object(m_class_list__WEBPACK_IMPORTED_MODULE_3__["default"])(activeProps.element).add(movingClass);
       }
+
       if (activeProps.onMoveStart) {
         activeProps.onMoveStart(position);
       }
     }
+
     if (activeProps.onMove) {
       activeProps.onMove(position);
     }
   }
 });
-
 {
-  var endHandler = function endHandler() {
+  function endHandler() {
     if (activeProps) {
       dragEnd(activeProps);
     }
-  };
+  }
 
   pointerEvent.addEndHandler(document, endHandler);
   pointerEvent.addCancelHandler(document, endHandler);
 }
-
 {
-  var initDoc = function initDoc() {
+  function initDoc() {
     cssPropTransitionProperty = cssprefix__WEBPACK_IMPORTED_MODULE_1__["default"].getName('transitionProperty');
     cssPropTransform = cssprefix__WEBPACK_IMPORTED_MODULE_1__["default"].getName('transform');
     cssOrgValueBodyCursor = body.style.cursor;
+
     if (cssPropUserSelect = cssprefix__WEBPACK_IMPORTED_MODULE_1__["default"].getName('userSelect')) {
       cssOrgValueBodyUserSelect = body.style[cssPropUserSelect];
-    }
+    } // Init active item when layout is changed, and init others later.
 
-    // Init active item when layout is changed, and init others later.
 
     var LAZY_INIT_DELAY = 200;
     var initDoneItems = {},
-        lazyInitTimer = void 0;
+        lazyInitTimer;
 
     function checkInitBBox(props, eventType) {
       if (props.initElm) {
         // Easy checking for instance without errors.
         initBBox(props, eventType);
       } // eslint-disable-line brace-style
+
     }
 
     function initAll(eventType) {
@@ -1566,10 +1739,12 @@ pointerEvent.addMoveHandler(document, function (pointerXY) {
     }
 
     var layoutChanging = false; // Gecko bug, multiple calling by `resize`.
+
     var layoutChange = anim_event__WEBPACK_IMPORTED_MODULE_2__["default"].add(function (event) {
       if (layoutChanging) {
         return;
       }
+
       layoutChanging = true;
 
       if (activeProps) {
@@ -1577,16 +1752,16 @@ pointerEvent.addMoveHandler(document, function (pointerXY) {
         pointerEvent.move();
         initDoneItems[activeProps._id] = true;
       }
+
       clearTimeout(lazyInitTimer);
       lazyInitTimer = setTimeout(function () {
         initAll(event.type);
       }, LAZY_INIT_DELAY);
-
       layoutChanging = false;
     });
     window.addEventListener('resize', layoutChange, true);
     window.addEventListener('scroll', layoutChange, true);
-  };
+  }
 
   if (body = document.body) {
     initDoc();
@@ -1597,9 +1772,7 @@ pointerEvent.addMoveHandler(document, function (pointerXY) {
     }, true);
   }
 }
-
 PlainDraggable.limit = true;
-
 /* harmony default export */ __webpack_exports__["default"] = (PlainDraggable);
 
 /***/ }),
@@ -1621,9 +1794,11 @@ __webpack_require__.r(__webpack_exports__);
         DON'T MANUALLY EDIT THIS FILE
 ================================================ */
 
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
 
 /*
  * PlainOverlay
@@ -1636,55 +1811,48 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 
 
-
 /* Static ESM */ /* import CSS_TEXT from './default.scss' */ var CSS_TEXT = ".plainoverlay{-webkit-tap-highlight-color:rgba(0,0,0,0);transform:translateZ(0);box-shadow:0 0 1px rgba(0,0,0,0)}.plainoverlay{position:absolute;left:0;top:0;overflow:hidden;background-color:rgba(136,136,136,.6);cursor:wait;z-index:9000;transition-property:opacity;transition-duration:200ms;transition-timing-function:linear;opacity:0}.plainoverlay.plainoverlay-show{opacity:1}.plainoverlay.plainoverlay-force{transition-property:none}.plainoverlay.plainoverlay-hide{display:none}.plainoverlay.plainoverlay-doc{position:fixed;left:-200px;top:-200px;overflow:visible;padding:200px;width:100vw;height:100vh}.plainoverlay-body{width:100%;height:100%;display:flex;justify-content:center;align-items:center}.plainoverlay.plainoverlay-doc .plainoverlay-body{width:100vw;height:100vh}";
 m_class_list__WEBPACK_IMPORTED_MODULE_2__["default"].ignoreNative = true;
 
 var APP_ID = 'plainoverlay',
-    STYLE_ELEMENT_ID = APP_ID + '-style',
+    STYLE_ELEMENT_ID = "".concat(APP_ID, "-style"),
     STYLE_CLASS = APP_ID,
-    STYLE_CLASS_DOC = APP_ID + '-doc',
-    STYLE_CLASS_SHOW = APP_ID + '-show',
-    STYLE_CLASS_HIDE = APP_ID + '-hide',
-    STYLE_CLASS_FORCE = APP_ID + '-force',
-    STYLE_CLASS_BODY = APP_ID + '-body',
-    FACE_DEFS_ELEMENT_ID = APP_ID + '-builtin-face-defs',
+    STYLE_CLASS_DOC = "".concat(APP_ID, "-doc"),
+    STYLE_CLASS_SHOW = "".concat(APP_ID, "-show"),
+    STYLE_CLASS_HIDE = "".concat(APP_ID, "-hide"),
+    STYLE_CLASS_FORCE = "".concat(APP_ID, "-force"),
+    STYLE_CLASS_BODY = "".concat(APP_ID, "-body"),
+    FACE_DEFS_ELEMENT_ID = "".concat(APP_ID, "-builtin-face-defs"),
     STATE_HIDDEN = 0,
     STATE_SHOWING = 1,
     STATE_SHOWN = 2,
     STATE_HIDING = 3,
-
-// DURATION = 2500, // COPY: default.scss
+    // DURATION = 2500, // COPY: default.scss
 DURATION = 200,
     // COPY: default.scss
 TOLERANCE = 0.5,
     IS_EDGE = '-ms-scroll-limit' in document.documentElement.style && '-ms-ime-align' in document.documentElement.style && !window.navigator.msPointerEnabled,
     IS_TRIDENT = !IS_EDGE && !!document.uniqueID,
     // Future Edge might support `document.uniqueID`.
-IS_GECKO = 'MozAppearance' in document.documentElement.style,
+IS_GECKO = ('MozAppearance' in document.documentElement.style),
     IS_BLINK = !IS_EDGE && !IS_GECKO && // Edge has `window.chrome`, and future Gecko might have that.
 !!window.chrome && !!window.CSS,
-
-// [DEBUG]
+    // [DEBUG]
 IS_WEBKIT = !IS_EDGE && !IS_TRIDENT && !IS_GECKO && !IS_BLINK && // Some engines support `webkit-*` properties.
 !window.chrome && 'WebkitAppearance' in document.documentElement.style,
-
-// [/DEBUG]
-
+    // [/DEBUG]
 isObject = function () {
   var toString = {}.toString,
       fnToString = {}.hasOwnProperty.toString,
       objFnString = fnToString.call(Object);
   return function (obj) {
-    var proto = void 0,
-        constr = void 0;
+    var proto, constr;
     return obj && toString.call(obj) === '[object Object]' && (!(proto = Object.getPrototypeOf(obj)) || (constr = proto.hasOwnProperty('constructor') && proto.constructor) && typeof constr === 'function' && fnToString.call(constr) === objFnString);
   };
 }(),
     isFinite = Number.isFinite || function (value) {
   return typeof value === 'number' && window.isFinite(value);
 },
-
 
 /**
  * An object that has properties of instance.
@@ -1704,26 +1872,25 @@ isObject = function () {
 /** @type {Object.<_id: number, props>} */
 insProps = {};
 
-var insId = 0;
+var insId = 0; // [DEBUG]
 
-// [DEBUG]
 var traceLog = [];
 var STATE_TEXT = {};
 STATE_TEXT[STATE_HIDDEN] = 'STATE_HIDDEN';
 STATE_TEXT[STATE_SHOWING] = 'STATE_SHOWING';
 STATE_TEXT[STATE_SHOWN] = 'STATE_SHOWN';
-STATE_TEXT[STATE_HIDING] = 'STATE_HIDING';
-// [/DEBUG]
+STATE_TEXT[STATE_HIDING] = 'STATE_HIDING'; // [/DEBUG]
 
 function forceReflow(target) {
   // Trident and Blink bug (reflow like `offsetWidth` can't update)
   setTimeout(function () {
     var parent = target.parentNode,
-        next = target.nextSibling;
-    // It has to be removed first for Blink.
+        next = target.nextSibling; // It has to be removed first for Blink.
+
     parent.insertBefore(parent.removeChild(target), next);
   }, 0);
 }
+
 window.forceReflow = forceReflow; // [DEBUG/]
 
 /**
@@ -1734,6 +1901,7 @@ window.forceReflow = forceReflow; // [DEBUG/]
  * @param {Array} [propNames] - Names of target properties.
  * @returns {Element} Target element itself.
  */
+
 function setStyle(element, styleProps, savedStyleProps, propNames) {
   var style = element.style;
   (propNames || Object.keys(styleProps)).forEach(function (prop) {
@@ -1741,13 +1909,13 @@ function setStyle(element, styleProps, savedStyleProps, propNames) {
       if (savedStyleProps && savedStyleProps[prop] == null) {
         savedStyleProps[prop] = style[prop];
       }
+
       style[prop] = styleProps[prop];
       styleProps[prop] = null;
     }
   });
   return element;
 }
-
 /**
  * Restore saved style properties.
  * @param {Element} element - Target element.
@@ -1755,10 +1923,11 @@ function setStyle(element, styleProps, savedStyleProps, propNames) {
  * @param {Array} [propNames] - Names of properties that is restored.
  * @returns {Element} Target element itself.
  */
+
+
 function restoreStyle(element, savedStyleProps, propNames) {
   return setStyle(element, savedStyleProps, null, propNames);
 }
-
 /**
  * An object that simulates `DOMRect` to indicate a bounding-box.
  * @typedef {Object} BBox
@@ -1776,18 +1945,29 @@ function restoreStyle(element, savedStyleProps, propNames) {
  * @param {Window} [window] - Whether it's relative to the element's window, or document.
  * @returns {(BBox|null)} A bounding-box or null when failed.
  */
+
+
 function getBBox(element, window) {
   var rect = element.getBoundingClientRect(),
-      bBox = { left: rect.left, top: rect.top,
-    right: rect.right, bottom: rect.bottom, width: rect.width, height: rect.height };
+      bBox = {
+    left: rect.left,
+    top: rect.top,
+    right: rect.right,
+    bottom: rect.bottom,
+    width: rect.width,
+    height: rect.height
+  };
+
   if (window) {
     bBox.left += window.pageXOffset;
     bBox.right += window.pageXOffset;
     bBox.top += window.pageYOffset;
     bBox.bottom += window.pageYOffset;
   }
+
   return bBox;
 }
+
 window.getBBox = getBBox; // [DEBUG/]
 
 function scrollLeft(element, isDoc, window, value) {
@@ -1795,13 +1975,17 @@ function scrollLeft(element, isDoc, window, value) {
     if (value != null) {
       window.scrollTo(value, window.pageYOffset);
     }
+
     return window.pageXOffset;
   }
+
   if (value != null) {
     element.scrollLeft = value;
   }
+
   return element.scrollLeft;
 }
+
 window.scrollLeft = scrollLeft; // [DEBUG/]
 
 function scrollTop(element, isDoc, window, value) {
@@ -1809,19 +1993,23 @@ function scrollTop(element, isDoc, window, value) {
     if (value != null) {
       window.scrollTo(window.pageXOffset, value);
     }
+
     return window.pageYOffset;
   }
+
   if (value != null) {
     element.scrollTop = value;
   }
+
   return element.scrollTop;
 }
+
 window.scrollTop = scrollTop; // [DEBUG/]
 
 function resizeTarget(props, width, height) {
   var elmTargetBody = props.elmTargetBody;
-
   var rect = elmTargetBody.getBoundingClientRect();
+
   if (Math.abs(rect.width - width) < TOLERANCE && Math.abs(rect.height - height) < TOLERANCE) {
     return;
   }
@@ -1830,7 +2018,6 @@ function resizeTarget(props, width, height) {
       boxSizing = targetBodyCmpStyle.boxSizing,
       includeProps = boxSizing === 'border-box' ? [] : boxSizing === 'padding-box' ? ['border'] : ['border', 'padding'],
       // content-box
-
   PROP_NAMES = {
     border: {
       width: ['borderLeftWidth', 'borderRightWidth'],
@@ -1848,59 +2035,78 @@ function resizeTarget(props, width, height) {
       });
     });
     return values;
-  }, { width: width, height: height });
+  }, {
+    width: width,
+    height: height
+  }); // Since the `width` and `height` might change each other, fix both.
 
-  // Since the `width` and `height` might change each other, fix both.
   setStyle(elmTargetBody, {
     // The value might be negative number when size is too small.
-    width: values.width > 0 ? values.width + 'px' : 0,
-    height: values.height > 0 ? values.height + 'px' : 0
-  }, props.savedStyleTargetBody);
+    width: values.width > 0 ? "".concat(values.width, "px") : 0,
+    height: values.height > 0 ? "".concat(values.height, "px") : 0
+  }, props.savedStyleTargetBody); // In some browsers, getComputedStyle might return computed values that is not px instead of used values.
 
-  // In some browsers, getComputedStyle might return computed values that is not px instead of used values.
   var fixStyle = {};
   rect = elmTargetBody.getBoundingClientRect();
+
   if (Math.abs(rect.width - width) >= TOLERANCE) {
     // [DEBUG]
-    console.warn('[resizeTarget] Incorrect width: ' + rect.width + (' (expected: ' + width + ' passed: ' + values.width + ')'));
-    // [/DEBUG]
-    fixStyle.width = values.width - (rect.width - width) + 'px';
+    console.warn("[resizeTarget] Incorrect width: ".concat(rect.width) + " (expected: ".concat(width, " passed: ").concat(values.width, ")")); // [/DEBUG]
+
+    fixStyle.width = "".concat(values.width - (rect.width - width), "px");
   }
+
   if (rect.height !== height) {
     // [DEBUG]
-    console.warn('[resizeTarget] Incorrect height: ' + rect.height + (' (expected: ' + height + ' passed: ' + values.height + ')'));
-    // [/DEBUG]
-    fixStyle.height = values.height - (rect.height - height) + 'px';
+    console.warn("[resizeTarget] Incorrect height: ".concat(rect.height) + " (expected: ".concat(height, " passed: ").concat(values.height, ")")); // [/DEBUG]
+
+    fixStyle.height = "".concat(values.height - (rect.height - height), "px");
   }
+
   setStyle(elmTargetBody, fixStyle, props.savedStyleTargetBody);
 }
-window.resizeTarget = resizeTarget; // [DEBUG/]
 
+window.resizeTarget = resizeTarget; // [DEBUG/]
 // Trident and Edge bug, width and height are interchanged.
+
 function getDocClientWH(props) {
   var elmTarget = props.elmTarget,
       width = elmTarget.clientWidth,
       height = elmTarget.clientHeight;
+
   if (IS_TRIDENT || IS_EDGE) {
     var targetBodyCmpStyle = props.window.getComputedStyle(props.elmTargetBody, ''),
         wMode = targetBodyCmpStyle.writingMode || targetBodyCmpStyle['writing-mode'],
         // Trident bug
     direction = targetBodyCmpStyle.direction;
-    return wMode === 'tb-rl' || wMode === 'bt-rl' || wMode === 'tb-lr' || wMode === 'bt-lr' || IS_EDGE && (direction === 'ltr' && (wMode === 'vertical-rl' || wMode === 'vertical-lr') || direction === 'rtl' && (wMode === 'vertical-rl' || wMode === 'vertical-lr')) ? { width: height, height: width } : // interchange
-    { width: width, height: height };
+    return wMode === 'tb-rl' || wMode === 'bt-rl' || wMode === 'tb-lr' || wMode === 'bt-lr' || IS_EDGE && (direction === 'ltr' && (wMode === 'vertical-rl' || wMode === 'vertical-lr') || direction === 'rtl' && (wMode === 'vertical-rl' || wMode === 'vertical-lr')) ? {
+      width: height,
+      height: width
+    } : // interchange
+    {
+      width: width,
+      height: height
+    };
   }
-  return { width: width, height: height };
+
+  return {
+    width: width,
+    height: height
+  };
 }
+
 window.getDocClientWH = getDocClientWH; // [DEBUG/]
 
 function restoreScroll(props, element) {
-  traceLog.push('<restoreScroll>', '_id:' + props._id, 'state:' + STATE_TEXT[props.state]); // [DEBUG/]
+  traceLog.push('<restoreScroll>', "_id:".concat(props._id), "state:".concat(STATE_TEXT[props.state])); // [DEBUG/]
 
   function scrollElement(element, isDoc, left, top) {
     try {
       scrollLeft(element, isDoc, props.window, left);
       scrollTop(element, isDoc, props.window, top);
-    } catch (error) {/* Something might have been changed, and that can be ignored. */}
+    } catch (error) {
+      /* Something might have been changed, and that can be ignored. */
+    }
   }
 
   if (element) {
@@ -1909,15 +2115,18 @@ function restoreScroll(props, element) {
         scrollElement(elementScroll.element, elementScroll.isDoc, elementScroll.left, elementScroll.top);
         return true;
       }
+
       return false;
-    }) ? (traceLog.push('DONE:ELEMENT', '_id:' + props._id, '</restoreScroll>'), true) : ( // [DEBUG/]
-    traceLog.push('NotInTarget', '_id:' + props._id, '</restoreScroll>'), false) // [DEBUG/]
+    }) ? (traceLog.push('DONE:ELEMENT', "_id:".concat(props._id), '</restoreScroll>'), true) : ( // [DEBUG/]
+    traceLog.push('NotInTarget', "_id:".concat(props._id), '</restoreScroll>'), false) // [DEBUG/]
     ; // eslint-disable-line semi-style
   }
+
   props.savedElementsScroll.forEach(function (elementScroll) {
     scrollElement(elementScroll.element, elementScroll.isDoc, elementScroll.left, elementScroll.top);
   });
-  traceLog.push('DONE:ALL', '_id:' + props._id, '</restoreScroll>'); // [DEBUG/]
+  traceLog.push('DONE:ALL', "_id:".concat(props._id), '</restoreScroll>'); // [DEBUG/]
+
   return true;
 }
 
@@ -1929,22 +2138,27 @@ function restoreAccKeys(props) {
       } else if (elementAccKeys.tabIndex != null) {
         elementAccKeys.element.tabIndex = elementAccKeys.tabIndex;
       }
-    } catch (error) {/* Something might have been changed, and that can be ignored. */}
+    } catch (error) {
+      /* Something might have been changed, and that can be ignored. */
+    }
 
     try {
       if (elementAccKeys.accessKey) {
         elementAccKeys.element.accessKey = elementAccKeys.accessKey;
       }
-    } catch (error) {/* Something might have been changed, and that can be ignored. */}
+    } catch (error) {
+      /* Something might have been changed, and that can be ignored. */
+    }
   });
 }
+
 window.restoreAccKeys = restoreAccKeys; // [DEBUG/]
 
 function avoidFocus(props, element) {
   // [DEBUG]
-  traceLog.push('<avoidFocus>', '_id:' + props._id, 'state:' + STATE_TEXT[props.state]);
-  traceLog.push('element:' + (element === document ? 'document' : element.tagName || 'UNKNOWN') + ('' + (element.id ? '#' + element.id : '')));
-  // [/DEBUG]
+  traceLog.push('<avoidFocus>', "_id:".concat(props._id), "state:".concat(STATE_TEXT[props.state]));
+  traceLog.push("element:".concat(element === document ? 'document' : element.tagName || 'UNKNOWN') + "".concat(element.id ? "#".concat(element.id) : '')); // [/DEBUG]
+
   if (props.isDoc && element !== element.ownerDocument.body && !(props.elmOverlay.compareDocumentPosition(element) & Node.DOCUMENT_POSITION_CONTAINED_BY) || !props.isDoc && (element === props.elmTargetBody || props.elmTargetBody.compareDocumentPosition(element) & Node.DOCUMENT_POSITION_CONTAINED_BY)) {
     if (element.blur) {
       // Trident and Edge don't support SVG#blur
@@ -1952,41 +2166,51 @@ function avoidFocus(props, element) {
     } else {
       element.ownerDocument.body.focus();
     }
-    traceLog.push('DONE', '_id:' + props._id, '</avoidFocus>'); // [DEBUG/]
+
+    traceLog.push('DONE', "_id:".concat(props._id), '</avoidFocus>'); // [DEBUG/]
+
     return true;
   }
-  traceLog.push('NotInTarget', '_id:' + props._id, '</avoidFocus>'); // [DEBUG/]
-  return false;
-}
 
-// Selection.containsNode polyfill for Trident
+  traceLog.push('NotInTarget', "_id:".concat(props._id), '</avoidFocus>'); // [DEBUG/]
+
+  return false;
+} // Selection.containsNode polyfill for Trident
+
+
 function selContainsNode(selection, node, partialContainment) {
   var nodeRange = node.ownerDocument.createRange(),
       iLen = selection.rangeCount;
   nodeRange.selectNodeContents(node);
+
   for (var i = 0; i < iLen; i++) {
-    var selRange = selection.getRangeAt(i);
-    // Edge bug (Issue #7321753); getRangeAt returns empty (collapsed) range
+    var selRange = selection.getRangeAt(i); // Edge bug (Issue #7321753); getRangeAt returns empty (collapsed) range
     // NOTE: It can not recover when the selection has multiple ranges.
+
     if (!selRange.toString().length && selection.toString().length && iLen === 1) {
       console.log('Edge bug (Issue #7321753)'); // [DEBUG/]
+
       selRange.setStart(selection.anchorNode, selection.anchorOffset);
-      selRange.setEnd(selection.focusNode, selection.focusOffset);
-      // Edge doesn't throw when end is upper than start.
+      selRange.setEnd(selection.focusNode, selection.focusOffset); // Edge doesn't throw when end is upper than start.
+
       if (selRange.toString() !== selection.toString()) {
         selRange.setStart(selection.focusNode, selection.focusOffset);
         selRange.setEnd(selection.anchorNode, selection.anchorOffset);
+
         if (selRange.toString() !== selection.toString()) {
           throw new Error('Edge bug (Issue #7321753); Couldn\'t recover');
         }
       }
     }
+
     if (partialContainment ? selRange.compareBoundaryPoints(Range.START_TO_END, nodeRange) >= 0 && selRange.compareBoundaryPoints(Range.END_TO_START, nodeRange) <= 0 : selRange.compareBoundaryPoints(Range.START_TO_START, nodeRange) < 0 && selRange.compareBoundaryPoints(Range.END_TO_END, nodeRange) > 0) {
       return true;
     }
   }
+
   return false;
 }
+
 window.selContainsNode = selContainsNode; // [DEBUG/]
 
 /**
@@ -1995,54 +2219,73 @@ window.selContainsNode = selContainsNode; // [DEBUG/]
  * @param {Selection} selection - The parsed selection.
  * @returns {boolean} `true` if all ranges of `selection` are part of `node`.
  */
+
 function nodeContainsSel(node, selection) {
   var nodeRange = node.ownerDocument.createRange(),
       iLen = selection.rangeCount;
   nodeRange.selectNode(node);
+
   for (var i = 0; i < iLen; i++) {
     var selRange = selection.getRangeAt(i);
+
     if (selRange.compareBoundaryPoints(Range.START_TO_START, nodeRange) < 0 || selRange.compareBoundaryPoints(Range.END_TO_END, nodeRange) > 0) {
       return false;
     }
   }
+
   return true;
 }
+
 window.nodeContainsSel = nodeContainsSel; // [DEBUG/]
 
 function avoidSelect(props) {
-  traceLog.push('<avoidSelect>', '_id:' + props._id, 'state:' + STATE_TEXT[props.state]); // [DEBUG/]
-  var selection = ('getSelection' in window ? props.window : props.document).getSelection();
-  // [DEBUG]
+  traceLog.push('<avoidSelect>', "_id:".concat(props._id), "state:".concat(STATE_TEXT[props.state])); // [DEBUG/]
+
+  var selection = ('getSelection' in window ? props.window : props.document).getSelection(); // [DEBUG]
+
   if (selection.rangeCount) {
     var start = selection.anchorNode,
         end = selection.focusNode;
+
     if (start && start.nodeType === Node.TEXT_NODE) {
       start = start.parentNode;
     }
+
     if (end && end.nodeType === Node.TEXT_NODE) {
       end = end.parentNode;
     }
-    traceLog.push('start:' + (!start ? 'NONE' : start === document ? 'document' : start.tagName || 'UNKNOWN') + ('' + (start && start.id ? '#' + start.id : '')) + ('(' + selection.anchorOffset + ')') + (',end:' + (!end ? 'NONE' : end === document ? 'document' : end.tagName || 'UNKNOWN')) + ('' + (end && end.id ? '#' + end.id : '')) + ('(' + selection.focusOffset + ')') + (',isCollapsed:' + selection.isCollapsed));
+
+    traceLog.push("start:".concat(!start ? 'NONE' : start === document ? 'document' : start.tagName || 'UNKNOWN') + "".concat(start && start.id ? "#".concat(start.id) : '') + "(".concat(selection.anchorOffset, ")") + ",end:".concat(!end ? 'NONE' : end === document ? 'document' : end.tagName || 'UNKNOWN') + "".concat(end && end.id ? "#".concat(end.id) : '') + "(".concat(selection.focusOffset, ")") + ",isCollapsed:".concat(selection.isCollapsed));
   } else {
     traceLog.push('NoRange');
-  }
-  // [/DEBUG]
+  } // [/DEBUG]
+
+
   if (selection.rangeCount && (props.isDoc ? !nodeContainsSel(props.elmOverlayBody, selection) : selection.containsNode && (!IS_BLINK || !selection.isCollapsed) // Blink bug, fails with empty string.
   ? selection.containsNode(props.elmTargetBody, true) : selContainsNode(selection, props.elmTargetBody, true))) {
     try {
       selection.removeAllRanges(); // Trident bug?, `Error:800a025e` comes sometime
-    } catch (error) {/* ignore */}
-    props.document.body.focus();
-    // Trident bug? It seems that `focus()` makes selection again.
+    } catch (error) {
+      /* ignore */
+    }
+
+    props.document.body.focus(); // Trident bug? It seems that `focus()` makes selection again.
+
     if (selection.rangeCount > 0) {
       try {
         selection.removeAllRanges(); // Trident bug?, `Error:800a025e` comes sometime
-      } catch (error) {/* ignore */}
+      } catch (error) {
+        /* ignore */
+      }
     }
-    traceLog.push('DONE', '_id:' + props._id, '</avoidSelect>'); // [DEBUG/]
+
+    traceLog.push('DONE', "_id:".concat(props._id), '</avoidSelect>'); // [DEBUG/]
+
     return true;
   }
-  traceLog.push('NoSelection', '_id:' + props._id, '</avoidSelect>'); // [DEBUG/]
+
+  traceLog.push('NoSelection', "_id:".concat(props._id), '</avoidSelect>'); // [DEBUG/]
+
   return false;
 }
 
@@ -2050,44 +2293,49 @@ function barLeft(wMode, direction) {
   var svgSpec = wMode === 'rl-tb' || wMode === 'tb-rl' || wMode === 'bt-rl' || wMode === 'rl-bt';
   return IS_TRIDENT && svgSpec || IS_EDGE && (svgSpec || direction === 'rtl' && (wMode === 'horizontal-tb' || wMode === 'vertical-rl') || direction === 'ltr' && wMode === 'vertical-rl');
 }
+
 window.barLeft = barLeft; // [DEBUG/]
 
 function barTop(wMode, direction) {
   var svgSpec = wMode === 'bt-rl' || wMode === 'bt-lr' || wMode === 'lr-bt' || wMode === 'rl-bt';
   return IS_TRIDENT && svgSpec || IS_EDGE && (svgSpec || direction === 'rtl' && (wMode === 'vertical-lr' || wMode === 'vertical-rl'));
 }
+
 window.barTop = barTop; // [DEBUG/]
 
 function disableDocBars(props) {
   var elmTarget = props.elmTarget,
       elmTargetBody = props.elmTargetBody,
-      targetBodyRect = elmTargetBody.getBoundingClientRect();
+      targetBodyRect = elmTargetBody.getBoundingClientRect(); // Get size of each scrollbar.
 
-  // Get size of each scrollbar.
   var clientWH = getDocClientWH(props),
       barV = -clientWH.width,
       barH = -clientWH.height; // elmTarget.clientWidth/clientHeight
-  setStyle(elmTarget, { overflow: 'hidden' }, props.savedStyleTarget);
+
+  setStyle(elmTarget, {
+    overflow: 'hidden'
+  }, props.savedStyleTarget);
   clientWH = getDocClientWH(props);
   barV += clientWH.width;
   barH += clientWH.height;
 
   if (barV || barH) {
     var targetBodyCmpStyle = props.window.getComputedStyle(elmTargetBody, '');
-    var propV = void 0,
-        propH = void 0;
-    // There is no way to get absolute position of document.
+    var propV, propH; // There is no way to get absolute position of document.
     // We need distance between the document and its window, or a method like `element.screenX`
     // that gets absolute position of an element.
     // For the moment, Trident and Edge make a scrollbar at the left/top side when RTL document
     // or CJK vertical document is rendered.
+
     if (IS_TRIDENT || IS_EDGE) {
       var wMode = targetBodyCmpStyle.writingMode || targetBodyCmpStyle['writing-mode'],
           // Trident bug
       direction = targetBodyCmpStyle.direction;
+
       if (barV) {
         propV = barLeft(wMode, direction) ? 'marginLeft' : 'marginRight';
       }
+
       if (barH) {
         propH = barTop(wMode, direction) ? 'marginTop' : 'marginBottom';
       }
@@ -2095,28 +2343,33 @@ function disableDocBars(props) {
       if (barV) {
         propV = 'marginRight';
       }
+
       if (barH) {
         propH = 'marginBottom';
       }
     }
 
     var addStyle = {};
-    if (barV) {
-      addStyle[propV] = parseFloat(targetBodyCmpStyle[propV]) + barV + 'px';
-    }
-    if (barH) {
-      addStyle[propH] = parseFloat(targetBodyCmpStyle[propH]) + barH + 'px';
-    }
-    setStyle(elmTargetBody, addStyle, props.savedStyleTargetBody);
-    resizeTarget(props, targetBodyRect.width, targetBodyRect.height);
 
-    // `overflow: 'hidden'` might change scroll.
+    if (barV) {
+      addStyle[propV] = "".concat(parseFloat(targetBodyCmpStyle[propV]) + barV, "px");
+    }
+
+    if (barH) {
+      addStyle[propH] = "".concat(parseFloat(targetBodyCmpStyle[propH]) + barH, "px");
+    }
+
+    setStyle(elmTargetBody, addStyle, props.savedStyleTargetBody);
+    resizeTarget(props, targetBodyRect.width, targetBodyRect.height); // `overflow: 'hidden'` might change scroll.
+
     restoreScroll(props, elmTarget);
     return true;
   }
+
   restoreStyle(elmTarget, props.savedStyleTarget, ['overflow']);
   return false;
 }
+
 window.disableDocBars = disableDocBars; // [DEBUG/]
 
 function _position(props, targetBodyBBox) {
@@ -2126,25 +2379,40 @@ function _position(props, targetBodyBBox) {
       overlayCmpStyle = props.window.getComputedStyle(elmOverlay, ''),
       overlayBBox = getBBox(elmOverlay, props.window),
       borders = ['Top', 'Right', 'Bottom', 'Left'].reduce(function (borders, prop) {
-    borders[prop.toLowerCase()] = parseFloat(targetBodyCmpStyle['border' + prop + 'Width']);
+    borders[prop.toLowerCase()] = parseFloat(targetBodyCmpStyle["border".concat(prop, "Width")]);
     return borders;
   }, {}),
-
-
-  // Get distance between document and origin of `elmOverlay`.
-  offset = { left: overlayBBox.left - parseFloat(overlayCmpStyle.left),
-    top: overlayBBox.top - parseFloat(overlayCmpStyle.top) },
-      style = {
-    left: targetBodyBBox.left - offset.left + borders.left + 'px',
-    top: targetBodyBBox.top - offset.top + borders.top + 'px',
-    width: targetBodyBBox.width - borders.left - borders.right + 'px',
-    height: targetBodyBBox.height - borders.top - borders.bottom + 'px'
+      // Get distance between document and origin of `elmOverlay`.
+  offset = {
+    left: overlayBBox.left - parseFloat(overlayCmpStyle.left),
+    top: overlayBBox.top - parseFloat(overlayCmpStyle.top)
   },
-      reValue = /^([\d.]+)(px|%)$/;
+      style = {
+    left: "".concat(targetBodyBBox.left - offset.left + borders.left, "px"),
+    top: "".concat(targetBodyBBox.top - offset.top + borders.top, "px"),
+    width: "".concat(targetBodyBBox.width - borders.left - borders.right, "px"),
+    height: "".concat(targetBodyBBox.height - borders.top - borders.bottom, "px")
+  },
+      reValue = /^([\d.]+)(px|%)$/; // border-radius
 
-  // border-radius
-  [{ prop: 'TopLeft', hBorder: 'left', vBorder: 'top' }, { prop: 'TopRight', hBorder: 'right', vBorder: 'top' }, { prop: 'BottomRight', hBorder: 'right', vBorder: 'bottom' }, { prop: 'BottomLeft', hBorder: 'left', vBorder: 'bottom' }].forEach(function (corner) {
-    var prop = cssprefix__WEBPACK_IMPORTED_MODULE_0__["default"].getName('border' + corner.prop + 'Radius'),
+  [{
+    prop: 'TopLeft',
+    hBorder: 'left',
+    vBorder: 'top'
+  }, {
+    prop: 'TopRight',
+    hBorder: 'right',
+    vBorder: 'top'
+  }, {
+    prop: 'BottomRight',
+    hBorder: 'right',
+    vBorder: 'bottom'
+  }, {
+    prop: 'BottomLeft',
+    hBorder: 'left',
+    vBorder: 'bottom'
+  }].forEach(function (corner) {
+    var prop = cssprefix__WEBPACK_IMPORTED_MODULE_0__["default"].getName("border".concat(corner.prop, "Radius")),
         values = targetBodyCmpStyle[prop].split(' ');
     var h = values[0],
         v = values[1] || values[0],
@@ -2152,23 +2420,24 @@ function _position(props, targetBodyBBox) {
     h = !matches ? 0 : matches[2] === 'px' ? +matches[1] : matches[1] * targetBodyBBox.width / 100;
     matches = reValue.exec(v);
     v = !matches ? 0 : matches[2] === 'px' ? +matches[1] : matches[1] * targetBodyBBox.height / 100;
-
     h -= borders[corner.hBorder];
     v -= borders[corner.vBorder];
+
     if (h > 0 && v > 0) {
-      style[prop] = h + 'px ' + v + 'px';
+      style[prop] = "".concat(h, "px ").concat(v, "px");
     }
   });
-
   setStyle(elmOverlay, style);
   props.targetBodyBBox = targetBodyBBox;
 }
+
 window.position = _position; // [DEBUG/]
 
 function getTargetElements(props) {
   var elmTargetBody = props.elmTargetBody,
       elmOverlay = props.elmOverlay,
       targetElements = [props.elmTarget];
+
   if (props.isDoc) {
     targetElements.push(elmTargetBody);
     Array.prototype.slice.call(elmTargetBody.childNodes).forEach(function (childNode) {
@@ -2180,27 +2449,37 @@ function getTargetElements(props) {
   } else {
     Array.prototype.push.apply(targetElements, elmTargetBody.querySelectorAll('*'));
   }
+
   return targetElements;
 }
 
 function finishShowing(props) {
-  traceLog.push('<finishShowing>', '_id:' + props._id, 'state:' + STATE_TEXT[props.state]); // [DEBUG/]
+  traceLog.push('<finishShowing>', "_id:".concat(props._id), "state:".concat(STATE_TEXT[props.state])); // [DEBUG/]
   // blur
+
   props.filterElements = null;
+
   if (props.options.blur !== false) {
     var propName = cssprefix__WEBPACK_IMPORTED_MODULE_0__["default"].getName('filter'),
-        propValue = cssprefix__WEBPACK_IMPORTED_MODULE_0__["default"].getValue('filter', 'blur(' + props.options.blur + 'px)');
+        propValue = cssprefix__WEBPACK_IMPORTED_MODULE_0__["default"].getValue('filter', "blur(".concat(props.options.blur, "px)"));
+
     if (propValue) {
       // undefined if no propName
       // Array of {element: element, savedStyle: {}}
       var filterElements = props.isDoc ? Array.prototype.slice.call(props.elmTargetBody.childNodes).filter(function (childNode) {
         return childNode.nodeType === Node.ELEMENT_NODE && childNode !== props.elmOverlay && !Object(m_class_list__WEBPACK_IMPORTED_MODULE_2__["default"])(childNode).contains(STYLE_CLASS) && childNode.id !== FACE_DEFS_ELEMENT_ID;
       }).map(function (element) {
-        return { element: element, savedStyle: {} };
-      }) : [{ element: props.elmTargetBody, savedStyle: {} }];
-
+        return {
+          element: element,
+          savedStyle: {}
+        };
+      }) : [{
+        element: props.elmTargetBody,
+        savedStyle: {}
+      }];
       filterElements.forEach(function (filterElement) {
         var style = {}; // new object for each element.
+
         style[propName] = propValue;
         setStyle(filterElement.element, style, filterElement.savedStyle);
       });
@@ -2209,24 +2488,26 @@ function finishShowing(props) {
   }
 
   props.state = STATE_SHOWN;
-  traceLog.push('state:' + STATE_TEXT[props.state]); // [DEBUG/]
+  traceLog.push("state:".concat(STATE_TEXT[props.state])); // [DEBUG/]
+
   if (props.options.onShow) {
     props.options.onShow.call(props.ins);
   }
-  traceLog.push('_id:' + props._id, '</finishShowing>'); // [DEBUG/]
+
+  traceLog.push("_id:".concat(props._id), '</finishShowing>'); // [DEBUG/]
 }
 
 function finishHiding(props, sync) {
   // sync-mode (`sync` is `true`): Skip restoring active element and finish all immediately.
-  traceLog.push('<finishHiding>', '_id:' + props._id, 'state:' + STATE_TEXT[props.state]); // [DEBUG/]
-  traceLog.push('sync:' + !!sync); // [DEBUG/]
-  Object(m_class_list__WEBPACK_IMPORTED_MODULE_2__["default"])(props.elmOverlay).add(STYLE_CLASS_HIDE);
+  traceLog.push('<finishHiding>', "_id:".concat(props._id), "state:".concat(STATE_TEXT[props.state])); // [DEBUG/]
 
+  traceLog.push("sync:".concat(!!sync)); // [DEBUG/]
+
+  Object(m_class_list__WEBPACK_IMPORTED_MODULE_2__["default"])(props.elmOverlay).add(STYLE_CLASS_HIDE);
   restoreStyle(props.elmTarget, props.savedStyleTarget);
   restoreStyle(props.elmTargetBody, props.savedStyleTargetBody);
   props.savedStyleTarget = {};
   props.savedStyleTargetBody = {};
-
   restoreAccKeys(props);
   props.savedElementsAccKeys = [];
 
@@ -2234,24 +2515,29 @@ function finishHiding(props, sync) {
     // props.state must be STATE_HIDDEN for avoiding focus.
     var stateSave = props.state;
     props.state = STATE_HIDDEN;
-    traceLog.push('[SAVE1]state:' + STATE_TEXT[props.state]); // [DEBUG/]
+    traceLog.push("[SAVE1]state:".concat(STATE_TEXT[props.state])); // [DEBUG/]
     // the event is fired after function exited in some browsers (e.g. Trident).
-    traceLog.push('focusListener:REMOVE'); // [DEBUG/]
-    props.elmTargetBody.removeEventListener('focus', props.focusListener, true);
-    props.activeElement.focus();
-    // Don't change props.state for calling `hide(force)` before `restoreAndFinish` (async-mode)
-    props.state = stateSave;
-    traceLog.push('[SAVE2]state:' + STATE_TEXT[props.state]); // [DEBUG/]
-  }
-  props.activeElement = null;
 
-  // Since `focus()` might scroll, do this after `focus()` and reflow.
+    traceLog.push('focusListener:REMOVE'); // [DEBUG/]
+
+    props.elmTargetBody.removeEventListener('focus', props.focusListener, true);
+    props.activeElement.focus(); // Don't change props.state for calling `hide(force)` before `restoreAndFinish` (async-mode)
+
+    props.state = stateSave;
+    traceLog.push("[SAVE2]state:".concat(STATE_TEXT[props.state])); // [DEBUG/]
+  }
+
+  props.activeElement = null; // Since `focus()` might scroll, do this after `focus()` and reflow.
+
   function restoreAndFinish() {
-    traceLog.push('<finishHiding.restoreAndFinish>', '_id:' + props._id, 'state:' + STATE_TEXT[props.state]); // [DEBUG/]
+    traceLog.push('<finishHiding.restoreAndFinish>', "_id:".concat(props._id), "state:".concat(STATE_TEXT[props.state])); // [DEBUG/]
+
     props.timerRestoreAndFinish = null;
     props.state = STATE_HIDDEN;
-    traceLog.push('state:' + STATE_TEXT[props.state]); // [DEBUG/]
+    traceLog.push("state:".concat(STATE_TEXT[props.state])); // [DEBUG/]
+
     traceLog.push('focusListener:ADD'); // [DEBUG/]
+
     props.elmTargetBody.addEventListener('focus', props.focusListener, true);
     restoreScroll(props);
     props.savedElementsScroll = null;
@@ -2259,49 +2545,54 @@ function finishHiding(props, sync) {
     if (props.options.onHide) {
       props.options.onHide.call(props.ins);
     }
-    traceLog.push('_id:' + props._id, '</finishHiding.restoreAndFinish>'); // [DEBUG/]
+
+    traceLog.push("_id:".concat(props._id), '</finishHiding.restoreAndFinish>'); // [DEBUG/]
   }
 
   if (props.timerRestoreAndFinish) {
     traceLog.push('ClearPrevTimer'); // [DEBUG/]
+
     clearTimeout(props.timerRestoreAndFinish);
     props.timerRestoreAndFinish = null;
   }
+
   if (sync) {
     restoreAndFinish();
   } else {
     props.timerRestoreAndFinish = setTimeout(restoreAndFinish, 0);
   }
-  traceLog.push('_id:' + props._id, '</finishHiding>'); // [DEBUG/]
-}
 
+  traceLog.push("_id:".concat(props._id), '</finishHiding>'); // [DEBUG/]
+}
 /**
  * @param {props} props - `props` of instance.
  * @param {boolean} [force] - Skip effect.
  * @returns {void}
  */
+
+
 function _show(props, force) {
-  traceLog.push('<show>', '_id:' + props._id, 'state:' + STATE_TEXT[props.state]); // [DEBUG/]
-  traceLog.push('force:' + !!force); // [DEBUG/]
+  traceLog.push('<show>', "_id:".concat(props._id), "state:".concat(STATE_TEXT[props.state])); // [DEBUG/]
+
+  traceLog.push("force:".concat(!!force)); // [DEBUG/]
 
   function getScroll(elements, fromDoc) {
-
     function elementCanScroll(element, isDoc) {
       var cmpStyle = props.window.getComputedStyle(element, ''),
           tagName = element.nodeName.toLowerCase();
-      return cmpStyle.overflow === 'scroll' || cmpStyle.overflow === 'auto' || cmpStyle.overflowX === 'scroll' || cmpStyle.overflowX === 'auto' || cmpStyle.overflowY === 'scroll' || cmpStyle.overflowY === 'auto' ||
-      // document with `visible` might make scrollbars.
-      isDoc && (cmpStyle.overflow === 'visible' || cmpStyle.overflowX === 'visible' || cmpStyle.overflowY === 'visible') ||
-      // `overflow` of these differs depending on browser.
+      return cmpStyle.overflow === 'scroll' || cmpStyle.overflow === 'auto' || cmpStyle.overflowX === 'scroll' || cmpStyle.overflowX === 'auto' || cmpStyle.overflowY === 'scroll' || cmpStyle.overflowY === 'auto' || // document with `visible` might make scrollbars.
+      isDoc && (cmpStyle.overflow === 'visible' || cmpStyle.overflowX === 'visible' || cmpStyle.overflowY === 'visible') || // `overflow` of these differs depending on browser.
       !isDoc && (tagName === 'textarea' || tagName === 'select');
     }
 
     var elementsScroll = [];
     elements.forEach(function (element, i) {
       var isDoc = fromDoc && i === 0;
+
       if (elementCanScroll(element, isDoc)) {
         elementsScroll.push({
-          element: element, isDoc: isDoc,
+          element: element,
+          isDoc: isDoc,
           left: scrollLeft(element, isDoc, props.window),
           top: scrollTop(element, isDoc, props.window)
         });
@@ -2318,8 +2609,8 @@ function _show(props, force) {
       }
 
       var elementAccKeys = {},
-          tabIndex = element.tabIndex;
-      // In Trident and Edge, `tabIndex` of all elements are `0` or something even if the element is not focusable.
+          tabIndex = element.tabIndex; // In Trident and Edge, `tabIndex` of all elements are `0` or something even if the element is not focusable.
+
       if (tabIndex !== -1) {
         elementAccKeys.element = element;
         elementAccKeys.tabIndex = element.hasAttribute('tabindex') ? tabIndex : false;
@@ -2327,6 +2618,7 @@ function _show(props, force) {
       }
 
       var accessKey = element.accessKey;
+
       if (accessKey) {
         elementAccKeys.element = element;
         elementAccKeys.accessKey = accessKey;
@@ -2342,6 +2634,7 @@ function _show(props, force) {
 
   if (props.state === STATE_SHOWN || props.state === STATE_SHOWING && !force || props.state !== STATE_SHOWING && props.options.onBeforeShow && props.options.onBeforeShow.call(props.ins) === false) {
     traceLog.push('CANCEL', '</show>'); // [DEBUG/]
+
     return;
   }
 
@@ -2349,31 +2642,42 @@ function _show(props, force) {
     var elmOverlay = props.elmOverlay,
         elmOverlayClassList = Object(m_class_list__WEBPACK_IMPORTED_MODULE_2__["default"])(elmOverlay);
     props.document.body.appendChild(elmOverlay); // Move to last (for same z-index)
+
     var targetElements = getTargetElements(props);
     window.targetElements = targetElements; // [DEBUG/]
 
     elmOverlayClassList.remove(STYLE_CLASS_HIDE); // Before `getBoundingClientRect` (`position`).
+
     if (!props.isDoc) {
       var elmTargetBody = props.elmTargetBody;
+
       if (props.window.getComputedStyle(elmTargetBody, '').display === 'inline') {
-        setStyle(elmTargetBody, { display: 'inline-block' }, props.savedStyleTargetBody);
+        setStyle(elmTargetBody, {
+          display: 'inline-block'
+        }, props.savedStyleTargetBody);
       }
+
       _position(props, getBBox(elmTargetBody, props.window));
     }
 
     props.savedElementsScroll = getScroll(targetElements, props.isDoc);
-    props.disabledDocBars = false;
-    // savedElementsScroll is empty when document is disconnected.
+    props.disabledDocBars = false; // savedElementsScroll is empty when document is disconnected.
+
     if (props.isDoc && props.savedElementsScroll.length && props.savedElementsScroll[0].isDoc) {
       props.disabledDocBars = disableDocBars(props);
     }
+
     props.savedElementsAccKeys = disableAccKeys(targetElements, props.isDoc);
     props.activeElement = props.document.activeElement;
+
     if (props.activeElement) {
       avoidFocus(props, props.activeElement);
     }
+
     avoidSelect(props);
-    elmOverlay.offsetWidth; /* force reflow */ // eslint-disable-line no-unused-expressions
+    elmOverlay.offsetWidth;
+    /* force reflow */
+    // eslint-disable-line no-unused-expressions
 
     if (props.options.onPosition) {
       props.options.onPosition.call(props.ins);
@@ -2382,39 +2686,47 @@ function _show(props, force) {
 
   props.transition.on(force);
   props.state = STATE_SHOWING;
-  traceLog.push('state:' + STATE_TEXT[props.state]); // [DEBUG/]
+  traceLog.push("state:".concat(STATE_TEXT[props.state])); // [DEBUG/]
+
   if (force) {
     finishShowing(props);
   }
-  traceLog.push('_id:' + props._id, '</show>'); // [DEBUG/]
-}
 
+  traceLog.push("_id:".concat(props._id), '</show>'); // [DEBUG/]
+}
 /**
  * @param {props} props - `props` of instance.
  * @param {boolean} [force] - Skip effect.
  * @param {boolean} [sync] - sync-mode
  * @returns {void}
  */
+
+
 function _hide(props, force, sync) {
   // sync-mode (both `force` and `sync` are `true`)
-  traceLog.push('<hide>', '_id:' + props._id, 'state:' + STATE_TEXT[props.state]); // [DEBUG/]
-  traceLog.push('force:' + !!force); // [DEBUG/]
-  traceLog.push('sync:' + !!sync); // [DEBUG/]
+  traceLog.push('<hide>', "_id:".concat(props._id), "state:".concat(STATE_TEXT[props.state])); // [DEBUG/]
+
+  traceLog.push("force:".concat(!!force)); // [DEBUG/]
+
+  traceLog.push("sync:".concat(!!sync)); // [DEBUG/]
+
   if (props.state === STATE_HIDDEN || props.state === STATE_HIDING && !force || props.state !== STATE_HIDING && props.options.onBeforeHide && props.options.onBeforeHide.call(props.ins) === false) {
     traceLog.push('CANCEL', '</hide>'); // [DEBUG/]
-    return;
-  }
 
-  // blur
+    return;
+  } // blur
+
+
   if (props.filterElements) {
     props.filterElements.forEach(function (filterElement) {
       restoreStyle(filterElement.element, filterElement.savedStyle);
     });
     props.filterElements = null;
-  }
+  } // In Gecko, hidden element can be activeElement.
 
-  // In Gecko, hidden element can be activeElement.
+
   var element = props.document.activeElement;
+
   if (element && element !== element.ownerDocument.body && props.elmOverlay.compareDocumentPosition(element) & Node.DOCUMENT_POSITION_CONTAINED_BY) {
     if (element.blur) {
       // Trident and Edge don't support SVG#blur
@@ -2426,28 +2738,31 @@ function _hide(props, force, sync) {
 
   props.transition.off(force);
   props.state = STATE_HIDING;
-  traceLog.push('state:' + STATE_TEXT[props.state]); // [DEBUG/]
+  traceLog.push("state:".concat(STATE_TEXT[props.state])); // [DEBUG/]
+
   if (force) {
     finishHiding(props, sync);
   }
-  traceLog.push('_id:' + props._id, '</hide>'); // [DEBUG/]
-}
 
+  traceLog.push("_id:".concat(props._id), '</hide>'); // [DEBUG/]
+}
 /**
  * @param {props} props - `props` of instance.
  * @param {Object} newOptions - New options.
  * @returns {void}
  */
-function _setOptions(props, newOptions) {
-  var options = props.options;
 
-  // face
+
+function _setOptions(props, newOptions) {
+  var options = props.options; // face
+
   if (newOptions.hasOwnProperty('face') && (newOptions.face == null ? void 0 : newOptions.face) !== options.face) {
-    var elmOverlayBody = props.elmOverlayBody;
-    // Clear
+    var elmOverlayBody = props.elmOverlayBody; // Clear
+
     while (elmOverlayBody.firstChild) {
       elmOverlayBody.removeChild(elmOverlayBody.firstChild);
     }
+
     if (newOptions.face === false) {
       // No face
       options.face = false;
@@ -2459,26 +2774,26 @@ function _setOptions(props, newOptions) {
       // Builtin face
       options.face = void 0;
     }
-  }
+  } // duration
 
-  // duration
+
   if (isFinite(newOptions.duration) && newOptions.duration !== options.duration) {
     options.duration = newOptions.duration;
-    props.elmOverlay.style[cssprefix__WEBPACK_IMPORTED_MODULE_0__["default"].getName('transitionDuration')] = newOptions.duration === DURATION ? '' : newOptions.duration + 'ms';
-    props.transition.duration = newOptions.duration + 'ms';
-  }
+    props.elmOverlay.style[cssprefix__WEBPACK_IMPORTED_MODULE_0__["default"].getName('transitionDuration')] = newOptions.duration === DURATION ? '' : "".concat(newOptions.duration, "ms");
+    props.transition.duration = "".concat(newOptions.duration, "ms");
+  } // blur
 
-  // blur
+
   if (isFinite(newOptions.blur) || newOptions.blur === false) {
     options.blur = newOptions.blur;
-  }
+  } // style
 
-  // style
+
   if (isObject(newOptions.style)) {
     setStyle(props.elmOverlay, newOptions.style);
-  }
+  } // Event listeners
 
-  // Event listeners
+
   ['onShow', 'onHide', 'onBeforeShow', 'onBeforeHide', 'onPosition'].forEach(function (option) {
     if (typeof newOptions[option] === 'function') {
       options[option] = newOptions[option];
@@ -2489,16 +2804,17 @@ function _setOptions(props, newOptions) {
 }
 
 function scroll(props, target, dirLeft, value) {
-  var isDoc = void 0,
-
-  // To return undefined
-  curValue = void 0; // eslint-disable-line prefer-const
+  var isDoc, // To return undefined
+  curValue; // eslint-disable-line prefer-const
 
   if (target) {
     var targetElements = getTargetElements(props);
+
     if (targetElements.indexOf(target) === -1) {
       return curValue;
     } // return undefined
+
+
     isDoc = target.nodeName.toLowerCase() === 'html';
   } else {
     target = props.elmTarget;
@@ -2508,25 +2824,27 @@ function scroll(props, target, dirLeft, value) {
   var elementScroll = value != null && props.savedElementsScroll && (props.savedElementsScroll.find ? props.savedElementsScroll.find(function (elementScroll) {
     return elementScroll.element === target;
   }) : function (elementsScroll) {
-    var found = void 0;
+    var found;
     elementsScroll.some(function (elementScroll) {
       if (elementScroll.element === target) {
         found = elementScroll;
         return true;
       }
+
       return false;
     });
     return found;
   }(props.savedElementsScroll));
-
   curValue = (dirLeft ? scrollLeft : scrollTop)(target, isDoc, props.window, value);
+
   if (elementScroll) {
     elementScroll[dirLeft ? 'left' : 'top'] = curValue;
   }
+
   return curValue;
 }
 
-var PlainOverlay = function () {
+var PlainOverlay = /*#__PURE__*/function () {
   /**
    * Create a `PlainOverlay` instance.
    * @param {Element} [target] - Target element.
@@ -2540,7 +2858,8 @@ var PlainOverlay = function () {
      * @returns {(Element|null)} Valid element or null.
      */
     function getTarget(target) {
-      var validElement = void 0;
+      var validElement;
+
       if (!target) {
         validElement = document.documentElement; // documentElement of current document
       } else if (target.nodeType) {
@@ -2552,29 +2871,36 @@ var PlainOverlay = function () {
           nodeName === 'iframe' || nodeName === 'frame' ? target.contentDocument.documentElement : // documentElement of target frame
           target;
         }
+
         if (!validElement) {
           throw new Error('This element is not accepted.');
         }
       } else if (target === target.window) {
         validElement = target.document.documentElement; // documentElement of target window
       }
+
       return validElement;
     }
 
     var props = {
       ins: this,
-      options: { // Initial options (not default)
-        face: false, // Initial state.
-        duration: DURATION, // Initial state.
+      options: {
+        // Initial options (not default)
+        face: false,
+        // Initial state.
+        duration: DURATION,
+        // Initial state.
         blur: false // Initial state.
+
       },
       state: STATE_HIDDEN,
       savedStyleTarget: {},
       savedStyleTargetBody: {},
       blockingDisabled: false
     };
-
-    Object.defineProperty(this, '_id', { value: ++insId });
+    Object.defineProperty(this, '_id', {
+      value: ++insId
+    });
     props._id = this._id;
     insProps[this._id] = props;
 
@@ -2583,12 +2909,15 @@ var PlainOverlay = function () {
         if (!isObject(target)) {
           throw new Error('Invalid argument.');
         }
+
         props.elmTarget = document.documentElement; // documentElement of current document
+
         options = target;
       }
     } else if (!(props.elmTarget = getTarget(target))) {
       throw new Error('This target is not accepted.');
     }
+
     if (!options) {
       options = {};
     } else if (!isObject(options)) {
@@ -2598,29 +2927,31 @@ var PlainOverlay = function () {
     props.isDoc = props.elmTarget.nodeName.toLowerCase() === 'html';
     var elmDocument = props.document = props.elmTarget.ownerDocument;
     props.window = elmDocument.defaultView;
-    var elmTargetBody = props.elmTargetBody = props.isDoc ? elmDocument.body : props.elmTarget;
+    var elmTargetBody = props.elmTargetBody = props.isDoc ? elmDocument.body : props.elmTarget; // Setup window
 
-    // Setup window
     if (!elmDocument.getElementById(STYLE_ELEMENT_ID)) {
       var head = elmDocument.getElementsByTagName('head')[0] || elmDocument.documentElement,
           sheet = head.insertBefore(elmDocument.createElement('style'), head.firstChild);
       sheet.type = 'text/css';
       sheet.id = STYLE_ELEMENT_ID;
       sheet.textContent = CSS_TEXT;
+
       if (IS_TRIDENT || IS_EDGE) {
         forceReflow(sheet);
       } // Trident bug
-    }
 
-    // elmOverlay
+    } // elmOverlay
+
+
     var elmOverlay = props.elmOverlay = elmDocument.createElement('div'),
         elmOverlayClassList = Object(m_class_list__WEBPACK_IMPORTED_MODULE_2__["default"])(elmOverlay);
     elmOverlayClassList.add(STYLE_CLASS, STYLE_CLASS_HIDE);
+
     if (props.isDoc) {
       elmOverlayClassList.add(STYLE_CLASS_DOC);
-    }
+    } // TimedTransition
 
-    // TimedTransition
+
     props.transition = new timed_transition__WEBPACK_IMPORTED_MODULE_3__["default"](elmOverlay, {
       procToOn: function procToOn(force) {
         var elmOverlayClassList = Object(m_class_list__WEBPACK_IMPORTED_MODULE_2__["default"])(elmOverlay);
@@ -2634,7 +2965,7 @@ var PlainOverlay = function () {
       },
       // for setting before element online
       property: 'opacity',
-      duration: DURATION + 'ms'
+      duration: "".concat(DURATION, "ms")
     });
     elmOverlay.addEventListener('timedTransitionEnd', function (event) {
       if (event.target === elmOverlay && event.propertyName === 'opacity') {
@@ -2645,35 +2976,39 @@ var PlainOverlay = function () {
         }
       }
     }, true);
-
     (props.isDoc ? props.window : elmTargetBody).addEventListener('scroll', function (event) {
       // [DEBUG]
-      traceLog.push('<scroll-event>', '_id:' + props._id, 'state:' + STATE_TEXT[props.state]);
-      traceLog.push('target:' + (event.target === document ? 'document' : event.target.tagName || 'UNKNOWN') + ('' + (event.target.id ? '#' + event.target.id : '')));
-      // [/DEBUG]
+      traceLog.push('<scroll-event>', "_id:".concat(props._id), "state:".concat(STATE_TEXT[props.state]));
+      traceLog.push("target:".concat(event.target === document ? 'document' : event.target.tagName || 'UNKNOWN') + "".concat(event.target.id ? "#".concat(event.target.id) : '')); // [/DEBUG]
+
       var target = event.target;
+
       if (props.state !== STATE_HIDDEN && !props.blockingDisabled && restoreScroll(props, props.isDoc && (target === props.window || target === props.document || target === props.elmTargetBody) ? props.elmTarget : target)) {
         traceLog.push('AVOIDED'); // [DEBUG/]
+
         event.preventDefault();
         event.stopImmediatePropagation();
       }
-      traceLog.push('_id:' + props._id, '</scroll-event>'); // [DEBUG/]
-    }, true);
 
-    // props.state can't control the listener
+      traceLog.push("_id:".concat(props._id), '</scroll-event>'); // [DEBUG/]
+    }, true); // props.state can't control the listener
     // because the event is fired after flow function exited in some browsers (e.g. Trident).
+
     props.focusListener = function (event) {
       // [DEBUG]
-      traceLog.push('<focusListener>', '_id:' + props._id, 'state:' + STATE_TEXT[props.state]);
-      traceLog.push('target:' + (event.target === document ? 'document' : event.target.tagName || 'UNKNOWN') + ('' + (event.target.id ? '#' + event.target.id : '')));
-      // [/DEBUG]
+      traceLog.push('<focusListener>', "_id:".concat(props._id), "state:".concat(STATE_TEXT[props.state]));
+      traceLog.push("target:".concat(event.target === document ? 'document' : event.target.tagName || 'UNKNOWN') + "".concat(event.target.id ? "#".concat(event.target.id) : '')); // [/DEBUG]
+
       if (props.state !== STATE_HIDDEN && !props.blockingDisabled && avoidFocus(props, event.target)) {
         traceLog.push('AVOIDED'); // [DEBUG/]
+
         event.preventDefault();
         event.stopImmediatePropagation();
       }
-      traceLog.push('_id:' + props._id, '</focusListener>'); // [DEBUG/]
+
+      traceLog.push("_id:".concat(props._id), '</focusListener>'); // [DEBUG/]
     };
+
     elmTargetBody.addEventListener('focus', props.focusListener, true);
 
     (function (listener) {
@@ -2683,71 +3018,79 @@ var PlainOverlay = function () {
         props.window.addEventListener(type, listener, true);
       });
     })(function (event) {
-      traceLog.push('<text-select-event>', '_id:' + props._id, 'state:' + STATE_TEXT[props.state]); // [DEBUG/]
+      traceLog.push('<text-select-event>', "_id:".concat(props._id), "state:".concat(STATE_TEXT[props.state])); // [DEBUG/]
+
       if (props.state !== STATE_HIDDEN && !props.blockingDisabled && avoidSelect(props)) {
         traceLog.push('AVOIDED'); // [DEBUG/]
+
         event.preventDefault();
         event.stopImmediatePropagation();
       }
-      traceLog.push('_id:' + props._id, '</text-select-event>'); // [DEBUG/]
-    });
 
-    // Gecko bug, multiple calling (parallel) by `requestAnimationFrame`.
+      traceLog.push("_id:".concat(props._id), '</text-select-event>'); // [DEBUG/]
+    }); // Gecko bug, multiple calling (parallel) by `requestAnimationFrame`.
+
+
     props.resizing = false;
     props.window.addEventListener('resize', anim_event__WEBPACK_IMPORTED_MODULE_1__["default"].add(function () {
       if (props.resizing) {
         console.warn('`resize` event listener is already running.'); // [DEBUG/]
+
         return;
       }
+
       props.resizing = true;
+
       if (props.state !== STATE_HIDDEN) {
         if (props.isDoc) {
           if (props.savedElementsScroll.length && props.savedElementsScroll[0].isDoc) {
             if (props.disabledDocBars) {
               // Restore DocBars
               console.log('Restore DocBars'); // [DEBUG/]
+
               restoreStyle(props.elmTarget, props.savedStyleTarget, ['overflow']);
               restoreStyle(elmTargetBody, props.savedStyleTargetBody, ['marginLeft', 'marginRight', 'marginTop', 'marginBottom', 'width', 'height']);
             }
+
             console.log('disableDocBars'); // [DEBUG/]
+
             props.disabledDocBars = disableDocBars(props);
           }
         } else {
           var bBox = getBBox(elmTargetBody, props.window),
               lastBBox = props.targetBodyBBox;
+
           if (bBox.left !== lastBBox.left || bBox.top !== lastBBox.top || bBox.width !== lastBBox.width || bBox.height !== lastBBox.height) {
             console.log('Update position'); // [DEBUG/]
+
             _position(props, bBox);
           }
         }
+
         if (props.options.onPosition) {
           props.options.onPosition.call(props.ins);
         }
       }
-      props.resizing = false;
-    }), true);
 
-    // Avoid scroll on touch device
+      props.resizing = false;
+    }), true); // Avoid scroll on touch device
+
     elmOverlay.addEventListener('touchmove', function (event) {
       if (props.state !== STATE_HIDDEN) {
         event.preventDefault();
         event.stopImmediatePropagation();
       }
-    }, true);
+    }, true); // elmOverlayBody
 
-    // elmOverlayBody
     (props.elmOverlayBody = elmOverlay.appendChild(elmDocument.createElement('div'))).className = STYLE_CLASS_BODY;
+    elmDocument.body.appendChild(elmOverlay); // Default options
 
-    elmDocument.body.appendChild(elmOverlay);
-
-    // Default options
     if (!options.hasOwnProperty('face')) {
       options.face = null;
     }
 
     _setOptions(props, options);
   }
-
   /**
    * @param {Object} options - New options.
    * @returns {PlainOverlay} Current instance itself.
@@ -2755,14 +3098,14 @@ var PlainOverlay = function () {
 
 
   _createClass(PlainOverlay, [{
-    key: 'setOptions',
+    key: "setOptions",
     value: function setOptions(options) {
       if (isObject(options)) {
         _setOptions(insProps[this._id], options);
       }
+
       return this;
     }
-
     /**
      * Show the overlay.
      * @param {boolean} [force] - Show it immediately without effect.
@@ -2771,7 +3114,7 @@ var PlainOverlay = function () {
      */
 
   }, {
-    key: 'show',
+    key: "show",
     value: function show(force, options) {
       if (arguments.length < 2 && typeof force !== 'boolean') {
         options = force;
@@ -2779,10 +3122,11 @@ var PlainOverlay = function () {
       }
 
       this.setOptions(options);
+
       _show(insProps[this._id], force);
+
       return this;
     }
-
     /**
      * Hide the overlay.
      * @param {boolean} [force] - Hide it immediately without effect.
@@ -2791,48 +3135,52 @@ var PlainOverlay = function () {
      */
 
   }, {
-    key: 'hide',
+    key: "hide",
     value: function hide(force, sync) {
       // sync-mode (both `force` and `sync` are `true`)
       _hide(insProps[this._id], force, sync);
+
       return this;
     }
   }, {
-    key: 'scrollLeft',
+    key: "scrollLeft",
     value: function scrollLeft(value, target) {
       return scroll(insProps[this._id], target, true, value);
     }
   }, {
-    key: 'scrollTop',
+    key: "scrollTop",
     value: function scrollTop(value, target) {
       return scroll(insProps[this._id], target, false, value);
     }
   }, {
-    key: 'position',
+    key: "position",
     value: function position() {
       var props = insProps[this._id];
+
       if (props.state !== STATE_HIDDEN) {
         if (!props.isDoc) {
           _position(props, getBBox(props.elmTargetBody, props.window));
         }
+
         if (props.options.onPosition) {
           props.options.onPosition.call(props.ins);
         }
       }
+
       return this;
     }
   }, {
-    key: 'state',
+    key: "state",
     get: function get() {
       return insProps[this._id].state;
     }
   }, {
-    key: 'style',
+    key: "style",
     get: function get() {
       return insProps[this._id].elmOverlay.style;
     }
   }, {
-    key: 'blockingDisabled',
+    key: "blockingDisabled",
     get: function get() {
       return insProps[this._id].blockingDisabled;
     },
@@ -2842,91 +3190,107 @@ var PlainOverlay = function () {
       }
     }
   }, {
-    key: 'face',
+    key: "face",
     get: function get() {
       return insProps[this._id].options.face;
     },
     set: function set(value) {
-      _setOptions(insProps[this._id], { face: value });
+      _setOptions(insProps[this._id], {
+        face: value
+      });
     }
   }, {
-    key: 'duration',
+    key: "duration",
     get: function get() {
       return insProps[this._id].options.duration;
     },
     set: function set(value) {
-      _setOptions(insProps[this._id], { duration: value });
+      _setOptions(insProps[this._id], {
+        duration: value
+      });
     }
   }, {
-    key: 'blur',
+    key: "blur",
     get: function get() {
       return insProps[this._id].options.blur;
     },
     set: function set(value) {
-      _setOptions(insProps[this._id], { blur: value });
+      _setOptions(insProps[this._id], {
+        blur: value
+      });
     }
   }, {
-    key: 'onShow',
+    key: "onShow",
     get: function get() {
       return insProps[this._id].options.onShow;
     },
     set: function set(value) {
-      _setOptions(insProps[this._id], { onShow: value });
+      _setOptions(insProps[this._id], {
+        onShow: value
+      });
     }
   }, {
-    key: 'onHide',
+    key: "onHide",
     get: function get() {
       return insProps[this._id].options.onHide;
     },
     set: function set(value) {
-      _setOptions(insProps[this._id], { onHide: value });
+      _setOptions(insProps[this._id], {
+        onHide: value
+      });
     }
   }, {
-    key: 'onBeforeShow',
+    key: "onBeforeShow",
     get: function get() {
       return insProps[this._id].options.onBeforeShow;
     },
     set: function set(value) {
-      _setOptions(insProps[this._id], { onBeforeShow: value });
+      _setOptions(insProps[this._id], {
+        onBeforeShow: value
+      });
     }
   }, {
-    key: 'onBeforeHide',
+    key: "onBeforeHide",
     get: function get() {
       return insProps[this._id].options.onBeforeHide;
     },
     set: function set(value) {
-      _setOptions(insProps[this._id], { onBeforeHide: value });
+      _setOptions(insProps[this._id], {
+        onBeforeHide: value
+      });
     }
   }, {
-    key: 'onPosition',
+    key: "onPosition",
     get: function get() {
       return insProps[this._id].options.onPosition;
     },
     set: function set(value) {
-      _setOptions(insProps[this._id], { onPosition: value });
+      _setOptions(insProps[this._id], {
+        onPosition: value
+      });
     }
   }], [{
-    key: 'show',
+    key: "show",
     value: function show(target, options) {
       return new PlainOverlay(target, options).show();
     }
   }, {
-    key: 'STATE_HIDDEN',
+    key: "STATE_HIDDEN",
     get: function get() {
       return STATE_HIDDEN;
     }
   }, {
-    key: 'STATE_SHOWING',
+    key: "STATE_SHOWING",
     get: function get() {
       return STATE_SHOWING;
     }
   }, {
-    key: 'STATE_SHOWN',
+    key: "STATE_SHOWN",
     get: function get() {
       return STATE_SHOWN;
     }
   }, {
-    key: 'STATE_HIDING',
+    key: "STATE_HIDING",
     get: function get() {
       return STATE_HIDING;
     }
@@ -2935,9 +3299,8 @@ var PlainOverlay = function () {
   return PlainOverlay;
 }();
 
-PlainOverlay.limit = true;
+PlainOverlay.limit = true; // [DEBUG]
 
-// [DEBUG]
 PlainOverlay.insProps = insProps;
 PlainOverlay.traceLog = traceLog;
 PlainOverlay.STATE_TEXT = STATE_TEXT;
@@ -2945,8 +3308,7 @@ PlainOverlay.IS_TRIDENT = IS_TRIDENT;
 PlainOverlay.IS_EDGE = IS_EDGE;
 PlainOverlay.IS_WEBKIT = IS_WEBKIT;
 PlainOverlay.IS_BLINK = IS_BLINK;
-PlainOverlay.IS_GECKO = IS_GECKO;
-// [/DEBUG]
+PlainOverlay.IS_GECKO = IS_GECKO; // [/DEBUG]
 
 /* harmony default export */ __webpack_exports__["default"] = (PlainOverlay);
 
@@ -2966,33 +3328,34 @@ __webpack_require__.r(__webpack_exports__);
         DON'T MANUALLY EDIT THIS FILE
 ================================================ */
 
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
 
 /*
  * PointerEvent
  * https://github.com/anseki/pointer-event
  *
- * Copyright (c) 2018 anseki
+ * Copyright (c) 2021 anseki
  * Licensed under the MIT license.
  */
 
-
-
 var MOUSE_EMU_INTERVAL = 400; // Avoid mouse events emulation
-
-
 // Support options for addEventListener
+
 var passiveSupported = false;
+
 try {
   window.addEventListener('test', null, Object.defineProperty({}, 'passive', {
     get: function get() {
       passiveSupported = true;
     }
   }));
-} catch (error) {} /* ignore */
-
+} catch (error) {
+  /* ignore */
+}
 /**
  * addEventListener with specific option.
  * @param {Element} target - An event-target element.
@@ -3001,18 +3364,21 @@ try {
  * @param {Object} options - An options object.
  * @returns {void}
  */
+
+
 function addEventListenerWithOptions(target, type, listener, options) {
   // When `passive` is not supported, consider that the `useCapture` is supported instead of
   // `options` (i.e. options other than the `passive` also are not supported).
   target.addEventListener(type, listener, passiveSupported ? options : options.capture);
 }
-
 /**
  * Get Touch instance in list.
  * @param {Touch[]} touches - An Array or TouchList instance.
  * @param {number} id - Touch#identifier
  * @returns {(Touch|null)} - A found Touch instance.
  */
+
+
 function getTouchById(touches, id) {
   if (touches != null && id != null) {
     for (var i = 0; i < touches.length; i++) {
@@ -3021,23 +3387,25 @@ function getTouchById(touches, id) {
       }
     }
   }
+
   return null;
 }
-
 /**
  * @param {Object} xy - Something that might have clientX and clientY.
  * @returns {boolean} - `true` if it has valid clientX and clientY.
  */
+
+
 function hasXY(xy) {
   return xy && typeof xy.clientX === 'number' && typeof xy.clientY === 'number';
-}
+} // Gecko, Trident pick drag-event of some elements such as img, a, etc.
 
-// Gecko, Trident pick drag-event of some elements such as img, a, etc.
+
 function dragstart(event) {
   event.preventDefault();
 }
 
-var PointerEvent = function () {
+var PointerEvent = /*#__PURE__*/function () {
   /**
    * Create a `PointerEvent` instance.
    * @param {Object} [options] - Options
@@ -3051,14 +3419,18 @@ var PointerEvent = function () {
     this.lastHandlerId = 0;
     this.curPointerClass = null;
     this.curTouchId = null;
-    this.lastPointerXY = { clientX: 0, clientY: 0 };
-    this.lastTouchTime = 0;
+    this.lastPointerXY = {
+      clientX: 0,
+      clientY: 0
+    };
+    this.lastTouchTime = 0; // Options
 
-    // Options
-    this.options = { // Default
+    this.options = {
+      // Default
       preventDefault: true,
       stopPropagation: true
     };
+
     if (options) {
       ['preventDefault', 'stopPropagation'].forEach(function (option) {
         if (typeof options[option] === 'boolean') {
@@ -3067,7 +3439,6 @@ var PointerEvent = function () {
       });
     }
   }
-
   /**
    * @param {function} startHandler - This is called with pointerXY when it starts. This returns boolean.
    * @returns {number} handlerId which is used for adding/removing to element.
@@ -3075,17 +3446,18 @@ var PointerEvent = function () {
 
 
   _createClass(PointerEvent, [{
-    key: 'regStartHandler',
+    key: "regStartHandler",
     value: function regStartHandler(startHandler) {
       var that = this;
+
       that.startHandlers[++that.lastHandlerId] = function (event) {
         var pointerClass = event.type === 'mousedown' ? 'mouse' : 'touch',
             now = Date.now();
-        var pointerXY = void 0,
-            touchId = void 0;
+        var pointerXY, touchId;
 
         if (pointerClass === 'touch') {
           that.lastTouchTime = now; // Avoid mouse events emulation
+
           pointerXY = event.changedTouches[0];
           touchId = event.changedTouches[0].identifier;
         } else {
@@ -3093,13 +3465,15 @@ var PointerEvent = function () {
           if (now - that.lastTouchTime < MOUSE_EMU_INTERVAL) {
             return;
           }
+
           pointerXY = event;
         }
+
         if (!hasXY(pointerXY)) {
           throw new Error('No clientX/clientY');
-        }
+        } // It is new one even if those are 'mouse' or ID is same, then cancel current one.
 
-        // It is new one even if those are 'mouse' or ID is same, then cancel current one.
+
         if (that.curPointerClass) {
           that.cancel();
         }
@@ -3109,28 +3483,29 @@ var PointerEvent = function () {
           that.curTouchId = pointerClass === 'touch' ? touchId : null;
           that.lastPointerXY.clientX = pointerXY.clientX;
           that.lastPointerXY.clientY = pointerXY.clientY;
+
           if (that.options.preventDefault) {
             event.preventDefault();
           }
+
           if (that.options.stopPropagation) {
             event.stopPropagation();
           }
         }
       };
+
       return that.lastHandlerId;
     }
-
     /**
      * @param {number} handlerId - An ID which was returned by regStartHandler.
      * @returns {void}
      */
 
   }, {
-    key: 'unregStartHandler',
+    key: "unregStartHandler",
     value: function unregStartHandler(handlerId) {
       delete this.startHandlers[handlerId];
     }
-
     /**
      * @param {Element} element - A target element.
      * @param {number} handlerId - An ID which was returned by regStartHandler.
@@ -3138,17 +3513,26 @@ var PointerEvent = function () {
      */
 
   }, {
-    key: 'addStartHandler',
+    key: "addStartHandler",
     value: function addStartHandler(element, handlerId) {
       if (!this.startHandlers[handlerId]) {
-        throw new Error('Invalid handlerId: ' + handlerId);
+        throw new Error("Invalid handlerId: ".concat(handlerId));
       }
-      addEventListenerWithOptions(element, 'mousedown', this.startHandlers[handlerId], { capture: false, passive: false });
-      addEventListenerWithOptions(element, 'touchstart', this.startHandlers[handlerId], { capture: false, passive: false });
-      addEventListenerWithOptions(element, 'dragstart', dragstart, { capture: false, passive: false });
+
+      addEventListenerWithOptions(element, 'mousedown', this.startHandlers[handlerId], {
+        capture: false,
+        passive: false
+      });
+      addEventListenerWithOptions(element, 'touchstart', this.startHandlers[handlerId], {
+        capture: false,
+        passive: false
+      });
+      addEventListenerWithOptions(element, 'dragstart', dragstart, {
+        capture: false,
+        passive: false
+      });
       return handlerId;
     }
-
     /**
      * @param {Element} element - A target element.
      * @param {number} handlerId - An ID which was returned by regStartHandler.
@@ -3156,17 +3540,17 @@ var PointerEvent = function () {
      */
 
   }, {
-    key: 'removeStartHandler',
+    key: "removeStartHandler",
     value: function removeStartHandler(element, handlerId) {
       if (!this.startHandlers[handlerId]) {
-        throw new Error('Invalid handlerId: ' + handlerId);
+        throw new Error("Invalid handlerId: ".concat(handlerId));
       }
+
       element.removeEventListener('mousedown', this.startHandlers[handlerId], false);
       element.removeEventListener('touchstart', this.startHandlers[handlerId], false);
       element.removeEventListener('dragstart', dragstart, false);
       return handlerId;
     }
-
     /**
      * @param {Element} element - A target element.
      * @param {function} moveHandler - This is called with pointerXY when it moves.
@@ -3174,54 +3558,61 @@ var PointerEvent = function () {
      */
 
   }, {
-    key: 'addMoveHandler',
+    key: "addMoveHandler",
     value: function addMoveHandler(element, moveHandler) {
       var that = this;
       var wrappedHandler = anim_event__WEBPACK_IMPORTED_MODULE_0__["default"].add(function (event) {
-        var pointerClass = event.type === 'mousemove' ? 'mouse' : 'touch';
+        var pointerClass = event.type === 'mousemove' ? 'mouse' : 'touch'; // Avoid mouse events emulation
 
-        // Avoid mouse events emulation
         if (pointerClass === 'touch') {
           that.lastTouchTime = Date.now();
         }
 
         if (pointerClass === that.curPointerClass) {
           var pointerXY = pointerClass === 'touch' ? getTouchById(event.changedTouches, that.curTouchId) : event;
+
           if (hasXY(pointerXY)) {
             if (pointerXY.clientX !== that.lastPointerXY.clientX || pointerXY.clientY !== that.lastPointerXY.clientY) {
               that.move(pointerXY);
             }
+
             if (that.options.preventDefault) {
               event.preventDefault();
             }
+
             if (that.options.stopPropagation) {
               event.stopPropagation();
             }
           }
         }
       });
-      addEventListenerWithOptions(element, 'mousemove', wrappedHandler, { capture: false, passive: false });
-      addEventListenerWithOptions(element, 'touchmove', wrappedHandler, { capture: false, passive: false });
+      addEventListenerWithOptions(element, 'mousemove', wrappedHandler, {
+        capture: false,
+        passive: false
+      });
+      addEventListenerWithOptions(element, 'touchmove', wrappedHandler, {
+        capture: false,
+        passive: false
+      });
       that.curMoveHandler = moveHandler;
     }
-
     /**
      * @param {{clientX, clientY}} [pointerXY] - This might be MouseEvent, Touch of TouchEvent or Object.
      * @returns {void}
      */
 
   }, {
-    key: 'move',
+    key: "move",
     value: function move(pointerXY) {
       if (hasXY(pointerXY)) {
         this.lastPointerXY.clientX = pointerXY.clientX;
         this.lastPointerXY.clientY = pointerXY.clientY;
       }
+
       if (this.curMoveHandler) {
         this.curMoveHandler(this.lastPointerXY);
       }
     }
-
     /**
      * @param {Element} element - A target element.
      * @param {function} endHandler - This is called with pointerXY when it ends.
@@ -3229,56 +3620,65 @@ var PointerEvent = function () {
      */
 
   }, {
-    key: 'addEndHandler',
+    key: "addEndHandler",
     value: function addEndHandler(element, endHandler) {
       var that = this;
-      function wrappedHandler(event) {
-        var pointerClass = event.type === 'mouseup' ? 'mouse' : 'touch';
 
-        // Avoid mouse events emulation
+      function wrappedHandler(event) {
+        var pointerClass = event.type === 'mouseup' ? 'mouse' : 'touch'; // Avoid mouse events emulation
+
         if (pointerClass === 'touch') {
           that.lastTouchTime = Date.now();
         }
 
         if (pointerClass === that.curPointerClass) {
-          var pointerXY = pointerClass === 'touch' ? getTouchById(event.changedTouches, that.curTouchId) || (
-          // It might have been removed from `touches` even if it is not in `changedTouches`.
+          var pointerXY = pointerClass === 'touch' ? getTouchById(event.changedTouches, that.curTouchId) || ( // It might have been removed from `touches` even if it is not in `changedTouches`.
           getTouchById(event.touches, that.curTouchId) ? null : {}) : // `{}` means matching
           event;
+
           if (pointerXY) {
             that.end(pointerXY);
+
             if (that.options.preventDefault) {
               event.preventDefault();
             }
+
             if (that.options.stopPropagation) {
               event.stopPropagation();
             }
           }
         }
       }
-      addEventListenerWithOptions(element, 'mouseup', wrappedHandler, { capture: false, passive: false });
-      addEventListenerWithOptions(element, 'touchend', wrappedHandler, { capture: false, passive: false });
+
+      addEventListenerWithOptions(element, 'mouseup', wrappedHandler, {
+        capture: false,
+        passive: false
+      });
+      addEventListenerWithOptions(element, 'touchend', wrappedHandler, {
+        capture: false,
+        passive: false
+      });
       that.curEndHandler = endHandler;
     }
-
     /**
      * @param {{clientX, clientY}} [pointerXY] - This might be MouseEvent, Touch of TouchEvent or Object.
      * @returns {void}
      */
 
   }, {
-    key: 'end',
+    key: "end",
     value: function end(pointerXY) {
       if (hasXY(pointerXY)) {
         this.lastPointerXY.clientX = pointerXY.clientX;
         this.lastPointerXY.clientY = pointerXY.clientY;
       }
+
       if (this.curEndHandler) {
         this.curEndHandler(this.lastPointerXY);
       }
+
       this.curPointerClass = this.curTouchId = null;
     }
-
     /**
      * @param {Element} element - A target element.
      * @param {function} cancelHandler - This is called when it cancels.
@@ -3286,44 +3686,48 @@ var PointerEvent = function () {
      */
 
   }, {
-    key: 'addCancelHandler',
+    key: "addCancelHandler",
     value: function addCancelHandler(element, cancelHandler) {
       var that = this;
+
       function wrappedHandler(event) {
         /*
           Now, this is fired by touchcancel only, but it might be fired even if curPointerClass is mouse.
         */
         // const pointerClass = 'touch';
-
         that.lastTouchTime = Date.now(); // Avoid mouse events emulation
 
         if (that.curPointerClass != null) {
-          var pointerXY = getTouchById(event.changedTouches, that.curTouchId) || (
-          // It might have been removed from `touches` even if it is not in `changedTouches`.
+          var pointerXY = getTouchById(event.changedTouches, that.curTouchId) || ( // It might have been removed from `touches` even if it is not in `changedTouches`.
           getTouchById(event.touches, that.curTouchId) ? null : {}); // `{}` means matching
+
           if (pointerXY) {
             that.cancel();
           }
         }
       }
-      addEventListenerWithOptions(element, 'touchcancel', wrappedHandler, { capture: false, passive: false });
+
+      addEventListenerWithOptions(element, 'touchcancel', wrappedHandler, {
+        capture: false,
+        passive: false
+      });
       that.curCancelHandler = cancelHandler;
     }
-
     /**
      * @returns {void}
      */
 
   }, {
-    key: 'cancel',
+    key: "cancel",
     value: function cancel() {
       if (this.curCancelHandler) {
         this.curCancelHandler();
       }
+
       this.curPointerClass = this.curTouchId = null;
     }
   }], [{
-    key: 'addEventListenerWithOptions',
+    key: "addEventListenerWithOptions",
     get: function get() {
       return addEventListenerWithOptions;
     }
@@ -3350,33 +3754,33 @@ __webpack_require__.r(__webpack_exports__);
         DON'T MANUALLY EDIT THIS FILE
 ================================================ */
 
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
 
 /*
  * TimedTransition
  * https://github.com/anseki/timed-transition
  *
- * Copyright (c) 2018 anseki
+ * Copyright (c) 2021 anseki
  * Licensed under the MIT license.
  */
-
 
 
 var STATE_STOPPED = 0,
     STATE_DELAYING = 1,
     STATE_PLAYING = 2,
     PREFIX = 'timed',
-    EVENT_TYPE_RUN = PREFIX + 'TransitionRun',
-    EVENT_TYPE_START = PREFIX + 'TransitionStart',
-    EVENT_TYPE_END = PREFIX + 'TransitionEnd',
-    EVENT_TYPE_CANCEL = PREFIX + 'TransitionCancel',
+    EVENT_TYPE_RUN = "".concat(PREFIX, "TransitionRun"),
+    EVENT_TYPE_START = "".concat(PREFIX, "TransitionStart"),
+    EVENT_TYPE_END = "".concat(PREFIX, "TransitionEnd"),
+    EVENT_TYPE_CANCEL = "".concat(PREFIX, "TransitionCancel"),
     IS_EDGE = '-ms-scroll-limit' in document.documentElement.style && '-ms-ime-align' in document.documentElement.style && !window.navigator.msPointerEnabled,
     isFinite = Number.isFinite || function (value) {
   return typeof value === 'number' && window.isFinite(value);
 },
-
 
 /**
  * An object that has properties of instance.
@@ -3399,19 +3803,18 @@ var STATE_STOPPED = 0,
 insProps = {};
 
 var insId = 0;
-
 /**
  * @param {props} props - `props` of instance.
  * @param {string} type - One of EVENT_TYPE_*.
  * @returns {void}
  */
+
 function fireEvent(props, type) {
   var initTime = Math.min(Math.max(-props.delay, 0), props.duration),
-      elapsedTime = (initTime + (
-  // The value for transitionend might NOT be transition-duration. (csswg.org may be wrong)
+      elapsedTime = (initTime + ( // The value for transitionend might NOT be transition-duration. (csswg.org may be wrong)
   (type === EVENT_TYPE_END || type === EVENT_TYPE_CANCEL) && props.startTime ? Date.now() - props.startTime : 0)) / 1000;
+  var event;
 
-  var event = void 0;
   try {
     event = new props.window.TransitionEvent(type, {
       propertyName: props.options.property,
@@ -3419,8 +3822,8 @@ function fireEvent(props, type) {
       elapsedTime: elapsedTime,
       bubbles: true,
       cancelable: false
-    });
-    // Edge bug, can't set pseudoElement
+    }); // Edge bug, can't set pseudoElement
+
     if (IS_EDGE) {
       event.pseudoElement = props.options.pseudoElement;
     }
@@ -3429,38 +3832,43 @@ function fireEvent(props, type) {
     event.initTransitionEvent(type, true, false, props.options.property, elapsedTime);
     event.pseudoElement = props.options.pseudoElement;
   }
+
   event.timedTransition = props.ins;
   props.element.dispatchEvent(event);
 }
-
 /**
  * @param {props} props - `props` of instance.
  * @returns {void}
  */
+
+
 function fixCurrentPosition(props) {
   if (props.state !== STATE_PLAYING) {
     return;
   }
+
   var playingTime = Date.now() - props.startTime;
   props.currentPosition = props.isOn ? Math.min(props.currentPosition + playingTime, props.duration) : Math.max(props.currentPosition - playingTime, 0);
 }
-
 /**
  * Finish the "on/off" immediately by isOn.
  * @param {props} props - `props` of instance.
  * @returns {void}
  */
+
+
 function finishAll(props) {
   props.state = STATE_STOPPED;
   props.runTime = 0;
   props.startTime = 0;
   props.currentPosition = props.isOn ? props.duration : 0;
 }
-
 /**
  * @param {props} props - `props` of instance.
  * @returns {void}
  */
+
+
 function finishPlaying(props) {
   if (props.state !== STATE_PLAYING) {
     return;
@@ -3468,14 +3876,14 @@ function finishPlaying(props) {
 
   props.state = STATE_STOPPED;
   fireEvent(props, EVENT_TYPE_END);
-
   finishAll(props);
 }
-
 /**
  * @param {props} props - `props` of instance.
  * @returns {void}
  */
+
+
 function finishDelaying(props) {
   if (props.state !== STATE_DELAYING) {
     return;
@@ -3485,8 +3893,8 @@ function finishDelaying(props) {
   props.startTime = Date.now();
   props.isReversing = !props.isOn;
   fireEvent(props, EVENT_TYPE_START);
-
   var durationLeft = props.isOn ? props.duration - props.currentPosition : props.currentPosition;
+
   if (durationLeft > 0) {
     props.timer = setTimeout(function () {
       finishPlaying(props);
@@ -3495,13 +3903,15 @@ function finishDelaying(props) {
     finishPlaying(props);
   }
 }
-
 /**
  * @param {props} props - `props` of instance.
  * @returns {void}
  */
+
+
 function abort(props) {
   clearTimeout(props.timer);
+
   if (props.state === STATE_STOPPED) {
     return;
   }
@@ -3509,13 +3919,14 @@ function abort(props) {
   props.state = STATE_STOPPED;
   fireEvent(props, EVENT_TYPE_CANCEL);
 }
-
 /**
  * @param {props} props - `props` of instance.
  * @param {boolean} force - Skip transition.
  * @param {Array} args - Arguments that are passed to procToOn.
  * @returns {void}
  */
+
+
 function _on(props, force, args) {
   if (props.isOn && props.state === STATE_STOPPED || props.isOn && props.state !== STATE_STOPPED && !force) {
     return;
@@ -3525,6 +3936,7 @@ function _on(props, force, args) {
       - Done `off` or playing to `off`, regardless of `force`
       - Playing to `on` and `force`
   */
+
 
   if (props.options.procToOn) {
     args.unshift(!!force);
@@ -3539,7 +3951,6 @@ function _on(props, force, args) {
   } else {
     fixCurrentPosition(props);
     abort(props);
-
     props.state = STATE_DELAYING;
     props.isOn = true;
     props.runTime = Date.now();
@@ -3555,17 +3966,19 @@ function _on(props, force, args) {
         // Move the position to the right.
         props.currentPosition = Math.min(props.currentPosition - props.delay, props.duration);
       }
+
       finishDelaying(props);
     }
   }
 }
-
 /**
  * @param {props} props - `props` of instance.
  * @param {boolean} force - Skip transition.
  * @param {Array} args - Arguments that are passed to procToOff.
  * @returns {void}
  */
+
+
 function _off(props, force, args) {
   if (!props.isOn && props.state === STATE_STOPPED || !props.isOn && props.state !== STATE_STOPPED && !force) {
     return;
@@ -3575,6 +3988,7 @@ function _off(props, force, args) {
       - Done `on` or playing to `on`, regardless of `force`
       - Playing to `off` and `force`
   */
+
 
   if (props.options.procToOff) {
     args.unshift(!!force);
@@ -3589,7 +4003,6 @@ function _off(props, force, args) {
   } else {
     fixCurrentPosition(props);
     abort(props);
-
     props.state = STATE_DELAYING;
     props.isOn = false;
     props.runTime = Date.now();
@@ -3605,56 +4018,58 @@ function _off(props, force, args) {
         // Move the position to the left.
         props.currentPosition = Math.max(props.currentPosition + props.delay, 0);
       }
+
       finishDelaying(props);
     }
   }
 }
-
 /**
  * @param {props} props - `props` of instance.
  * @param {Object} newOptions - New options.
  * @returns {void}
  */
+
+
 function _setOptions(props, newOptions) {
   var options = props.options;
 
   function parseAsCss(option) {
     var optionValue = typeof newOptions[option] === 'number' // From CSS
-    ? (props.window.getComputedStyle(props.element, '')[cssprefix__WEBPACK_IMPORTED_MODULE_0__["default"].getName('transition-' + option)] || '').split(',')[newOptions[option]] : newOptions[option];
+    ? (props.window.getComputedStyle(props.element, '')[cssprefix__WEBPACK_IMPORTED_MODULE_0__["default"].getName("transition-".concat(option))] || '').split(',')[newOptions[option]] : newOptions[option];
     return typeof optionValue === 'string' ? optionValue.trim() : null;
-  }
+  } // pseudoElement
 
-  // pseudoElement
+
   if (typeof newOptions.pseudoElement === 'string') {
     options.pseudoElement = newOptions.pseudoElement;
-  }
+  } // property
 
-  // property
+
   {
     var value = parseAsCss('property');
+
     if (typeof value === 'string' && value !== 'all' && value !== 'none') {
       options.property = value;
     }
-  }
+  } // duration, delay
 
-  // duration, delay
   ['duration', 'delay'].forEach(function (option) {
     var value = parseAsCss(option);
+
     if (typeof value === 'string') {
-      var matches = void 0,
-          timeValue = void 0;
+      var matches, timeValue;
+
       if (/^[0.]+$/.test(value)) {
         // This is invalid for CSS.
         options[option] = '0s';
         props[option] = 0;
       } else if ((matches = /^(.+?)(m)?s$/.exec(value)) && isFinite(timeValue = parseFloat(matches[1])) && (option !== 'duration' || timeValue >= 0)) {
-        options[option] = '' + timeValue + (matches[2] || '') + 's';
+        options[option] = "".concat(timeValue).concat(matches[2] || '', "s");
         props[option] = timeValue * (matches[2] ? 1 : 1000);
       }
     }
-  });
+  }); // procToOn, procToOff
 
-  // procToOn, procToOff
   ['procToOn', 'procToOff'].forEach(function (option) {
     if (typeof newOptions[option] === 'function') {
       options[option] = newOptions[option];
@@ -3664,7 +4079,7 @@ function _setOptions(props, newOptions) {
   });
 }
 
-var TimedTransition = function () {
+var TimedTransition = /*#__PURE__*/function () {
   /**
    * Create a `TimedTransition` instance.
    * @param {Element} element - Target element.
@@ -3676,7 +4091,8 @@ var TimedTransition = function () {
 
     var props = {
       ins: this,
-      options: { // Initial options (not default)
+      options: {
+        // Initial options (not default)
         pseudoElement: '',
         property: ''
       },
@@ -3684,57 +4100,62 @@ var TimedTransition = function () {
       delay: 0,
       isOn: !!initOn
     };
-
-    Object.defineProperty(this, '_id', { value: ++insId });
+    Object.defineProperty(this, '_id', {
+      value: ++insId
+    });
     props._id = this._id;
     insProps[this._id] = props;
 
     if (!element.nodeType || element.nodeType !== Node.ELEMENT_NODE) {
       throw new Error('This `element` is not accepted.');
     }
+
     props.element = element;
+
     if (!options) {
       options = {};
     }
-    props.window = element.ownerDocument.defaultView || options.window || window;
 
-    // Default options
+    props.window = element.ownerDocument.defaultView || options.window || window; // Default options
+
     if (!options.hasOwnProperty('property')) {
       options.property = 0;
     }
+
     if (!options.hasOwnProperty('duration')) {
       options.duration = 0;
     }
+
     if (!options.hasOwnProperty('delay')) {
       options.delay = 0;
     }
 
     _setOptions(props, options);
+
     finishAll(props);
   }
 
   _createClass(TimedTransition, [{
-    key: 'remove',
+    key: "remove",
     value: function remove() {
       var props = insProps[this._id];
       clearTimeout(props.timer);
       delete insProps[this._id];
     }
-
     /**
      * @param {Object} options - New options.
      * @returns {TimedTransition} Current instance itself.
      */
 
   }, {
-    key: 'setOptions',
+    key: "setOptions",
     value: function setOptions(options) {
       if (options) {
         _setOptions(insProps[this._id], options);
       }
+
       return this;
     }
-
     /**
      * Set `on`.
      * @param {boolean} [force] - Set `on` it immediately without transition.
@@ -3744,7 +4165,7 @@ var TimedTransition = function () {
      */
 
   }, {
-    key: 'on',
+    key: "on",
     value: function on(force, options) {
       if (arguments.length < 2 && typeof force !== 'boolean') {
         options = force;
@@ -3752,10 +4173,11 @@ var TimedTransition = function () {
       }
 
       this.setOptions(options);
+
       _on(insProps[this._id], force, Array.prototype.slice.call(arguments, 2));
+
       return this;
     }
-
     /**
      * Set 'off'.
      * @param {boolean} [force] - Set `off` it immediately without transition.
@@ -3765,7 +4187,7 @@ var TimedTransition = function () {
      */
 
   }, {
-    key: 'off',
+    key: "off",
     value: function off(force, options) {
       if (arguments.length < 2 && typeof force !== 'boolean') {
         options = force;
@@ -3773,84 +4195,98 @@ var TimedTransition = function () {
       }
 
       this.setOptions(options);
+
       _off(insProps[this._id], force, Array.prototype.slice.call(arguments, 2));
+
       return this;
     }
   }, {
-    key: 'state',
+    key: "state",
     get: function get() {
       return insProps[this._id].state;
     }
   }, {
-    key: 'element',
+    key: "element",
     get: function get() {
       return insProps[this._id].element;
     }
   }, {
-    key: 'isReversing',
+    key: "isReversing",
     get: function get() {
       return insProps[this._id].isReversing;
     }
   }, {
-    key: 'pseudoElement',
+    key: "pseudoElement",
     get: function get() {
       return insProps[this._id].options.pseudoElement;
     },
     set: function set(value) {
-      _setOptions(insProps[this._id], { pseudoElement: value });
+      _setOptions(insProps[this._id], {
+        pseudoElement: value
+      });
     }
   }, {
-    key: 'property',
+    key: "property",
     get: function get() {
       return insProps[this._id].options.property;
     },
     set: function set(value) {
-      _setOptions(insProps[this._id], { property: value });
+      _setOptions(insProps[this._id], {
+        property: value
+      });
     }
   }, {
-    key: 'duration',
+    key: "duration",
     get: function get() {
       return insProps[this._id].options.duration;
     },
     set: function set(value) {
-      _setOptions(insProps[this._id], { duration: value });
+      _setOptions(insProps[this._id], {
+        duration: value
+      });
     }
   }, {
-    key: 'delay',
+    key: "delay",
     get: function get() {
       return insProps[this._id].options.delay;
     },
     set: function set(value) {
-      _setOptions(insProps[this._id], { delay: value });
+      _setOptions(insProps[this._id], {
+        delay: value
+      });
     }
   }, {
-    key: 'procToOn',
+    key: "procToOn",
     get: function get() {
       return insProps[this._id].options.procToOn;
     },
     set: function set(value) {
-      _setOptions(insProps[this._id], { procToOn: value });
+      _setOptions(insProps[this._id], {
+        procToOn: value
+      });
     }
   }, {
-    key: 'procToOff',
+    key: "procToOff",
     get: function get() {
       return insProps[this._id].options.procToOff;
     },
     set: function set(value) {
-      _setOptions(insProps[this._id], { procToOff: value });
+      _setOptions(insProps[this._id], {
+        procToOff: value
+      });
     }
   }], [{
-    key: 'STATE_STOPPED',
+    key: "STATE_STOPPED",
     get: function get() {
       return STATE_STOPPED;
     }
   }, {
-    key: 'STATE_DELAYING',
+    key: "STATE_DELAYING",
     get: function get() {
       return STATE_DELAYING;
     }
   }, {
-    key: 'STATE_PLAYING',
+    key: "STATE_PLAYING",
     get: function get() {
       return STATE_PLAYING;
     }
