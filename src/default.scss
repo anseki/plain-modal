@@ -3,28 +3,28 @@
 $media: "";
 %anim-init#{$media} { @include anim-init; }
 
-$app_id: plainmodal;
-$app-content: #{$app_id}-content;
-$app-overlay: #{$app_id}-overlay;
+$app-id: plainmodal;
+$app-content: #{$app-id}-content;
+$app-overlay: #{$app-id}-overlay;
 $app-overlay-hide: #{$app-overlay}-hide;
 $app-overlay-force: #{$app-overlay}-force;
 
-$plainoverlay-app_id: plainoverlay; // COPY from PlainOverlay
+$plainoverlay-app-id: plainoverlay; // COPY from PlainOverlay
 
 $duration: 200ms; // COPY from PlainOverlay
 $overlay-bg: rgba(136, 136, 136, 0.6);
 
-.#{$app_id}.#{$plainoverlay-app_id} {
+.#{$app-id}.#{$plainoverlay-app-id} {
   // Disable PlainOverlay style
   background-color: transparent;
   cursor: auto;
 }
 
-.#{$app_id} .#{$app-content} {
+.#{$app-id} .#{$app-content} {
   z-index: 9000;
 }
 
-.#{$app_id} .#{$app-overlay} {
+.#{$app-id} .#{$app-overlay} {
   width: 100%;
   height: 100%;
   position: absolute;
